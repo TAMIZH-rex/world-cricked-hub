@@ -10,10 +10,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.json({
-    message: "🏏 World Cricket Hub API is running!",
-    status: "success"
-  });
+  res.sendFile("index.html", { root: __dirname });
 });
 
 app.get("/test", (req, res) => {
