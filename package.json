@@ -1,15 +1,15 @@
 {
   "name": "world-cricket-hub-project",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "World Cricket Hub - Live cricket matches, quizzes, and puzzles",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["cricket", "live-scores", "quiz"],
+  "author": "Tamizh 18",
   "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
     "dotenv": "^17.4.2",
     "express": "^5.2.1"

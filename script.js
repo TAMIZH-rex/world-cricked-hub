@@ -41,7 +41,7 @@ async function loadMatches() {
     const container = document.getElementById("matches-container");
     if (!container) return;
     try {
-        const response = await fetch("/matches");
+        const response = await fetch("/api/matches");
         const result = await response.json();
         const matches = result.data || [];
         container.innerHTML = "";
@@ -66,7 +66,7 @@ async function loadSchedule() {
     const container = document.getElementById("schedule-container");
     if (!container) return;
     try {
-        const response = await fetch("/matches");
+        const response = await fetch("/api/matches");
         const result = await response.json();
         const matches = result.data || [];
         if (matches.length === 0) {
@@ -85,7 +85,7 @@ async function loadLiveMatches() {
     const container = document.getElementById("live-container");
     if (!container) return;
     try {
-        const response = await fetch("/matches");
+        const response = await fetch("/api/matches");
         const result = await response.json();
         const matches = result.data || [];
         const liveMatches = matches.filter(match => match.status && (match.status.toLowerCase().includes("live") || match.status.toLowerCase().includes("in progress")));
