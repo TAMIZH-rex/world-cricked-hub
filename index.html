@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Cricket Hub 🏏</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Background Globe -->
+    <div class="globe-bg">
+        <div class="globe">
+            <div class="latitude lat1"></div>
+            <div class="latitude lat2"></div>
+            <div class="latitude lat3"></div>
+            <div class="longitude long1"></div>
+            <div class="longitude long2"></div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header id="mainHeader">
+        <div class="logo">
+            <i class="fa-solid fa-cricket-bat-ball"></i>
+            <span>World Cricket Hub</span>
+        </div>
+
+        <!-- Desktop Nav -->
+        <div class="nav-center desktop-nav">
+            <a href="#home"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="#matches"><i class="fa-solid fa-tv"></i> Matches</a>
+            <a href="#history"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
+            <a href="#quiz"><i class="fa-solid fa-brain"></i> Quiz</a>
+            <a href="#puzzle"><i class="fa-solid fa-puzzle-piece"></i> Puzzle</a>
+        </div>
+
+        <div class="header-right">
+            <div class="theme-toggle" id="themeToggle">
+                <div class="toggle-track">
+                    <i class="fa-solid fa-sun toggle-icon sun-icon"></i>
+                    <i class="fa-solid fa-moon toggle-icon moon-icon"></i>
+                    <div class="toggle-thumb"></div>
+                </div>
+            </div>
+
+            <!-- Hamburger -->
+            <div class="hamburger" id="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-content">
+            <a href="#home" class="mobile-link"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="#matches" class="mobile-link"><i class="fa-solid fa-tv"></i> Matches</a>
+            <a href="#history" class="mobile-link"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
+            <a href="#quiz" class="mobile-link"><i class="fa-solid fa-brain"></i> Quiz</a>
+            <a href="#puzzle" class="mobile-link"><i class="fa-solid fa-puzzle-piece"></i> Puzzle</a>
+        </div>
+    </div>
+
+    <!-- Hero -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <p class="welcome"><i class="fa-solid fa-star"></i> WELCOME TO</p>
+            <h1>WORLD<br>CRICKET HUB</h1>
+            <p class="hero-text">
+                Live cricket matches, exciting quizzes,
+                puzzles and cricket fun — all in one place.
+            </p>
+            <a href="#matches" class="hero-button">
+                <i class="fa-solid fa-play"></i> Explore Matches
+            </a>
+        </div>
+    </section>
+
+    <!-- Cricket History -->
+    <section id="history" class="section history-section">
+        <div class="section-header">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <h2>Cricket History</h2>
+        </div>
+        <div class="history-container">
+            <div class="history-card">
+                <span class="year"><i class="fa-solid fa-hourglass-start"></i> 16th Century</span>
+                <h3>The Beginning</h3>
+                <p>Cricket began as a simple game played in England and gradually grew into one of the world's most loved sports.</p>
+            </div>
+            <div class="history-card">
+                <span class="year"><i class="fa-solid fa-scroll"></i> 1744</span>
+                <h3>First Cricket Laws</h3>
+                <p>The first known laws of cricket were written, helping the game develop into a structured sport.</p>
+            </div>
+            <div class="history-card">
+                <span class="year"><i class="fa-solid fa-trophy"></i> 1877</span>
+                <h3>First Test Match</h3>
+                <p>The first official Test match was played between Australia and England, beginning a new era in cricket history.</p>
+            </div>
+            <div class="history-card">
+                <span class="year"><i class="fa-solid fa-earth-americas"></i> 1975</span>
+                <h3>First Cricket World Cup</h3>
+                <p>The first Cricket World Cup brought international teams together and made cricket even more popular around the globe.</p>
+            </div>
+            <div class="history-card">
+                <span class="year"><i class="fa-solid fa-calendar-day"></i> Today</span>
+                <h3>Cricket Around the World</h3>
+                <p>From Test cricket to ODIs and T20s, cricket continues to unite millions of passionate fans worldwide.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Matches -->
+    <section id="matches" class="section">
+        <div class="section-header">
+            <i class="fa-solid fa-tv"></i>
+            <h2>Live & Current Matches</h2>
+        </div>
+        <button id="updateScoreBtn" class="btn-refresh">
+            <i class="fa-solid fa-arrows-rotate"></i> Update Score
+        </button>
+        <div id="live-container" class="matches-grid">
+            <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Loading live matches...</div>
+        </div>
+    </section>
+
+    <!-- Schedule -->
+    <section id="schedule" class="section">
+        <div class="section-header">
+            <i class="fa-solid fa-calendar-days"></i>
+            <h2>Upcoming Match Schedule</h2>
+        </div>
+        <div id="schedule-container" class="matches-grid">
+            <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Loading upcoming matches...</div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features">
+        <div id="quiz" class="feature-card">
+            <div class="feature-icon"><i class="fa-solid fa-brain"></i></div>
+            <h3>Cricket Quiz</h3>
+            <p>Test your cricket knowledge with exciting questions.</p>
+            <button onclick="showQuiz()" class="btn-feature">
+                <i class="fa-solid fa-play"></i> Play Quiz
+            </button>
+        </div>
+        <div id="puzzle" class="feature-card">
+            <div class="feature-icon"><i class="fa-solid fa-puzzle-piece"></i></div>
+            <h3>Cricket Puzzle</h3>
+            <p>Enjoy fun cricket puzzles and challenges.</p>
+            <button onclick="showPuzzle()" class="btn-feature">
+                <i class="fa-solid fa-play"></i> Play Puzzle
+            </button>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fa-solid fa-chart-simple"></i></div>
+            <h3>Match Hub</h3>
+            <p>Explore current matches, teams and match information.</p>
+            <a href="#matches" class="btn-feature">
+                <i class="fa-solid fa-eye"></i> View Matches
+            </a>
+        </div>
+    </section>
+
+    <!-- Quiz / Puzzle Result -->
+    <section id="game-area" class="game-area"></section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <i class="fa-solid fa-cricket-bat-ball"></i>
+                <span>World Cricket Hub</span>
+            </div>
+            <div class="footer-links">
+                <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#"><i class="fa-brands fa-youtube"></i></a>
+            </div>
+            <p>Cricket • Fun • Quiz • Puzzle</p>
+            <p class="developer">Developed by <strong>Tamizh 18</strong> <i class="fa-solid fa-heart"></i></p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
