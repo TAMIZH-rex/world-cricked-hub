@@ -100,70 +100,920 @@ async function loadLiveMatches() {
     }
 }
 
-// Quiz System
-const cricketQuizQuestions = [
-    { question: "Who is popularly known as King Kohli?", options: ["Virat Kohli", "Rohit Sharma", "MS Dhoni", "Sachin Tendulkar"], answer: 0 },
-    { question: "Which country won the 2011 Cricket World Cup?", options: ["Australia", "India", "Sri Lanka", "Pakistan"], answer: 1 },
-    { question: "Who scored 100 international centuries?", options: ["Virat Kohli", "Ricky Ponting", "Sachin Tendulkar", "Brian Lara"], answer: 2 },
-    { question: "Which format of cricket has 20 overs per team?", options: ["Test", "ODI", "T20", "First Class"], answer: 2 },
-    { question: "How many players are there in a cricket team?", options: ["9", "10", "11", "12"], answer: 2 },
-    { question: "Which Indian captain led India to victory in the 2011 World Cup?", options: ["Virat Kohli", "MS Dhoni", "Kapil Dev", "Sourav Ganguly"], answer: 1 },
-    { question: "What is a score of zero by a batter called?", options: ["Duck", "Dot", "Maiden", "Century"], answer: 0 },
-    { question: "Which country won the first Cricket World Cup in 1975?", options: ["India", "Australia", "West Indies", "England"], answer: 2 },
-    { question: "Virat Kohli has represented which IPL team?", options: ["Mumbai Indians", "Royal Challengers Bengaluru", "Chennai Super Kings", "Kolkata Knight Riders"], answer: 1 },
-    { question: "How many runs for boundary after touching ground?", options: ["2", "4", "5", "6"], answer: 1 },
-    { question: "Which cricket format can last up to five days?", options: ["T20", "ODI", "Test Cricket", "The Hundred"], answer: 2 },
-    { question: "Who is known as the God of Cricket?", options: ["Virat Kohli", "Sachin Tendulkar", "MS Dhoni", "Kapil Dev"], answer: 1 },
-    { question: "Three wickets in three consecutive balls is called?", options: ["Century", "Hat-trick", "Maiden", "Double wicket"], answer: 1 },
-    { question: "Who is popularly known as Captain Cool?", options: ["Virat Kohli", "MS Dhoni", "Rohit Sharma", "Rahul Dravid"], answer: 1 },
-    { question: "Which trophy is for England vs Australia Test cricket?", options: ["Asia Cup", "Border-Gavaskar Trophy", "The Ashes", "Champions Trophy"], answer: 2 },
-    { question: "Most runs in 2023 ODI World Cup?", options: ["Virat Kohli", "Rohit Sharma", "David Warner", "Kane Williamson"], answer: 0 },
-    { question: "Virat Kohli ODI debut was against?", options: ["Sri Lanka", "Australia", "England", "Pakistan"], answer: 0 },
-    { question: "Most Men's Cricket World Cups won by?", options: ["India", "Australia", "England", "West Indies"], answer: 1 },
-    { question: "First T20 World Cup in 2007 won by?", options: ["India", "Pakistan", "Australia", "England"], answer: 0 },
-    { question: "Runs for hitting ball over boundary without bounce?", options: ["4", "5", "6", "7"], answer: 2 }
+// ========================================
+// 🧠 WORLD CRICKET HUB - ADVANCED QUIZ
+// ========================================
+
+const cricketQuizBank = [
+
+    {
+        question: "Who is popularly known as King Kohli?",
+        options: [
+            "Virat Kohli",
+            "Rohit Sharma",
+            "MS Dhoni",
+            "Sachin Tendulkar"
+        ],
+        answer: "Virat Kohli"
+    },
+
+    {
+        question: "Which country won the 2011 Cricket World Cup?",
+        options: [
+            "Australia",
+            "India",
+            "Sri Lanka",
+            "Pakistan"
+        ],
+        answer: "India"
+    },
+
+    {
+        question: "Who has scored 100 international centuries?",
+        options: [
+            "Virat Kohli",
+            "Ricky Ponting",
+            "Sachin Tendulkar",
+            "Brian Lara"
+        ],
+        answer: "Sachin Tendulkar"
+    },
+
+    {
+        question: "How many overs are played by each team in T20 cricket?",
+        options: [
+            "10",
+            "20",
+            "25",
+            "50"
+        ],
+        answer: "20"
+    },
+
+    {
+        question: "How many players are there in a cricket team?",
+        options: [
+            "9",
+            "10",
+            "11",
+            "12"
+        ],
+        answer: "11"
+    },
+
+    {
+        question: "Who captained India to victory in the 2011 World Cup?",
+        options: [
+            "Virat Kohli",
+            "MS Dhoni",
+            "Kapil Dev",
+            "Sourav Ganguly"
+        ],
+        answer: "MS Dhoni"
+    },
+
+    {
+        question: "What is a score of zero by a batter called?",
+        options: [
+            "Duck",
+            "Dot",
+            "Maiden",
+            "Golden"
+        ],
+        answer: "Duck"
+    },
+
+    {
+        question: "Which country won the first Men's Cricket World Cup in 1975?",
+        options: [
+            "India",
+            "Australia",
+            "West Indies",
+            "England"
+        ],
+        answer: "West Indies"
+    },
+
+    {
+        question: "Which IPL team has Virat Kohli represented throughout his IPL career?",
+        options: [
+            "Mumbai Indians",
+            "Royal Challengers Bengaluru",
+            "Chennai Super Kings",
+            "Kolkata Knight Riders"
+        ],
+        answer: "Royal Challengers Bengaluru"
+    },
+
+    {
+        question: "How many runs are awarded for a boundary when the ball touches the ground before crossing the rope?",
+        options: [
+            "2",
+            "4",
+            "5",
+            "6"
+        ],
+        answer: "4"
+    },
+
+    {
+        question: "Which format can last up to five days?",
+        options: [
+            "T20",
+            "ODI",
+            "Test Cricket",
+            "The Hundred"
+        ],
+        answer: "Test Cricket"
+    },
+
+    {
+        question: "Who is widely known as the 'God of Cricket'?",
+        options: [
+            "Virat Kohli",
+            "Sachin Tendulkar",
+            "MS Dhoni",
+            "Kapil Dev"
+        ],
+        answer: "Sachin Tendulkar"
+    },
+
+    {
+        question: "What is three wickets in three consecutive balls called?",
+        options: [
+            "Century",
+            "Hat-trick",
+            "Maiden",
+            "Triple wicket"
+        ],
+        answer: "Hat-trick"
+    },
+
+    {
+        question: "Who is popularly known as Captain Cool?",
+        options: [
+            "Virat Kohli",
+            "MS Dhoni",
+            "Rohit Sharma",
+            "Rahul Dravid"
+        ],
+        answer: "MS Dhoni"
+    },
+
+    {
+        question: "Which trophy is contested between England and Australia in Test cricket?",
+        options: [
+            "Asia Cup",
+            "Border-Gavaskar Trophy",
+            "The Ashes",
+            "Champions Trophy"
+        ],
+        answer: "The Ashes"
+    },
+
+    {
+        question: "Who scored the most runs in the 2023 ODI World Cup?",
+        options: [
+            "Virat Kohli",
+            "Rohit Sharma",
+            "David Warner",
+            "Kane Williamson"
+        ],
+        answer: "Virat Kohli"
+    },
+
+    {
+        question: "Against which country did Virat Kohli make his ODI debut?",
+        options: [
+            "Sri Lanka",
+            "Australia",
+            "England",
+            "Pakistan"
+        ],
+        answer: "Sri Lanka"
+    },
+
+    {
+        question: "Which country has won the most Men's Cricket World Cups?",
+        options: [
+            "India",
+            "Australia",
+            "England",
+            "West Indies"
+        ],
+        answer: "Australia"
+    },
+
+    {
+        question: "Who won the first Men's T20 World Cup in 2007?",
+        options: [
+            "India",
+            "Pakistan",
+            "Australia",
+            "England"
+        ],
+        answer: "India"
+    },
+
+    {
+        question: "How many runs are awarded when the batter hits the ball over the boundary without bouncing?",
+        options: [
+            "4",
+            "5",
+            "6",
+            "7"
+        ],
+        answer: "6"
+    },
+
+    {
+        question: "What does LBW stand for?",
+        options: [
+            "Leg Before Wicket",
+            "Leg Bat Wicket",
+            "Left Ball Wicket",
+            "Leg Boundary Wicket"
+        ],
+        answer: "Leg Before Wicket"
+    },
+
+    {
+        question: "How many balls are there in a standard over?",
+        options: [
+            "4",
+            "5",
+            "6",
+            "8"
+        ],
+        answer: "6"
+    },
+
+    {
+        question: "Which country hosted the first Cricket World Cup in 1975?",
+        options: [
+            "India",
+            "England",
+            "Australia",
+            "West Indies"
+        ],
+        answer: "England"
+    },
+
+    {
+        question: "Who was the first Indian to score a triple century in Test cricket?",
+        options: [
+            "Virender Sehwag",
+            "Sachin Tendulkar",
+            "Rahul Dravid",
+            "Sunil Gavaskar"
+        ],
+        answer: "Virender Sehwag"
+    },
+
+    {
+        question: "Which team won the 1983 Cricket World Cup?",
+        options: [
+            "India",
+            "West Indies",
+            "Australia",
+            "England"
+        ],
+        answer: "India"
+    },
+
+    {
+        question: "What is a maiden over?",
+        options: [
+            "An over with no runs conceded",
+            "An over with six wickets",
+            "An over with six boundaries",
+            "An over with a six"
+        ],
+        answer: "An over with no runs conceded"
+    },
+
+    {
+        question: "How many runs does a batter get for a six?",
+        options: [
+            "4",
+            "5",
+            "6",
+            "7"
+        ],
+        answer: "6"
+    },
+
+    {
+        question: "Which Indian player is known as the 'Hitman'?",
+        options: [
+            "Rohit Sharma",
+            "Virat Kohli",
+            "KL Rahul",
+            "Hardik Pandya"
+        ],
+        answer: "Rohit Sharma"
+    },
+
+    {
+        question: "Which team won the 2023 ODI World Cup?",
+        options: [
+            "India",
+            "Australia",
+            "England",
+            "New Zealand"
+        ],
+        answer: "Australia"
+    },
+
+    {
+        question: "What is the maximum number of runs that can normally be scored from a boundary without running?",
+        options: [
+            "4",
+            "5",
+            "6",
+            "8"
+        ],
+        answer: "6"
+    }
 ];
 
-let quizCurrentQuestion = 0, quizScore = 0, quizLocked = false;
-function showQuiz() { quizCurrentQuestion = 0; quizScore = 0; quizLocked = false; renderQuiz(); }
-function renderQuiz() {
-    const gameArea = document.getElementById("game-area");
-    if (!gameArea) return;
-    const quiz = cricketQuizQuestions[quizCurrentQuestion];
+
+// ========================================
+// 🎮 QUIZ GAME VARIABLES
+// ========================================
+
+let quizQuestions = [];
+let quizCurrentQuestion = 0;
+let quizScore = 0;
+let quizStreak = 0;
+let quizLocked = false;
+
+let quizTimer = null;
+let quizTimeLeft = 10;
+
+let fiftyFiftyUsed = false;
+let skipUsed = false;
+
+
+// ========================================
+// 🔀 SHUFFLE FUNCTION
+// ========================================
+
+function shuffleQuizArray(array) {
+
+    return [...array].sort(() => Math.random() - 0.5);
+
+}
+
+
+// ========================================
+// ▶️ START QUIZ
+// ========================================
+
+function showQuiz() {
+
+    quizQuestions = shuffleQuizArray(cricketQuizBank)
+        .slice(0, 20);
+
+    quizCurrentQuestion = 0;
+    quizScore = 0;
+    quizStreak = 0;
+
+    fiftyFiftyUsed = false;
+    skipUsed = false;
+
     quizLocked = false;
-    const progress = (quizCurrentQuestion / cricketQuizQuestions.length) * 100;
-    let optionsHTML = "";
-    quiz.options.forEach((option, index) => {
-        optionsHTML += '<button class="quiz-option" onclick="checkQuizAnswer(' + index + ')"><i class="fa-solid fa-circle"></i> ' + option + '</button>';
-    });
-    gameArea.innerHTML = '<div class="game-card"><h2><i class="fa-solid fa-brain"></i> Cricket Quiz</h2><div class="progress-bar"><div class="progress-fill" style="width: ' + progress + '%"></div></div><p><i class="fa-solid fa-circle-question"></i> Question ' + (quizCurrentQuestion + 1) + ' of ' + cricketQuizQuestions.length + '</p><p><i class="fa-solid fa-star"></i> Score: ' + quizScore + '</p><h3>' + quiz.question + '</h3>' + optionsHTML + '<p id="quiz-result" class="result-correct"></p><button id="next-quiz-button" class="btn-next" onclick="nextQuizQuestion()" style="display:none;"><i class="fa-solid fa-arrow-right"></i> Next Question</button></div>';
+
+    renderQuiz();
+
 }
-function checkQuizAnswer(selectedIndex) {
-    if (quizLocked) return;
-    quizLocked = true;
-    const quiz = cricketQuizQuestions[quizCurrentQuestion];
-    const result = document.getElementById("quiz-result");
-    const buttons = document.querySelectorAll(".quiz-option");
-    buttons.forEach((button, index) => {
-        button.disabled = true;
-        if (index === quiz.answer) button.classList.add("correct");
-        else if (index === selectedIndex) button.classList.add("wrong");
-    });
-    if (selectedIndex === quiz.answer) {
-        quizScore++;
-        result.innerHTML = "<i class='fa-solid fa-circle-check'></i> Correct! Excellent cricket knowledge!";
-        result.className = "result-correct";
-    } else {
-        result.innerHTML = "<i class='fa-solid fa-circle-xmark'></i> Wrong! Correct answer: <strong>" + quiz.options[quiz.answer] + "</strong>";
-        result.className = "result-wrong";
+
+
+// ========================================
+// 🧠 RENDER QUESTION
+// ========================================
+
+function renderQuiz() {
+
+    const gameArea =
+        document.getElementById("game-area");
+
+    if (!gameArea) {
+
+        console.error("game-area not found");
+        return;
+
     }
-    document.getElementById("next-quiz-button").style.display = "inline-flex";
+
+    clearInterval(quizTimer);
+
+    quizLocked = false;
+
+    const quiz =
+        quizQuestions[quizCurrentQuestion];
+
+    const shuffledOptions =
+        shuffleQuizArray(quiz.options);
+
+    quiz.currentOptions = shuffledOptions;
+
+    let optionsHTML = "";
+
+    shuffledOptions.forEach((option, index) => {
+
+        optionsHTML += `
+
+            <button
+                class="quiz-option"
+                onclick="checkQuizAnswer(${index})"
+                style="
+                    display:block;
+                    width:100%;
+                    padding:13px;
+                    margin:10px 0;
+                    border:none;
+                    border-radius:10px;
+                    cursor:pointer;
+                    font-size:16px;
+                "
+            >
+                ${option}
+            </button>
+
+        `;
+
+    });
+
+
+    gameArea.innerHTML = `
+
+        <div class="match-card">
+
+            <h2>🧠 Cricket Quiz</h2>
+
+            <p>
+                Question
+                ${quizCurrentQuestion + 1}
+                / 20
+            </p>
+
+            <p>
+                ⭐ Score: ${quizScore}
+            </p>
+
+            <p>
+                🔥 Streak: ${quizStreak}
+            </p>
+
+            <p>
+                ⏱️ Time:
+                <strong id="quiz-timer">
+                    10
+                </strong>s
+            </p>
+
+            <h3>
+                ${quiz.question}
+            </h3>
+
+            <div id="quiz-options">
+
+                ${optionsHTML}
+
+            </div>
+
+
+            <div style="margin-top:15px;">
+
+                <button
+                    id="fifty-button"
+                    onclick="useFiftyFifty()"
+                    style="
+                        padding:10px 15px;
+                        margin:5px;
+                        border:none;
+                        border-radius:8px;
+                        cursor:pointer;
+                    "
+                >
+                    50/50 🎯
+                </button>
+
+
+                <button
+                    id="skip-button"
+                    onclick="skipQuizQuestion()"
+                    style="
+                        padding:10px 15px;
+                        margin:5px;
+                        border:none;
+                        border-radius:8px;
+                        cursor:pointer;
+                    "
+                >
+                    Skip ⏭️
+                </button>
+
+            </div>
+
+
+            <p
+                id="quiz-result"
+                style="
+                    margin-top:20px;
+                    font-size:17px;
+                "
+            ></p>
+
+
+            <button
+                id="next-quiz-button"
+                onclick="nextQuizQuestion()"
+                style="
+                    display:none;
+                    margin-top:15px;
+                    padding:12px 20px;
+                    border:none;
+                    border-radius:8px;
+                    cursor:pointer;
+                "
+            >
+                Next Question ➡️
+            </button>
+
+        </div>
+
+    `;
+
+
+    startQuizTimer();
+
 }
-function nextQuizQuestion() { quizCurrentQuestion++; if (quizCurrentQuestion < cricketQuizQuestions.length) renderQuiz(); else showQuizFinalResult(); }
+
+
+// ========================================
+// ⏱️ QUIZ TIMER
+// ========================================
+
+function startQuizTimer() {
+
+    quizTimeLeft = 10;
+
+    const timerElement =
+        document.getElementById("quiz-timer");
+
+    quizTimer = setInterval(() => {
+
+        quizTimeLeft--;
+
+        if (timerElement) {
+
+            timerElement.textContent =
+                quizTimeLeft;
+
+        }
+
+
+        if (quizTimeLeft <= 0) {
+
+            clearInterval(quizTimer);
+
+            if (!quizLocked) {
+
+                quizLocked = true;
+
+                quizStreak = 0;
+
+                const result =
+                    document.getElementById("quiz-result");
+
+                result.innerHTML =
+                    "⏰ Time's up!";
+
+                disableQuizButtons();
+
+                document.getElementById(
+                    "next-quiz-button"
+                ).style.display = "inline-block";
+
+            }
+
+        }
+
+    }, 1000);
+
+}
+
+
+// ========================================
+// ✅ CHECK ANSWER
+// ========================================
+
+function checkQuizAnswer(selectedIndex) {
+
+    if (quizLocked) return;
+
+    quizLocked = true;
+
+    clearInterval(quizTimer);
+
+    const quiz =
+        quizQuestions[quizCurrentQuestion];
+
+    const selectedAnswer =
+        quiz.currentOptions[selectedIndex];
+
+    const buttons =
+        document.querySelectorAll(".quiz-option");
+
+    buttons.forEach(button => {
+
+        button.disabled = true;
+
+    });
+
+
+    if (selectedAnswer === quiz.answer) {
+
+        quizScore += 10;
+
+        quizStreak++;
+
+        document.getElementById(
+            "quiz-result"
+        ).innerHTML =
+            "🎉 Correct! +10 points 🔥";
+
+        buttons[selectedIndex].style.backgroundColor =
+            "#4caf50";
+
+    } else {
+
+        quizStreak = 0;
+
+        document.getElementById(
+            "quiz-result"
+        ).innerHTML =
+            `❌ Wrong! Correct answer: <strong>${quiz.answer}</strong>`;
+
+        buttons[selectedIndex].style.backgroundColor =
+            "#e53935";
+
+
+        buttons.forEach((button, index) => {
+
+            if (
+                quiz.currentOptions[index] ===
+                quiz.answer
+            ) {
+
+                button.style.backgroundColor =
+                    "#4caf50";
+
+            }
+
+        });
+
+    }
+
+
+    document.getElementById(
+        "next-quiz-button"
+    ).style.display = "inline-block";
+
+}
+
+
+// ========================================
+// 🎯 50/50
+// ========================================
+
+function useFiftyFifty() {
+
+    if (fiftyFiftyUsed || quizLocked) return;
+
+    fiftyFiftyUsed = true;
+
+    const quiz =
+        quizQuestions[quizCurrentQuestion];
+
+    const buttons =
+        document.querySelectorAll(".quiz-option");
+
+    let wrongButtons = [];
+
+    buttons.forEach((button, index) => {
+
+        if (
+            quiz.currentOptions[index] !==
+            quiz.answer
+        ) {
+
+            wrongButtons.push(button);
+
+        }
+
+    });
+
+
+    shuffleQuizArray(wrongButtons)
+        .slice(0, 2)
+        .forEach(button => {
+
+            button.disabled = true;
+
+            button.style.opacity = "0.35";
+
+        });
+
+
+    const fiftyButton =
+        document.getElementById("fifty-button");
+
+    if (fiftyButton) {
+
+        fiftyButton.disabled = true;
+        fiftyButton.textContent =
+            "50/50 Used";
+
+    }
+
+}
+
+
+// ========================================
+// ⏭️ SKIP QUESTION
+// ========================================
+
+function skipQuizQuestion() {
+
+    if (skipUsed || quizLocked) return;
+
+    skipUsed = true;
+
+    clearInterval(quizTimer);
+
+    quizLocked = true;
+
+    quizStreak = 0;
+
+    const result =
+        document.getElementById("quiz-result");
+
+    result.innerHTML =
+        "⏭️ Question skipped!";
+
+    disableQuizButtons();
+
+    const skipButton =
+        document.getElementById("skip-button");
+
+    if (skipButton) {
+
+        skipButton.disabled = true;
+        skipButton.textContent =
+            "Skip Used";
+
+    }
+
+    document.getElementById(
+        "next-quiz-button"
+    ).style.display = "inline-block";
+
+}
+
+
+// ========================================
+// 🔒 DISABLE QUIZ BUTTONS
+// ========================================
+
+function disableQuizButtons() {
+
+    const buttons =
+        document.querySelectorAll(".quiz-option");
+
+    buttons.forEach(button => {
+
+        button.disabled = true;
+
+    });
+
+}
+
+
+// ========================================
+// ➡️ NEXT QUESTION
+// ========================================
+
+function nextQuizQuestion() {
+
+    clearInterval(quizTimer);
+
+    quizCurrentQuestion++;
+
+    if (
+        quizCurrentQuestion <
+        quizQuestions.length
+    ) {
+
+        renderQuiz();
+
+    } else {
+
+        showQuizFinalResult();
+
+    }
+
+}
+
+
+// ========================================
+// 🏆 FINAL RESULT
+// ========================================
+
 function showQuizFinalResult() {
-    const gameArea = document.getElementById("game-area");
-    const percentage = Math.round((quizScore / cricketQuizQuestions.length) * 100);
-    gameArea.innerHTML = '<div class="game-card"><h2><i class="fa-solid fa-trophy"></i> Quiz Completed!</h2><div class="progress-bar"><div class="progress-fill" style="width: ' + percentage + '%"></div></div><h3>Your Score: ' + quizScore + ' / ' + cricketQuizQuestions.length + '</h3><h2><i class="fa-solid fa-percent"></i> ' + percentage + '%</h2><button class="btn-replay" onclick="showQuiz()"><i class="fa-solid fa-rotate-right"></i> Play Quiz Again</button></div>';
+
+    clearInterval(quizTimer);
+
+    const gameArea =
+        document.getElementById("game-area");
+
+    const totalQuestions =
+        quizQuestions.length;
+
+    const percentage =
+        Math.round(
+            (quizScore / (totalQuestions * 10)) * 100
+        );
+
+
+    const oldBestScore =
+        Number(
+            localStorage.getItem(
+                "worldCricketHubBestQuizScore"
+            )
+        ) || 0;
+
+
+    if (quizScore > oldBestScore) {
+
+        localStorage.setItem(
+            "worldCricketHubBestQuizScore",
+            quizScore
+        );
+
+    }
+
+
+    const bestScore =
+        Math.max(
+            quizScore,
+            oldBestScore
+        );
+
+
+    gameArea.innerHTML = `
+
+        <div class="match-card">
+
+            <h2>🏆 Quiz Completed!</h2>
+
+            <h3>
+                Your Score:
+                ${quizScore} / ${totalQuestions * 10}
+            </h3>
+
+            <h2>
+                ${percentage}%
+            </h2>
+
+            <p>
+                🔥 Final Streak:
+                ${quizStreak}
+            </p>
+
+            <p>
+                🥇 Best Score:
+                ${bestScore}
+            </p>
+
+            <button
+                onclick="showQuiz()"
+                style="
+                    padding:12px 20px;
+                    border:none;
+                    border-radius:8px;
+                    cursor:pointer;
+                    font-size:16px;
+                "
+            >
+                🔄 Play Quiz Again
+            </button>
+
+        </div>
+
+    `;
+
 }
 
 // Puzzle System
