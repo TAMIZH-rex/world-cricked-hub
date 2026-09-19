@@ -30,15 +30,10 @@
 
         <!-- Desktop Nav -->
         <div class="nav-center desktop-nav">
-            <a href="#home"><i class="fa-solid fa-house"></i>Home</a>
+            <a href="#home"><i class="fa-solid fa-house"></i> Home</a>
             <a href="#matches"><i class="fa-solid fa-tv"></i> Matches</a>
-            <a href="#history"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
-            <a href="#time-machine"><i class="fa-solid fa-clock-rotate-left"></i> Time Machine</a>
-            <a href="#player-faceoff"><i class="fa-solid fa-users"></i> Face Off</a>
-            <a href="#cricket-iq"><i class="fa-solid fa-graduation-cap"></i> IQ Test</a>
-            <a href="#mystery-cricketer"><i class="fa-solid fa-user-secret"></i> Mystery</a>
-            <a href="#quiz"><i class="fa-solid fa-brain"></i> Quiz</a>
-            <a href="#puzzle"><i class="fa-solid fa-puzzle-piece"></i> Puzzle</a>
+            <a href="#explore"><i class="fa-solid fa-compass"></i> Explore</a>
+            <a href="#playground"><i class="fa-solid fa-gamepad"></i> Playground</a>
         </div>
 
         <div class="header-right">
@@ -64,33 +59,78 @@
         <div class="mobile-menu-content">
             <a href="#home" class="mobile-link"><i class="fa-solid fa-house"></i> Home</a>
             <a href="#matches" class="mobile-link"><i class="fa-solid fa-tv"></i> Matches</a>
-            <a href="#history" class="mobile-link"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
-            <a href="#time-machine" class="mobile-link"><i class="fa-solid fa-clock-rotate-left"></i> Time Machine</a>
-            <a href="#player-faceoff" class="mobile-link"><i class="fa-solid fa-users"></i> Face Off</a>
-            <a href="#cricket-iq" class="mobile-link"><i class="fa-solid fa-graduation-cap"></i> IQ Test</a>
-            <a href="#mystery-cricketer" class="mobile-link"><i class="fa-solid fa-user-secret"></i> Mystery</a>
-            <a href="#quiz" class="mobile-link"><i class="fa-solid fa-brain"></i> Quiz</a>
-            <a href="#puzzle" class="mobile-link"><i class="fa-solid fa-puzzle-piece"></i> Puzzle</a>
+            <a href="#explore" class="mobile-link"><i class="fa-solid fa-compass"></i> Explore</a>
+            <a href="#playground" class="mobile-link"><i class="fa-solid fa-gamepad"></i> Playground</a>
         </div>
     </div>
 
-    <!-- Hero -->
+    <!-- ============================== -->
+    <!-- HOME — WATCH CRICKET            -->
+    <!-- ============================== -->
     <section id="home" class="hero">
         <div class="hero-content">
             <p class="welcome"><i class="fa-solid fa-star"></i> WELCOME TO</p>
             <h1>WORLD<br>CRICKET HUB</h1>
             <p class="hero-text">
-                Live cricket matches, exciting quizzes,
-                puzzles and cricket fun — all in one place.
+                Live cricket matches, scores, schedules,
+                and everything cricket — all in one place.
             </p>
             <a href="#matches" class="hero-button">
-                <i class="fa-solid fa-play"></i> Explore Matches
+                <i class="fa-solid fa-play"></i> View Live Matches
             </a>
         </div>
     </section>
 
+    <!-- Live Matches -->
+    <section id="matches" class="section">
+        <div class="section-header">
+            <i class="fa-solid fa-tv"></i>
+            <h2>Live & Current Matches</h2>
+        </div>
+        <button id="updateScoreBtn" class="btn-refresh">
+            <i class="fa-solid fa-arrows-rotate"></i> Update Score
+        </button>
+        <div id="live-container" class="matches-grid">
+            <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Loading live matches...</div>
+        </div>
+    </section>
+
+    <!-- Schedule -->
+    <section id="schedule" class="section">
+        <div class="section-header">
+            <i class="fa-solid fa-calendar-days"></i>
+            <h2>Upcoming Match Schedule</h2>
+        </div>
+        <div id="schedule-container" class="matches-grid">
+            <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Loading upcoming matches...</div>
+        </div>
+    </section>
+
+    <!-- ============================== -->
+    <!-- EXPLORE — DISCOVER CRICKET      -->
+    <!-- ============================== -->
+    <section id="explore" class="section">
+        <div class="section-header">
+            <i class="fa-solid fa-compass"></i>
+            <h2>Explore Cricket</h2>
+        </div>
+        <p style="color:#94a3b8; margin-bottom:30px; font-size:15px;">Discover cricket history, test your knowledge, compare legends, and dive deep into the game.</p>
+
+        <!-- Explore Sub-Navigation -->
+        <div class="explore-sub-nav" id="explore-sub-nav">
+            <button class="explore-sub-btn active" data-target="explore-history"><i class="fa-solid fa-clock-rotate-left"></i> History</button>
+            <button class="explore-sub-btn" data-target="explore-time-machine"><i class="fa-solid fa-clock"></i> Time Machine</button>
+            <button class="explore-sub-btn" data-target="explore-faceoff"><i class="fa-solid fa-users"></i> Face Off</button>
+            <button class="explore-sub-btn" data-target="explore-iq"><i class="fa-solid fa-graduation-cap"></i> IQ Test</button>
+            <button class="explore-sub-btn" data-target="explore-mystery"><i class="fa-solid fa-user-secret"></i> Mystery</button>
+            <button class="explore-sub-btn" data-target="explore-quiz"><i class="fa-solid fa-brain"></i> Quiz & Puzzle</button>
+        </div>
+
+        <!-- Explore Content Panels -->
+        <div class="explore-panel active" id="explore-history">
+
     <!-- Cricket History -->
-    <section id="history" class="section history-section">
+    <section id="history" class="section" style="padding-top:10px;">
         <div class="section-header">
             <i class="fa-solid fa-clock-rotate-left"></i>
             <h2>Cricket History</h2>
@@ -124,157 +164,12 @@
         </div>
     </section>
 
-    <!-- Live Matches -->
-    <section id="matches" class="section">
-        <div class="section-header">
-            <i class="fa-solid fa-tv"></i>
-            <h2>Live & Current Matches</h2>
-        </div>
-        <button id="updateScoreBtn" class="btn-refresh">
-            <i class="fa-solid fa-arrows-rotate"></i> Update Score
-        </button>
-        <div id="live-container" class="matches-grid">
-            <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Loading live matches...</div>
-        </div>
-    </section>
-
-    <!-- Schedule -->
-    <section id="schedule" class="section">
-        <div class="section-header">
-            <i class="fa-solid fa-calendar-days"></i>
-            <h2>Upcoming Match Schedule</h2>
-        </div>
-        <div id="schedule-container" class="matches-grid">
-            <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Loading upcoming matches...</div>
-        </div>
-    </section>
-
-    <!-- Features -->
-    <section class="features">
-        <div id="quiz" class="feature-card">
-            <div class="feature-icon"><i class="fa-solid fa-brain"></i></div>
-            <h3>Cricket Quiz</h3>
-            <p>Test your cricket knowledge with exciting questions.</p>
-            <button onclick="showQuiz()" class="btn-feature">
-                <i class="fa-solid fa-play"></i> Play Quiz
-            </button>
-        </div>
-        <div id="puzzle" class="feature-card">
-            <div class="feature-icon"><i class="fa-solid fa-puzzle-piece"></i></div>
-            <h3>Cricket Puzzle</h3>
-            <p>Enjoy fun cricket puzzles and challenges.</p>
-            <button onclick="showPuzzle()" class="btn-feature">
-                <i class="fa-solid fa-play"></i> Play Puzzle
-            </button>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon"><i class="fa-solid fa-chart-simple"></i></div>
-            <h3>Match Hub</h3>
-            <p>Explore current matches, teams and match information.</p>
-            <a href="#matches" class="btn-feature">
-                <i class="fa-solid fa-eye"></i> View Matches
-            </a>
-        </div>
-    </section>
-
-    <!-- Last Over Challenge -->
-    <section id="last-over-challenge" class="section">
-        <div class="section-header">
-            <i class="fa-solid fa-fire"></i>
-            <h2>Last Over Challenge</h2>
-        </div>
-        <p style="color:#94a3b8; margin-bottom:24px; font-size:15px;">Chase the target in just 6 balls! Choose your shots wisely.</p>
-
-        <!-- Difficulty Selection -->
-        <div id="lbc-difficulty-select" class="lbc-difficulty-grid">
-            <div class="lbc-diff-card" onclick="lbcSelectDifficulty('easy')">
-                <div class="lbc-diff-icon"><i class="fa-solid fa-face-smile"></i></div>
-                <h3>Easy</h3>
-                <p>Target: 8 runs | Wickets: 3</p>
-            </div>
-            <div class="lbc-diff-card" onclick="lbcSelectDifficulty('medium')">
-                <div class="lbc-diff-icon"><i class="fa-solid fa-face-meh"></i></div>
-                <h3>Medium</h3>
-                <p>Target: 12 runs | Wickets: 2</p>
-            </div>
-            <div class="lbc-diff-card" onclick="lbcSelectDifficulty('hard')">
-                <div class="lbc-diff-icon"><i class="fa-solid fa-face-flushed"></i></div>
-                <h3>Hard</h3>
-                <p>Target: 16 runs | Wickets: 1</p>
-            </div>
         </div>
 
-        <!-- Game Area -->
-        <div id="lbc-game-area" style="display:none;">
-            <div class="lbc-game-card">
-                <div class="lbc-scoreboard">
-                    <div class="lbc-score-item lbc-score-target">
-                        <div class="lbc-score-label">🎯 Target</div>
-                        <div id="lbc-target" class="lbc-score-value">8</div>
-                    </div>
-                    <div class="lbc-score-item lbc-score-runs">
-                        <div class="lbc-score-label">🏏 Score</div>
-                        <div id="lbc-score" class="lbc-score-value">0</div>
-                    </div>
-                    <div class="lbc-score-item lbc-score-needed">
-                        <div class="lbc-score-label">⚡ Needed</div>
-                        <div id="lbc-needed" class="lbc-score-value">8</div>
-                    </div>
-                    <div class="lbc-score-item lbc-score-balls">
-                        <div class="lbc-score-label">balls</div>
-                        <div id="lbc-balls" class="lbc-score-value">6</div>
-                    </div>
-                    <div class="lbc-score-item lbc-score-wickets">
-                        <div class="lbc-score-label">wickets</div>
-                        <div id="lbc-wickets" class="lbc-score-value">3</div>
-                    </div>
-                </div>
-                <div id="lbc-over-progress" class="lbc-over-progress"></div>
-                <div id="lbc-message" class="lbc-message">Choose your shot for ball 1!</div>
-                <div id="lbc-actions" class="lbc-actions">
-                    <button onclick="lbcPlayShot('defend')" class="lbc-shot-btn lbc-shot-defend">
-                        <i class="fa-solid fa-shield-halved"></i>
-                        <span class="lbc-shot-name">Defend</span>
-                        <span class="lbc-shot-desc">Safe play</span>
-                    </button>
-                    <button onclick="lbcPlayShot('normal')" class="lbc-shot-btn lbc-shot-normal">
-                        <i class="fa-solid fa-baseball-bat-ball"></i>
-                        <span class="lbc-shot-name">Normal Shot</span>
-                        <span class="lbc-shot-desc">Balanced risk</span>
-                    </button>
-                    <button onclick="lbcPlayShot('power')" class="lbc-shot-btn lbc-shot-power">
-                        <i class="fa-solid fa-bolt"></i>
-                        <span class="lbc-shot-name">Power Shot</span>
-                        <span class="lbc-shot-desc">High risk</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Result Area -->
-        <div id="lbc-result-area" style="display:none;">
-            <div class="lbc-result-card">
-                <div id="lbc-result-icon" class="lbc-result-icon"></div>
-                <h2 id="lbc-result-title"></h2>
-                <p id="lbc-result-subtitle" class="lbc-result-subtitle"></p>
-                <div class="lbc-result-stats">
-                    <div class="lbc-stat-box"><span class="lbc-stat-val" id="lbc-final-score">0</span><span class="lbc-stat-label">Runs Scored</span></div>
-                    <div class="lbc-stat-box"><span class="lbc-stat-val" id="lbc-final-target">0</span><span class="lbc-stat-label">Target</span></div>
-                    <div class="lbc-stat-box"><span class="lbc-stat-val" id="lbc-final-balls">0</span><span class="lbc-stat-label">Balls Used</span></div>
-                </div>
-                <div id="lbc-best-score-banner" class="lbc-best-score-banner" style="display:none;">
-                    <i class="fa-solid fa-crown"></i> New Best Score: <span id="lbc-best-display">0</span> runs!
-                </div>
-                <div class="lbc-result-actions">
-                    <button onclick="lbcPlayAgain()" class="lbc-btn lbc-btn-primary"><i class="fa-solid fa-rotate-right"></i> Play Again</button>
-                    <button onclick="lbcNewChallenge()" class="lbc-btn lbc-btn-secondary"><i class="fa-solid fa-shuffle"></i> New Challenge</button>
-                </div>
-            </div>
-        </div>
-    </section>
+        <div class="explore-panel" id="explore-time-machine">
 
     <!-- Cricket Time Machine -->
-    <section id="time-machine" class="section">
+    <section id="time-machine" class="section" style="padding-top:10px;">
         <div class="section-header">
             <i class="fa-solid fa-clock-rotate-left"></i>
             <h2>Cricket Time Machine</h2>
@@ -284,10 +179,10 @@
         <!-- Era Filter -->
         <div class="ctm-era-filter">
             <button class="ctm-era-btn active" onclick="ctmFilterEra('all')">All Eras</button>
-            <button class="ctm-era-btn" onclick="ctmFilterEra('early')">Early Days (1877–1949)</button>
-            <button class="ctm-era-btn" onclick="ctmFilterEra('golden')">Golden Era (1950–1982)</button>
-            <button class="ctm-era-btn" onclick="ctmFilterEra('modern')">Modern Era (1983–2009)</button>
-            <button class="ctm-era-btn" onclick="ctmFilterEra('t20')">T20 Revolution (2010–Now)</button>
+            <button class="ctm-era-btn" onclick="ctmFilterEra('early')">Early Days (1877-1949)</button>
+            <button class="ctm-era-btn" onclick="ctmFilterEra('golden')">Golden Era (1950-1982)</button>
+            <button class="ctm-era-btn" onclick="ctmFilterEra('modern')">Modern Era (1983-2009)</button>
+            <button class="ctm-era-btn" onclick="ctmFilterEra('t20')">T20 Revolution (2010-Now)</button>
         </div>
 
         <!-- Search -->
@@ -310,8 +205,12 @@
         </div>
     </section>
 
+        </div>
+
+        <div class="explore-panel" id="explore-faceoff">
+
     <!-- Player Face-Off -->
-    <section id="player-faceoff" class="section">
+    <section id="player-faceoff" class="section" style="padding-top:10px;">
         <div class="section-header">
             <i class="fa-solid fa-users"></i>
             <h2>Player Face-Off</h2>
@@ -352,8 +251,12 @@
         <div id="pfo-result" style="display:none;"></div>
     </section>
 
+        </div>
+
+        <div class="explore-panel" id="explore-iq">
+
     <!-- Cricket IQ Test -->
-    <section id="cricket-iq" class="section">
+    <section id="cricket-iq" class="section" style="padding-top:10px;">
         <div class="section-header">
             <i class="fa-solid fa-graduation-cap"></i>
             <h2>Cricket IQ Test</h2>
@@ -424,20 +327,12 @@
         </div>
     </section>
 
-    <!-- Fan Vote Arena -->
-    <section id="fan-vote-arena" class="section">
-        <div class="section-header">
-            <i class="fa-solid fa-check-to-slot"></i>
-            <h2>Fan Vote Arena</h2>
         </div>
-        <p style="color:#94a3b8; margin-bottom:30px; font-size:15px;">Cast your vote and see what fellow cricket fans think! Every vote counts.</p>
-        <div id="fva-polls-container" class="fva-polls-grid">
-            <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Loading polls...</div>
-        </div>
-    </section>
+
+        <div class="explore-panel" id="explore-mystery">
 
     <!-- Mystery Cricketer -->
-    <section id="mystery-cricketer" class="section">
+    <section id="mystery-cricketer" class="section" style="padding-top:10px;">
         <div class="section-header">
             <i class="fa-solid fa-user-secret"></i>
             <h2>Mystery Cricketer</h2>
@@ -499,8 +394,201 @@
         </div>
     </section>
 
-    <!-- Quiz / Puzzle Result -->
+        </div>
+
+        <div class="explore-panel" id="explore-quiz">
+
+    <!-- Quiz & Puzzle -->
+    <section class="features" style="padding-top:10px;">
+        <div id="quiz" class="feature-card">
+            <div class="feature-icon"><i class="fa-solid fa-brain"></i></div>
+            <h3>Cricket Quiz</h3>
+            <p>Test your cricket knowledge with exciting questions.</p>
+            <button onclick="showQuiz()" class="btn-feature">
+                <i class="fa-solid fa-play"></i> Play Quiz
+            </button>
+        </div>
+        <div id="puzzle" class="feature-card">
+            <div class="feature-icon"><i class="fa-solid fa-puzzle-piece"></i></div>
+            <h3>Cricket Puzzle</h3>
+            <p>Enjoy fun cricket puzzles and challenges.</p>
+            <button onclick="showPuzzle()" class="btn-feature">
+                <i class="fa-solid fa-play"></i> Play Puzzle
+            </button>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fa-solid fa-chart-simple"></i></div>
+            <h3>Match Hub</h3>
+            <p>Explore current matches, teams and match information.</p>
+            <a href="#matches" class="btn-feature">
+                <i class="fa-solid fa-eye"></i> View Matches
+            </a>
+        </div>
+    </section>
+
+        </div>
+
+    </section>
+
+    <!-- Quiz / Puzzle Result (must stay outside explore panels for JS) -->
     <section id="game-area" class="game-area"></section>
+
+    <!-- ============================== -->
+    <!-- PLAYGROUND — PLAY CRICKET       -->
+    <!-- ============================== -->
+    <section id="playground" class="section">
+        <div class="section-header">
+            <i class="fa-solid fa-gamepad"></i>
+            <h2>Playground</h2>
+        </div>
+        <p style="color:#94a3b8; margin-bottom:30px; font-size:15px;">Your cricket gaming zone! Play challenges, vote on polls, and compete for the top.</p>
+
+        <!-- Playground Sub-Navigation -->
+        <div class="explore-sub-nav" id="playground-sub-nav">
+            <button class="explore-sub-btn active" data-target="play-last-over"><i class="fa-solid fa-fire"></i> Last Over</button>
+            <button class="explore-sub-btn" data-target="play-fan-vote"><i class="fa-solid fa-check-to-slot"></i> Fan Vote</button>
+            <button class="explore-sub-btn" data-target="play-future"><i class="fa-solid fa-rocket"></i> Coming Soon</button>
+        </div>
+
+        <!-- Playground Content Panels -->
+        <div class="explore-panel active" id="play-last-over">
+
+    <!-- Last Over Challenge -->
+    <section id="last-over-challenge" class="section" style="padding-top:10px;">
+        <div class="section-header">
+            <i class="fa-solid fa-fire"></i>
+            <h2>Last Over Challenge</h2>
+        </div>
+        <p style="color:#94a3b8; margin-bottom:24px; font-size:15px;">Chase the target in just 6 balls! Choose your shots wisely.</p>
+
+        <!-- Difficulty Selection -->
+        <div id="lbc-difficulty-select" class="lbc-difficulty-grid">
+            <div class="lbc-diff-card" onclick="lbcSelectDifficulty('easy')">
+                <div class="lbc-diff-icon"><i class="fa-solid fa-face-smile"></i></div>
+                <h3>Easy</h3>
+                <p>Target: 8 runs | Wickets: 3</p>
+            </div>
+            <div class="lbc-diff-card" onclick="lbcSelectDifficulty('medium')">
+                <div class="lbc-diff-icon"><i class="fa-solid fa-face-meh"></i></div>
+                <h3>Medium</h3>
+                <p>Target: 12 runs | Wickets: 2</p>
+            </div>
+            <div class="lbc-diff-card" onclick="lbcSelectDifficulty('hard')">
+                <div class="lbc-diff-icon"><i class="fa-solid fa-face-flushed"></i></div>
+                <h3>Hard</h3>
+                <p>Target: 16 runs | Wickets: 1</p>
+            </div>
+        </div>
+
+        <!-- Game Area -->
+        <div id="lbc-game-area" style="display:none;">
+            <div class="lbc-game-card">
+                <div class="lbc-scoreboard">
+                    <div class="lbc-score-item lbc-score-target">
+                        <div class="lbc-score-label">Target</div>
+                        <div id="lbc-target" class="lbc-score-value">8</div>
+                    </div>
+                    <div class="lbc-score-item lbc-score-runs">
+                        <div class="lbc-score-label">Score</div>
+                        <div id="lbc-score" class="lbc-score-value">0</div>
+                    </div>
+                    <div class="lbc-score-item lbc-score-needed">
+                        <div class="lbc-score-label">Needed</div>
+                        <div id="lbc-needed" class="lbc-score-value">8</div>
+                    </div>
+                    <div class="lbc-score-item lbc-score-balls">
+                        <div class="lbc-score-label">balls</div>
+                        <div id="lbc-balls" class="lbc-score-value">6</div>
+                    </div>
+                    <div class="lbc-score-item lbc-score-wickets">
+                        <div class="lbc-score-label">wickets</div>
+                        <div id="lbc-wickets" class="lbc-score-value">3</div>
+                    </div>
+                </div>
+                <div id="lbc-over-progress" class="lbc-over-progress"></div>
+                <div id="lbc-message" class="lbc-message">Choose your shot for ball 1!</div>
+                <div id="lbc-actions" class="lbc-actions">
+                    <button onclick="lbcPlayShot('defend')" class="lbc-shot-btn lbc-shot-defend">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span class="lbc-shot-name">Defend</span>
+                        <span class="lbc-shot-desc">Safe play</span>
+                    </button>
+                    <button onclick="lbcPlayShot('normal')" class="lbc-shot-btn lbc-shot-normal">
+                        <i class="fa-solid fa-baseball-bat-ball"></i>
+                        <span class="lbc-shot-name">Normal Shot</span>
+                        <span class="lbc-shot-desc">Balanced risk</span>
+                    </button>
+                    <button onclick="lbcPlayShot('power')" class="lbc-shot-btn lbc-shot-power">
+                        <i class="fa-solid fa-bolt"></i>
+                        <span class="lbc-shot-name">Power Shot</span>
+                        <span class="lbc-shot-desc">High risk</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Area -->
+        <div id="lbc-result-area" style="display:none;">
+            <div class="lbc-result-card">
+                <div id="lbc-result-icon" class="lbc-result-icon"></div>
+                <h2 id="lbc-result-title"></h2>
+                <p id="lbc-result-subtitle" class="lbc-result-subtitle"></p>
+                <div class="lbc-result-stats">
+                    <div class="lbc-stat-box"><span class="lbc-stat-val" id="lbc-final-score">0</span><span class="lbc-stat-label">Runs Scored</span></div>
+                    <div class="lbc-stat-box"><span class="lbc-stat-val" id="lbc-final-target">0</span><span class="lbc-stat-label">Target</span></div>
+                    <div class="lbc-stat-box"><span class="lbc-stat-val" id="lbc-final-balls">0</span><span class="lbc-stat-label">Balls Used</span></div>
+                </div>
+                <div id="lbc-best-score-banner" class="lbc-best-score-banner" style="display:none;">
+                    <i class="fa-solid fa-crown"></i> New Best Score: <span id="lbc-best-display">0</span> runs!
+                </div>
+                <div class="lbc-result-actions">
+                    <button onclick="lbcPlayAgain()" class="lbc-btn lbc-btn-primary"><i class="fa-solid fa-rotate-right"></i> Play Again</button>
+                    <button onclick="lbcNewChallenge()" class="lbc-btn lbc-btn-secondary"><i class="fa-solid fa-shuffle"></i> New Challenge</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+        </div>
+
+        <div class="explore-panel" id="play-fan-vote">
+
+    <!-- Fan Vote Arena -->
+    <section id="fan-vote-arena" class="section" style="padding-top:10px;">
+        <div class="section-header">
+            <i class="fa-solid fa-check-to-slot"></i>
+            <h2>Fan Vote Arena</h2>
+        </div>
+        <p style="color:#94a3b8; margin-bottom:30px; font-size:15px;">Cast your vote and see what fellow cricket fans think! Every vote counts.</p>
+        <div id="fva-polls-container" class="fva-polls-grid">
+            <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Loading polls...</div>
+        </div>
+    </section>
+
+        </div>
+
+        <div class="explore-panel" id="play-future">
+
+    <!-- Future Games Placeholder -->
+    <section class="section" style="padding-top:10px;">
+        <div class="playground-future">
+            <div class="playground-future-icon"><i class="fa-solid fa-rocket"></i></div>
+            <h3>More Games Coming Soon!</h3>
+            <p>Cricket mini games, skill challenges, prediction games, leaderboards, and more are on the way.</p>
+            <div class="playground-future-features">
+                <div class="playground-future-tag"><i class="fa-solid fa-gamepad"></i> Mini Games</div>
+                <div class="playground-future-tag"><i class="fa-solid fa-bolt"></i> Skill Challenges</div>
+                <div class="playground-future-tag"><i class="fa-solid fa-chart-line"></i> Predictions</div>
+                <div class="playground-future-tag"><i class="fa-solid fa-ranking-star"></i> Leaderboards</div>
+                <div class="playground-future-tag"><i class="fa-solid fa-medal"></i> Badges</div>
+                <div class="playground-future-tag"><i class="fa-solid fa-fire"></i> Streaks</div>
+            </div>
+        </div>
+    </section>
+
+        </div>
+
+    </section>
 
     <!-- Footer -->
     <footer>
@@ -514,7 +602,7 @@
                 <a href="#"><i class="fa-brands fa-instagram"></i></a>
                 <a href="#"><i class="fa-brands fa-youtube"></i></a>
             </div>
-            <p>Cricket • Fun • Quiz • Puzzle</p>
+            <p>Cricket - Watch - Explore - Play</p>
             <p class="developer">Developed by <strong>Tamizh 18</strong> </p>
         </div>
     </footer>

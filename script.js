@@ -36,6 +36,33 @@ if (hamburger && mobileMenu) {
     });
 }
 
+// ================================
+// SUB-NAVIGATION TABS
+// (Explore & Playground panels)
+// ================================
+document.addEventListener("DOMContentLoaded", function() {
+    var allSubNavs = document.querySelectorAll(".explore-sub-nav");
+    allSubNavs.forEach(function(nav) {
+        var buttons = nav.querySelectorAll(".explore-sub-btn");
+        buttons.forEach(function(btn) {
+            btn.addEventListener("click", function() {
+                var targetId = this.getAttribute("data-target");
+                // Deactivate all buttons in this nav
+                buttons.forEach(function(b) { b.classList.remove("active"); });
+                this.classList.add("active");
+                // Find parent section
+                var section = nav.parentElement;
+                // Hide all panels in this section
+                var panels = section.querySelectorAll(".explore-panel");
+                panels.forEach(function(p) { p.classList.remove("active"); });
+                // Show target panel
+                var target = document.getElementById(targetId);
+                if (target) target.classList.add("active");
+            });
+        });
+    });
+});
+
 // Load Matches
 async function loadMatches() {
     const container = document.getElementById("matches-container");
