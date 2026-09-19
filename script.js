@@ -2783,7 +2783,8 @@ function pgOpenGame(gameId) {
         "battle": "fb-container",
         "mission": "cm-container",
         "btxi": "btxi-container",
-        "streak": null, "dna": null
+        "dna": "dna-container",
+        "streak": null
     };
     var targetId = gameMap[gameId];
     if (targetId) {
@@ -2799,7 +2800,7 @@ function pgBackToLanding() {
     t30cStopTimer();
     var landing = document.getElementById("pg-landing");
     var panels = document.querySelectorAll("#playground .explore-panel");
-    var games = document.querySelectorAll("#playground .pg-game-container, #t30c-container, #fb-container, #cm-container, #btxi-container");
+    var games = document.querySelectorAll("#playground .pg-game-container, #t30c-container, #fb-container, #cm-container, #btxi-container, #dna-container");
     if (landing) landing.style.display = "";
     panels.forEach(function(p) { p.style.display = ""; });
     games.forEach(function(g) { g.style.display = "none"; });
@@ -3185,6 +3186,164 @@ function btxiStartOver() {
 
 btxiRenderPool();
 btxiRenderSelected();
+
+// ========================================
+// 🧬 CRICKET DNA
+// ========================================
+
+var dnaQuestions = [
+    {
+        q: "You're watching a match. What do you enjoy most?",
+        opts: [
+            { text: "A batsman playing aggressive strokes", types: { BAT: 3, STRAT: 0, FAN: 1 } },
+            { text: "A bowler taking a wicket with a perfect delivery", types: { BOWL: 3, STRAT: 1, FAN: 0 } },
+            { text: "A captain making smart field changes", types: { STRAT: 3, ALL: 1, FAN: 0 } },
+            { text: "The atmosphere and crowd cheering", types: { FAN: 3, EXP: 1, ALL: 0 } }
+        ]
+    },
+    {
+        q: "Pick a cricket moment that excites you most:",
+        opts: [
+            { text: "A massive six over the stands", types: { BAT: 3, FAN: 1 } },
+            { text: "A hat-trick by a fast bowler", types: { BOWL: 3, FAN: 1 } },
+            { text: "A run-out from the deep to save a boundary", types: { ALL: 2, STRAT: 2 } },
+            { text: "Exploring stats and records from old matches", types: { EXP: 3, STRAT: 1 } }
+        ]
+    },
+    {
+        q: "Your friend asks you to explain cricket. You start with:",
+        opts: [
+            { text: "The art of batting — footwork, timing, shots", types: { BAT: 3, EXP: 0 } },
+            { text: "How different bowlers attack with pace and spin", types: { BOWL: 3, EXP: 0 } },
+            { text: "The tactics — field placements, declarations, reviews", types: { STRAT: 3, EXP: 0 } },
+            { text: "The history — legendary matches and players", types: { EXP: 3, FAN: 1 } }
+        ]
+    },
+    {
+        q: "If you could play one role in a cricket team, it would be:",
+        opts: [
+            { text: "Opening batsman — setting the tone", types: { BAT: 3 } },
+            { text: "Strike bowler — destroying the opposition", types: { BOWL: 3 } },
+            { text: "All-rounder — contributing with bat and ball", types: { ALL: 3 } },
+            { text: "Captain — leading from the front", types: { STRAT: 3 } }
+        ]
+    },
+    {
+        q: "You're building a fantasy cricket team. You优先 pick:",
+        opts: [
+            { text: "The top run-scorer of the tournament", types: { BAT: 2, EXP: 1 } },
+            { text: "The leading wicket-taker", types: { BOWL: 2, EXP: 1 } },
+            { text: "A versatile all-rounder", types: { ALL: 3, STRAT: 0 } },
+            { text: "The player with the best strike rate", types: { BAT: 1, STRAT: 2 } }
+        ]
+    },
+    {
+        q: "Which cricket format do you prefer?",
+        opts: [
+            { text: "Test cricket — the ultimate challenge", types: { STRAT: 2, EXP: 2 } },
+            { text: "ODI — balanced battles", types: { ALL: 2, FAN: 1 } },
+            { text: "T20 — pure entertainment and power", types: { BAT: 2, FAN: 2 } },
+            { text: "I love them all equally!", types: { FAN: 2, EXP: 1, ALL: 1 } }
+        ]
+    },
+    {
+        q: "How do you enjoy cricket content?",
+        opts: [
+            { text: "Watching live matches with friends", types: { FAN: 3 } },
+            { text: "Analyzing scores, stats, and records", types: { EXP: 3, STRAT: 0 } },
+            { text: "Playing fantasy cricket and quizzes", types: { ALL: 2, EXP: 1 } },
+            { text: "Debating the GOAT with fellow fans", types: { FAN: 2, STRAT: 1 } }
+        ]
+    },
+    {
+        q: "Final question — what makes cricket special to you?",
+        opts: [
+            { text: "The skill and technique of batsmen", types: { BAT: 3 } },
+            { text: "The mind games between bowler and batter", types: { BOWL: 2, STRAT: 2 } },
+            { text: "The way it brings people together", types: { FAN: 3 } },
+            { text: "Its rich history and endless records", types: { EXP: 3 } }
+        ]
+    }
+];
+
+var dnaTypes = {
+    BAT: { name: "The Batter", icon: "🏏", color: "#6366f1", desc: "You live for the art of batting. Timing, footwork, and elegant stroke-play define your cricket soul. You appreciate the beauty of a well-timed cover drive and the aggression of a power hitter.", traits: ["Aggressive", "Timing-focused", "Run-machine", "Shot-maker"], compat: "Bowler" },
+    BOWL: { name: "The Bowler", icon: "🎯", color: "#ef4444", desc: "You thrive on the thrill of taking wickets. Whether it's pace, spin, or swing, you understand the art of deception and the joy of beating the bat. Every delivery is a battle.", traits: ["Wicket-taker", "Deceptive", "Aggressive", "Precision"], compat: "Batsman" },
+    ALL: { name: "The All-Rounder", icon: "⚡", color: "#f97316", desc: "You're the complete package — contributing with both bat and ball. You're versatile, adaptable, and always ready to step up when the team needs you most.", traits: ["Versatile", "Team-player", "Adaptable", "Reliable"], compat: "Captain" },
+    STRAT: { name: "The Strategist", icon: "🧠", color: "#8b5cf6", desc: "You see cricket as a chess match. Field placements, bowling changes, declarations — you love the tactical side of the game. A captain's mind in a player's body.", traits: ["Tactical", "Analytical", "Calm", "Leader"], compat: "All-Rounder" },
+    EXP: { name: "The Explorer", icon: "🔍", color: "#22c55e", desc: "You're a cricket historian and stat-lover. You dive deep into records, eras, and legendary moments. Cricket's past excites you as much as its present.", traits: ["Curious", "Knowledgeable", "Detail-oriented", "Historian"], compat: "Strategist" },
+    FAN: { name: "The Fan", icon: "❤️", color: "#ec4899", desc: "You're the heart and soul of cricket. The atmosphere, the emotions, the shared joy — you love cricket for the way it connects people and creates unforgettable moments.", traits: ["Passionate", "Emotional", "Social", "Loyal"], compat: "Explorer" }
+};
+
+var dnaCurrentQ = 0;
+var dnaScores = { BAT: 0, BOWL: 0, ALL: 0, STRAT: 0, EXP: 0, FAN: 0 };
+
+function dnaStart() {
+    dnaCurrentQ = 0;
+    dnaScores = { BAT: 0, BOWL: 0, ALL: 0, STRAT: 0, EXP: 0, FAN: 0 };
+    document.getElementById("dna-quiz").style.display = "block";
+    document.getElementById("dna-result").style.display = "none";
+    dnaRenderQuestion();
+}
+
+function dnaRenderQuestion() {
+    if (dnaCurrentQ >= dnaQuestions.length) { dnaShowResult(); return; }
+    var q = dnaQuestions[dnaCurrentQ];
+    document.getElementById("dna-qnum").textContent = dnaCurrentQ + 1;
+    document.getElementById("dna-question").textContent = q.q;
+    var pct = (dnaCurrentQ / dnaQuestions.length) * 100;
+    document.getElementById("dna-progress-fill").style.width = pct + "%";
+    var html = "";
+    q.opts.forEach(function(opt, i) {
+        html += '<button class="dna-opt" onclick="dnaAnswer(' + i + ')">' + opt.text + '</button>';
+    });
+    document.getElementById("dna-options").innerHTML = html;
+}
+
+function dnaAnswer(idx) {
+    var q = dnaQuestions[dnaCurrentQ];
+    var chosen = q.opts[idx];
+    // Add scores
+    var types = chosen.types;
+    for (var key in types) {
+        if (types.hasOwnProperty(key)) dnaScores[key] += types[key];
+    }
+    dnaCurrentQ++;
+    setTimeout(dnaRenderQuestion, 300);
+}
+
+function dnaShowResult() {
+    document.getElementById("dna-quiz").style.display = "none";
+    document.getElementById("dna-result").style.display = "block";
+    // Find dominant type
+    var maxScore = 0;
+    var dominantType = "FAN";
+    for (var key in dnaScores) {
+        if (dnaScores[key] > maxScore) {
+            maxScore = dnaScores[key];
+            dominantType = key;
+        }
+    }
+    var type = dnaTypes[dominantType];
+    document.getElementById("dna-result-icon").innerHTML = '<span style="font-size:64px">' + type.icon + '</span>';
+    document.getElementById("dna-result-title").textContent = "Your Cricket DNA";
+    document.getElementById("dna-result-type").textContent = type.name;
+    document.getElementById("dna-result-type").style.color = type.color;
+    document.getElementById("dna-result-desc").textContent = type.desc;
+    // Traits
+    var traitsHtml = "";
+    type.traits.forEach(function(t) {
+        traitsHtml += '<div class="dna-trait">' + t + '</div>';
+    });
+    document.getElementById("dna-traits").innerHTML = traitsHtml;
+    // Compatibility
+    document.getElementById("dna-compat").innerHTML = '<div class="dna-compat-label">Best Teammate Compatibility</div><div class="dna-compat-val">🤝 ' + type.compat + '</div>';
+    // Track mission
+    if (typeof cmTrackGamePlay === "function") cmTrackGamePlay();
+    if (typeof cmCompleteMission === "function") cmCompleteMission("cm_quiz");
+}
+
+dnaStart();
 
 // ========================================
 // ⚔️ FAN BATTLE

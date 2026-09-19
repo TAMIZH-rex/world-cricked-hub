@@ -1020,3 +1020,39 @@ body.light-mode .btxi-result-card { background: rgba(30,5,5,0.8); border-color: 
 body.light-mode .btxi-result-card h2 { color: #1e293b; }
 body.light-mode .btxi-btn-back { background: rgba(30,5,5,0.8); border-color: rgba(220,38,38,0.2); color: #ef4444; }
 @media (max-width: 768px) { .btxi-layout { grid-template-columns: 1fr; } .btxi-pool { max-height: 300px; } .btxi-xi-display { grid-template-columns: 1fr; } .btxi-result-actions { flex-direction: column; align-items: stretch; } .btxi-btn { justify-content: center; } .btxi-role-filter { justify-content: center; } }
+
+/* ================================
+   CRICKET DNA
+   ================================ */
+.dna-card { background: rgba(30,41,59,0.7); border: 1px solid rgba(99,102,241,0.12); border-radius: 18px; padding: 30px; max-width: 600px; margin: 0 auto; }
+.dna-hud { display: flex; justify-content: space-around; margin-bottom: 16px; }
+.dna-hud-item { font-size: 16px; font-weight: 800; color: #e0e7ff; display: flex; align-items: center; gap: 6px; }
+.dna-hud-item i { color: #a855f7; }
+.dna-progress { width: 100%; height: 6px; background: #1e293b; border-radius: 6px; overflow: hidden; margin-bottom: 24px; }
+.dna-progress-fill { height: 100%; background: linear-gradient(90deg,#a855f7,#6366f1); border-radius: 6px; transition: width 0.4s ease; width: 0%; }
+.dna-question { font-size: 18px; font-weight: 700; color: #e0e7ff; margin-bottom: 20px; line-height: 1.4; text-align: center; }
+.dna-options { display: flex; flex-direction: column; gap: 10px; }
+.dna-opt { padding: 16px 20px; border: 2px solid rgba(168,85,247,0.15); border-radius: 12px; background: rgba(15,23,42,0.4); color: #e0e7ff; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; text-align: left; font-family: 'Inter', sans-serif; }
+.dna-opt:hover { border-color: #a855f7; background: rgba(168,85,247,0.08); transform: translateX(4px); }
+.dna-opt.dna-selected { border-color: #a855f7; background: rgba(168,85,247,0.12); }
+.dna-result-icon { font-size: 64px; margin-bottom: 12px; }
+.dna-card h2 { font-size: 26px; color: #e0e7ff; margin-bottom: 6px; }
+.dna-result-type { font-size: 20px; font-weight: 900; color: #a855f7; margin-bottom: 12px; font-family: 'Courier New', monospace; }
+.dna-result-desc { font-size: 14px; color: #94a3b8; line-height: 1.6; margin-bottom: 20px; text-align: center; }
+.dna-traits { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; }
+.dna-trait { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.2); color: #c084fc; }
+.dna-compat { padding: 14px; border-radius: 12px; background: rgba(168,85,247,0.06); border: 1px solid rgba(168,85,247,0.12); margin-bottom: 20px; text-align: center; }
+.dna-compat-label { font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 6px; }
+.dna-compat-val { font-size: 15px; font-weight: 800; color: #c084fc; }
+.dna-result-actions { display: flex; gap: 10px; justify-content: center; }
+.dna-btn { padding: 14px 28px; border: none; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.3s ease; font-family: 'Inter', sans-serif; display: inline-flex; align-items: center; gap: 8px; }
+.dna-btn-start { background: linear-gradient(135deg,#a855f7,#6366f1); color: white; }
+.dna-btn-start:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(168,85,247,0.4); }
+.dna-btn-back { background: rgba(30,41,59,0.8); color: #e0e7ff; border: 2px solid rgba(168,85,247,0.2); }
+.dna-btn-back:hover { border-color: #a855f7; }
+body.light-mode .dna-card { background: rgba(30,5,5,0.8); border-color: rgba(220,38,38,0.15); }
+body.light-mode .dna-card h2, body.light-mode .dna-question { color: #1e293b; }
+body.light-mode .dna-opt { background: rgba(30,5,5,0.4); border-color: rgba(220,38,38,0.15); color: #1e293b; }
+body.light-mode .dna-opt:hover { border-color: #ef4444; background: rgba(220,38,38,0.08); }
+body.light-mode .dna-btn-back { background: rgba(30,5,5,0.8); border-color: rgba(220,38,38,0.2); color: #ef4444; }
+@media (max-width: 768px) { .dna-result-actions { flex-direction: column; align-items: stretch; } .dna-btn { justify-content: center; } .dna-traits { flex-direction: column; align-items: center; } }

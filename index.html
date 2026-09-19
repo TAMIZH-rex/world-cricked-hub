@@ -673,6 +673,36 @@
             </div>
         </div>
 
+        <!-- Cricket DNA -->
+        <div id="dna-container" style="display:none;">
+            <button class="pg-back-btn" onclick="pgBackToLanding()"><i class="fa-solid fa-arrow-left"></i> Back to Games</button>
+            <div class="section-header"><i class="fa-solid fa-dna"></i><h2>Cricket DNA</h2></div>
+            <p style="color:#94a3b8; margin-bottom:24px; font-size:15px;">Answer 8 questions and discover your unique Cricket DNA profile!</p>
+            <!-- Quiz Screen -->
+            <div id="dna-quiz" class="dna-card">
+                <div class="dna-hud">
+                    <div class="dna-hud-item"><i class="fa-solid fa-dna"></i> Q<span id="dna-qnum">1</span>/8</div>
+                    <div class="dna-hud-item"><i class="fa-solid fa-brain"></i> <span id="dna-type-hint">...</span></div>
+                </div>
+                <div class="dna-progress"><div id="dna-progress-fill" class="dna-progress-fill"></div></div>
+                <div id="dna-question" class="dna-question"></div>
+                <div id="dna-options" class="dna-options"></div>
+            </div>
+            <!-- Result Screen -->
+            <div id="dna-result" style="display:none;" class="dna-card">
+                <div id="dna-result-icon" class="dna-result-icon"></div>
+                <h2 id="dna-result-title"></h2>
+                <p id="dna-result-type" class="dna-result-type"></p>
+                <p id="dna-result-desc" class="dna-result-desc"></p>
+                <div id="dna-traits" class="dna-traits"></div>
+                <div id="dna-compat" class="dna-compat"></div>
+                <div class="dna-result-actions">
+                    <button onclick="dnaStart()" class="dna-btn dna-btn-start"><i class="fa-solid fa-rotate-right"></i> Retake Quiz</button>
+                    <button onclick="pgBackToLanding()" class="dna-btn dna-btn-back"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Fan Battle -->
         <div id="fb-container" style="display:none;">
             <button class="pg-back-btn" onclick="pgBackToLanding()"><i class="fa-solid fa-arrow-left"></i> Back to Games</button>
