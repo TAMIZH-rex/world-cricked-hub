@@ -2770,6 +2770,198 @@ function mcSaveBestScore(score) {
 // Start Mystery Cricketer on page load
 mcStartNewGame();
 
+// ========================================
+// PLAYGROUND NAVIGATION
+// ========================================
+function pgOpenGame(gameId) {
+    var landing = document.getElementById("pg-landing");
+    var panels = document.querySelectorAll("#playground .explore-panel");
+    if (landing) landing.style.display = "none";
+    panels.forEach(function(p) { p.style.display = "none"; });
+    var gameMap = {
+        "30sec": "t30c-container",
+        "btxi": null, "streak": null, "battle": null, "dna": null, "mission": null
+    };
+    var targetId = gameMap[gameId];
+    if (targetId) {
+        var el = document.getElementById(targetId);
+        if (el) el.style.display = "block";
+    } else {
+        var future = document.getElementById("play-future");
+        if (future) future.style.display = "block";
+    }
+    document.getElementById("playground").scrollIntoView({ behavior: "smooth" });
+}
+function pgBackToLanding() {
+    t30cStopTimer();
+    var landing = document.getElementById("pg-landing");
+    var panels = document.querySelectorAll("#playground .explore-panel");
+    var games = document.querySelectorAll("#playground .pg-game-container, #t30c-container");
+    if (landing) landing.style.display = "";
+    panels.forEach(function(p) { p.style.display = ""; });
+    games.forEach(function(g) { g.style.display = "none"; });
+    document.getElementById("playground").scrollIntoView({ behavior: "smooth" });
+}
+
+// ========================================
+// 30 SECOND CRICKET
+// ========================================
+var t30cQuestions = [
+    { q: "How many players are on a cricket field at a time per team?", o: ["9","10","11","12"], a: 2 },
+    { q: "What is a 'golden duck' in cricket?", o: ["Out on the first ball faced","Out on the last ball of innings","Scoring 6 runs","Taking 5 wickets"], a: 0 },
+    { q: "Who holds the record for most Test centuries?", o: ["Virat Kohli","Brian Lara","Sachin Tendulkar","Ricky Ponting"], a: 2 },
+    { q: "What does LBW stand for?", o: ["Long Ball Wicket","Leg Before Wicket","Late Bat Walk","Low Bounce Win"], a: 1 },
+    { q: "Which country won the 2023 ODI World Cup?", o: ["India","Australia","England","South Africa"], a: 1 },
+    { q: "What is a 'hat-trick' in cricket?", o: ["3 sixes in a row","3 wickets in 3 consecutive balls","3 centuries in a series","3 catches in one over"], a: 1 },
+    { q: "How many overs are in a T20 innings?", o: ["10","20","50","60"], a: 1 },
+    { q: "Who is known as the 'Wall' of cricket?", o: ["Sachin Tendulkar","Rahul Dravid","VVS Laxman","Anil Kumble"], a: 1 },
+    { q: "What is a ' Yorker' delivery?", o: ["A bouncer","A delivery at the batsman's feet","A googly","A slow ball"], a: 1 },
+    { q: "Which team has won the most ODI World Cups?", o: ["India","England","Australia","West Indies"], a: 2 },
+    { q: "What is a 'Duckworth-Lewis' method?", o: ["Batting strategy","Rain interruption calculation","Bowling technique","Fielding formation"], a: 1 },
+    { q: "Who bowled the 'Ball of the Century' to Mike Gatting?", o: ["Anil Kumble","Shane Warne","Muttiah Muralitharan","Saqlain Mushtaq"], a: 1 },
+    { q: "What is the maximum runs a batsman can score off one ball (no extras)?", o: ["4","5","6","7"], a: 2 },
+    { q: "Which country hosted the 2023 Cricket World Cup?", o: ["England","Australia","India","New Zealand"], a: 2 },
+    { q: "What is a 'nightwatchman' in cricket?", o: ["The wicketkeeper","A lower-order batsman sent in early","The umpire","The coach"], a: 1 },
+    { q: "Who has the most wickets in Test cricket history?", o: ["Shane Warne","Anil Kumble","Muttiah Muralitharan","James Anderson"], a: 2 },
+    { q: "What does 'DRS' stand for in cricket?", o: ["Decision Review System","Direct Running Score","Dual Reference Strike","Daily Record Stat"], a: 0 },
+    { q: "How many runs is a 'super over' target set at?", o: ["The last over's runs","The losing team's total","Random","6 runs"], a: 1 },
+    { q: "Who scored the fastest Test double century?", o: ["Virender Sehwag","Brian Lara","Brendon McCullum","Chris Gayle"], a: 0 },
+    { q: "What is a 'slip' fielder?", o: ["A fielder near the keeper","A bowler who slips","The umpire","A batsman"], a: 0 },
+    { q: "Which IPL team has won the most titles?", o: ["Chennai Super Kings","Mumbai Indians","Kolkata Knight Riders","Rajasthan Royals"], a: 1 },
+    { q: "What does 'Maiden over' mean?", o: ["An over with no runs scored","An over with no wickets","An over bowled by a woman","An over with all dots"], a: 0 },
+    { q: "Who is the highest run-scorer in ODI cricket?", o: ["Sachin Tendulkar","Virat Kohli","Ricky Ponting,"Kumar Sangakkara"], a: 0 },
+    { q: "What is a 'bouncer' in cricket?", o: ["A full toss","A short-pitched delivery aimed at the head","A yorker","An off-spin delivery"], a: 1 },
+    { q: "Which team won the inaugural T20 World Cup in 2007?", o: ["India","Australia","Pakistan","South Africa"], a: 0 },
+    { q: "What is the term for a batsman scoring 50 runs?", o: ["Half-century","Century","Double century","Milestone"], a: 0 },
+    { q: "Who is called 'Captain Cool'?", o: ["Ricky Ponting","MS Dhoni","Virat Kohli","Eoin Morgan"], a: 1 },
+    { q: "How many balls are in a standard over?", o: ["4","5","6","8"], a: 2 },
+    { q: "What is a 'flipper' delivery?", o: ["A topspinner","A back-spinner from a leg-spinner","A fast yorker","A slower ball"], a: 1 },
+    { q: "Who has scored the most international centuries?", o: ["Virat Kohli","Sachin Tendulkar","Ricky Ponting,"Kumar Sangakkara"], a: 1 },
+    { q: "What is 'follow-on' in Test cricket?", o: ["Batting second again","Batting again immediately after being bowled out","A bowling strategy","A fielding position"], a: 1 },
+    { q: "Which country is cricket's 'Barmy Army' associated with?", o: ["Australia","India","England","South Africa"], a: 2 },
+    { q: "What is a 'chinaman' delivery?", o: ["A straight ball","A left-arm wrist spinner's delivery","A bouncer","A yorker"], a: 1 },
+    { q: "Who was the first player to score 10,000 Test runs?", o: ["Sunil Gavaskar","Allan Border","Sachin Tendulkar","Ricky Ponting"], a: 1 },
+    { q: "What is a 'sledging' in cricket?", o: ["Batting technique","Verbal intimidation of opponents","Bowling strategy","Fielding drill"], a: 1 }
+];
+var t30cTimer = null;
+var t30cTimeLeft = 30;
+var t30cScore = 0;
+var t30cAnswered = 0;
+var t30cCurrentQ = 0;
+var t30cShuffled = [];
+var t30cTotalQ = 35;
+function t30cShuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+}
+function t30cStart() {
+    t30cStopTimer();
+    t30cShuffled = t30cShuffle(t30cQuestions).slice(0, t30cTotalQ);
+    t30cCurrentQ = 0;
+    t30cScore = 0;
+    t30cAnswered = 0;
+    t30cTimeLeft = 30;
+    document.getElementById("t30c-start").style.display = "none";
+    document.getElementById("t30c-result").style.display = "none";
+    document.getElementById("t30c-game").style.display = "block";
+    document.getElementById("t30c-time").textContent = "30";
+    document.getElementById("t30c-time").classList.remove("t30c-urgent");
+    document.getElementById("t30c-score").textContent = "0";
+    document.getElementById("t30c-qnum").textContent = "1";
+    document.getElementById("t30c-progress-fill").style.width = "0%";
+    document.getElementById("t30c-feedback").textContent = "";
+    t30cShowQuestion();
+    t30cTimer = setInterval(function() {
+        t30cTimeLeft--;
+        document.getElementById("t30c-time").textContent = t30cTimeLeft;
+        if (t30cTimeLeft <= 10) document.getElementById("t30c-time").classList.add("t30c-urgent");
+        var pct = ((30 - t30cTimeLeft) / 30) * 100;
+        document.getElementById("t30c-progress-fill").style.width = pct + "%";
+        if (t30cTimeLeft <= 0) t30cEndGame();
+    }, 1000);
+}
+function t30cStopTimer() {
+    if (t30cTimer) { clearInterval(t30cTimer); t30cTimer = null; }
+}
+function t30cShowQuestion() {
+    if (t30cCurrentQ >= t30cShuffled.length) { t30cEndGame(); return; }
+    var q = t30cShuffled[t30cCurrentQ];
+    document.getElementById("t30c-question").textContent = q.q;
+    document.getElementById("t30c-qnum").textContent = t30cCurrentQ + 1;
+    document.getElementById("t30c-feedback").textContent = "";
+    var html = "";
+    q.o.forEach(function(opt, i) {
+        html += '<button class="t30c-opt" onclick="t30cAnswer(' + i + ')">' + opt + '</button>';
+    });
+    document.getElementById("t30c-options").innerHTML = html;
+}
+function t30cAnswer(idx) {
+    t30cStopTimer();
+    var q = t30cShuffled[t30cCurrentQ];
+    var btns = document.querySelectorAll(".t30c-opt");
+    btns.forEach(function(b, i) {
+        b.disabled = true;
+        if (i === q.a) b.classList.add("t30c-correct");
+        else if (i === idx && idx !== q.a) b.classList.add("t30c-wrong");
+        else b.classList.add("t30c-dim");
+    });
+    var fb = document.getElementById("t30c-feedback");
+    if (idx === q.a) {
+        t30cScore++;
+        document.getElementById("t30c-score").textContent = t30cScore;
+        fb.style.color = "#4ade80";
+        fb.textContent = "Correct!";
+    } else {
+        fb.style.color = "#f87171";
+        fb.textContent = "Wrong! Answer: " + q.o[q.a];
+    }
+    t30cAnswered++;
+    t30cCurrentQ++;
+    setTimeout(function() {
+        if (t30cTimeLeft > 0 && t30cCurrentQ < t30cShuffled.length) {
+            t30cShowQuestion();
+            t30cTimer = setInterval(function() {
+                t30cTimeLeft--;
+                document.getElementById("t30c-time").textContent = t30cTimeLeft;
+                if (t30cTimeLeft <= 10) document.getElementById("t30c-time").classList.add("t30c-urgent");
+                var pct = ((30 - t30cTimeLeft) / 30) * 100;
+                document.getElementById("t30c-progress-fill").style.width = pct + "%";
+                if (t30cTimeLeft <= 0) t30cEndGame();
+            }, 1000);
+        } else {
+            t30cEndGame();
+        }
+    }, 800);
+}
+function t30cEndGame() {
+    t30cStopTimer();
+    document.getElementById("t30c-game").style.display = "none";
+    document.getElementById("t30c-result").style.display = "block";
+    document.getElementById("t30c-final-score").textContent = t30cScore;
+    document.getElementById("t30c-final-answered").textContent = t30cAnswered;
+    var pct = t30cAnswered > 0 ? Math.round((t30cScore / t30cAnswered) * 100) : 0;
+    document.getElementById("t30c-final-pct").textContent = pct + "%";
+    var icon = document.getElementById("t30c-result-icon");
+    var title = document.getElementById("t30c-result-title");
+    var sub = document.getElementById("t30c-result-sub");
+    if (pct >= 80) { icon.innerHTML = '<i class="fa-solid fa-trophy" style="color:#fbbf24"></i>'; title.textContent = "Outstanding!"; sub.textContent = "You're a cricket genius!"; }
+    else if (pct >= 60) { icon.innerHTML = '<i class="fa-solid fa-star" style="color:#818cf8"></i>'; title.textContent = "Great Job!"; sub.textContent = "Strong cricket knowledge!"; }
+    else if (pct >= 40) { icon.innerHTML = '<i class="fa-solid fa-thumbs-up" style="color:#4ade80"></i>'; title.textContent = "Good Effort!"; sub.textContent = "Keep learning and improve!"; }
+    else { icon.innerHTML = '<i class="fa-solid fa-face-smile" style="color:#f87171"></i>'; title.textContent = "Keep Trying!"; sub.textContent = "Practice makes perfect!"; }
+    var best = parseInt(localStorage.getItem("wch_t30c_best")) || 0;
+    if (t30cScore > best) {
+        localStorage.setItem("wch_t30c_best", t30cScore);
+        document.getElementById("t30c-best-banner").style.display = "flex";
+        document.getElementById("t30c-best-val").textContent = t30cScore;
+    } else {
+        document.getElementById("t30c-best-banner").style.display = "none";
+    }
+}
+
 // Start
 loadMatches();
 loadSchedule();

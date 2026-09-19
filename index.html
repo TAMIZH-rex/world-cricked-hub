@@ -443,11 +443,16 @@
         </div>
         <p style="color:#94a3b8; margin-bottom:30px; font-size:15px;">Your cricket gaming zone! Play challenges, vote on polls, and compete for the top.</p>
 
-        <!-- Playground Sub-Navigation -->
-        <div class="explore-sub-nav" id="playground-sub-nav">
-            <button class="explore-sub-btn active" data-target="play-last-over"><i class="fa-solid fa-fire"></i> Last Over</button>
-            <button class="explore-sub-btn" data-target="play-fan-vote"><i class="fa-solid fa-check-to-slot"></i> Fan Vote</button>
-            <button class="explore-sub-btn" data-target="play-future"><i class="fa-solid fa-rocket"></i> Coming Soon</button>
+        <!-- Playground Landing -->
+        <div id="pg-landing">
+            <div class="pg-cards-grid">
+                <div class="pg-card" onclick="pgOpenGame('30sec')"><div class="pg-card-icon pg-icon-1"><i class="fa-solid fa-stopwatch"></i></div><h3>30 Second Cricket</h3><p>30-second timed quiz!</p></div>
+                <div class="pg-card" onclick="pgOpenGame('btxi')"><div class="pg-card-icon pg-icon-2"><i class="fa-solid fa-users"></i></div><h3>Build the XI</h3><p>Build your dream team.</p></div>
+                <div class="pg-card" onclick="pgOpenGame('streak')"><div class="pg-card-icon pg-icon-3"><i class="fa-solid fa-fire"></i></div><h3>Cricket Streak</h3><p>Daily challenges!</p></div>
+                <div class="pg-card" onclick="pgOpenGame('battle')"><div class="pg-card-icon pg-icon-4"><i class="fa-solid fa-shield-halved"></i></div><h3>Fan Battle</h3><p>Vote for your side!</p></div>
+                <div class="pg-card" onclick="pgOpenGame('dna')"><div class="pg-card-icon pg-icon-5"><i class="fa-solid fa-dna"></i></div><h3>Cricket DNA</h3><p>Discover your personality.</p></div>
+                <div class="pg-card" onclick="pgOpenGame('mission')"><div class="pg-card-icon pg-icon-6"><i class="fa-solid fa-bullseye"></i></div><h3>Cricket Mission</h3><p>Complete missions, earn XP.</p></div>
+            </div>
         </div>
 
         <!-- Playground Content Panels -->
@@ -568,23 +573,47 @@
         </div>
 
         <div class="explore-panel" id="play-future">
-
-    <!-- Future Games Placeholder -->
-    <section class="section" style="padding-top:10px;">
-        <div class="playground-future">
-            <div class="playground-future-icon"><i class="fa-solid fa-rocket"></i></div>
-            <h3>More Games Coming Soon!</h3>
-            <p>Cricket mini games, skill challenges, prediction games, leaderboards, and more are on the way.</p>
-            <div class="playground-future-features">
-                <div class="playground-future-tag"><i class="fa-solid fa-gamepad"></i> Mini Games</div>
-                <div class="playground-future-tag"><i class="fa-solid fa-bolt"></i> Skill Challenges</div>
-                <div class="playground-future-tag"><i class="fa-solid fa-chart-line"></i> Predictions</div>
-                <div class="playground-future-tag"><i class="fa-solid fa-ranking-star"></i> Leaderboards</div>
-                <div class="playground-future-tag"><i class="fa-solid fa-medal"></i> Badges</div>
-                <div class="playground-future-tag"><i class="fa-solid fa-fire"></i> Streaks</div>
+        <!-- 30 Second Cricket -->
+        <div id="t30c-container" style="display:none;">
+            <button class="pg-back-btn" onclick="pgBackToLanding()"><i class="fa-solid fa-arrow-left"></i> Back to Games</button>
+            <div class="section-header"><i class="fa-solid fa-stopwatch"></i><h2>30 Second Cricket</h2></div>
+            <p style="color:#94a3b8; margin-bottom:24px; font-size:15px;">Answer as many cricket questions as you can in 30 seconds!</p>
+            <!-- Start Screen -->
+            <div id="t30c-start" class="t30c-card">
+                <div class="t30c-timer-icon"><i class="fa-solid fa-stopwatch"></i></div>
+                <h3>Ready to Play?</h3>
+                <p style="color:#94a3b8; margin-bottom:20px;">You have 30 seconds to answer as many cricket questions as possible.</p>
+                <button onclick="t30cStart()" class="t30c-btn t30c-btn-start"><i class="fa-solid fa-play"></i> Start Game</button>
+            </div>
+            <!-- Game Screen -->
+            <div id="t30c-game" style="display:none;" class="t30c-card">
+                <div class="t30c-hud">
+                    <div class="t30c-hud-item"><i class="fa-solid fa-clock"></i> <span id="t30c-time">30</span>s</div>
+                    <div class="t30c-hud-item"><i class="fa-solid fa-check-circle"></i> <span id="t30c-score">0</span></div>
+                    <div class="t30c-hud-item"><i class="fa-solid fa-list-ol"></i> Q<span id="t30c-qnum">1</span></div>
+                </div>
+                <div class="t30c-progress"><div id="t30c-progress-fill" class="t30c-progress-fill"></div></div>
+                <div id="t30c-question" class="t30c-question"></div>
+                <div id="t30c-options" class="t30c-options"></div>
+                <div id="t30c-feedback" class="t30c-feedback"></div>
+            </div>
+            <!-- Result Screen -->
+            <div id="t30c-result" style="display:none;" class="t30c-card">
+                <div id="t30c-result-icon" class="t30c-result-icon"></div>
+                <h2 id="t30c-result-title"></h2>
+                <p id="t30c-result-sub" style="color:#94a3b8; margin-bottom:20px;"></p>
+                <div class="t30c-result-stats">
+                    <div class="t30c-stat"><span class="t30c-stat-val" id="t30c-final-score">0</span><span class="t30c-stat-label">Correct</span></div>
+                    <div class="t30c-stat"><span class="t30c-stat-val" id="t30c-final-answered">0</span><span class="t30c-stat-label">Answered</span></div>
+                    <div class="t30c-stat"><span class="t30c-stat-val" id="t30c-final-pct">0%</span><span class="t30c-stat-label">Accuracy</span></div>
+                </div>
+                <div id="t30c-best-banner" class="t30c-best-banner" style="display:none;"><i class="fa-solid fa-crown"></i> New Best: <span id="t30c-best-val">0</span>!</div>
+                <div class="t30c-result-actions">
+                    <button onclick="t30cStart()" class="t30c-btn t30c-btn-start"><i class="fa-solid fa-rotate-right"></i> Play Again</button>
+                    <button onclick="pgBackToLanding()" class="t30c-btn t30c-btn-back"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                </div>
             </div>
         </div>
-    </section>
 
         </div>
 
