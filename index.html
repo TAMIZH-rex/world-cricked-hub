@@ -124,6 +124,8 @@
             <button class="explore-sub-btn" data-target="explore-iq"><i class="fa-solid fa-graduation-cap"></i> IQ Test</button>
             <button class="explore-sub-btn" data-target="explore-mystery"><i class="fa-solid fa-user-secret"></i> Mystery</button>
             <button class="explore-sub-btn" data-target="explore-quiz"><i class="fa-solid fa-brain"></i> Quiz & Puzzle</button>
+            <button class="explore-sub-btn" data-target="explore-lastover"><i class="fa-solid fa-fire"></i> Last Over</button>
+            <button class="explore-sub-btn" data-target="explore-fanvote"><i class="fa-solid fa-check-to-slot"></i> Fan Vote</button>
         </div>
 
         <!-- Explore Content Panels -->
@@ -428,6 +430,87 @@
 
         </div>
 
+        <div class="explore-panel" id="explore-lastover">
+
+    <!-- Last Over Challenge -->
+    <section id="last-over-challenge" class="section" style="padding-top:10px;">
+        <div class="section-header">
+            <i class="fa-solid fa-fire"></i>
+            <h2>Last Over Challenge</h2>
+        </div>
+        <p style="color:#94a3b8; margin-bottom:24px; font-size:15px;">Chase the target in just 6 balls! Choose your shots wisely.</p>
+        <div id="lbc-difficulty-select" class="lbc-difficulty-grid">
+            <div class="lbc-diff-card" onclick="lbcSelectDifficulty('easy')">
+                <div class="lbc-diff-icon"><i class="fa-solid fa-face-smile"></i></div>
+                <h3>Easy</h3>
+                <p>Target: 8 runs | Wickets: 3</p>
+            </div>
+            <div class="lbc-diff-card" onclick="lbcSelectDifficulty('medium')">
+                <div class="lbc-diff-icon"><i class="fa-solid fa-face-meh"></i></div>
+                <h3>Medium</h3>
+                <p>Target: 12 runs | Wickets: 2</p>
+            </div>
+            <div class="lbc-diff-card" onclick="lbcSelectDifficulty('hard')">
+                <div class="lbc-diff-icon"><i class="fa-solid fa-face-flushed"></i></div>
+                <h3>Hard</h3>
+                <p>Target: 16 runs | Wickets: 1</p>
+            </div>
+        </div>
+        <div id="lbc-game-area" style="display:none;">
+            <div class="lbc-game-card">
+                <div class="lbc-scoreboard">
+                    <div class="lbc-score-item lbc-score-target"><div class="lbc-score-label">Target</div><div id="lbc-target" class="lbc-score-value">8</div></div>
+                    <div class="lbc-score-item lbc-score-runs"><div class="lbc-score-label">Score</div><div id="lbc-score" class="lbc-score-value">0</div></div>
+                    <div class="lbc-score-item lbc-score-needed"><div class="lbc-score-label">Needed</div><div id="lbc-needed" class="lbc-score-value">8</div></div>
+                    <div class="lbc-score-item lbc-score-balls"><div class="lbc-score-label">balls</div><div id="lbc-balls" class="lbc-score-value">6</div></div>
+                    <div class="lbc-score-item lbc-score-wickets"><div class="lbc-score-label">wickets</div><div id="lbc-wickets" class="lbc-score-value">3</div></div>
+                </div>
+                <div id="lbc-over-progress" class="lbc-over-progress"></div>
+                <div id="lbc-message" class="lbc-message">Choose your shot for ball 1!</div>
+                <div id="lbc-actions" class="lbc-actions">
+                    <button onclick="lbcPlayShot('defend')" class="lbc-shot-btn lbc-shot-defend"><i class="fa-solid fa-shield-halved"></i><span class="lbc-shot-name">Defend</span><span class="lbc-shot-desc">Safe play</span></button>
+                    <button onclick="lbcPlayShot('normal')" class="lbc-shot-btn lbc-shot-normal"><i class="fa-solid fa-baseball-bat-ball"></i><span class="lbc-shot-name">Normal Shot</span><span class="lbc-shot-desc">Balanced risk</span></button>
+                    <button onclick="lbcPlayShot('power')" class="lbc-shot-btn lbc-shot-power"><i class="fa-solid fa-bolt"></i><span class="lbc-shot-name">Power Shot</span><span class="lbc-shot-desc">High risk</span></button>
+                </div>
+            </div>
+        </div>
+        <div id="lbc-result-area" style="display:none;">
+            <div class="lbc-result-card">
+                <div id="lbc-result-icon" class="lbc-result-icon"></div>
+                <h2 id="lbc-result-title"></h2>
+                <p id="lbc-result-subtitle" class="lbc-result-subtitle"></p>
+                <div class="lbc-result-stats">
+                    <div class="lbc-stat-box"><span class="lbc-stat-val" id="lbc-final-score">0</span><span class="lbc-stat-label">Runs Scored</span></div>
+                    <div class="lbc-stat-box"><span class="lbc-stat-val" id="lbc-final-target">0</span><span class="lbc-stat-label">Target</span></div>
+                    <div class="lbc-stat-box"><span class="lbc-stat-val" id="lbc-final-balls">0</span><span class="lbc-stat-label">Balls Used</span></div>
+                </div>
+                <div id="lbc-best-score-banner" class="lbc-best-score-banner" style="display:none;"><i class="fa-solid fa-crown"></i> New Best Score: <span id="lbc-best-display">0</span> runs!</div>
+                <div class="lbc-result-actions">
+                    <button onclick="lbcPlayAgain()" class="lbc-btn lbc-btn-primary"><i class="fa-solid fa-rotate-right"></i> Play Again</button>
+                    <button onclick="lbcNewChallenge()" class="lbc-btn lbc-btn-secondary"><i class="fa-solid fa-shuffle"></i> New Challenge</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+        </div>
+
+        <div class="explore-panel" id="explore-fanvote">
+
+    <!-- Fan Vote Arena -->
+    <section id="fan-vote-arena" class="section" style="padding-top:10px;">
+        <div class="section-header">
+            <i class="fa-solid fa-check-to-slot"></i>
+            <h2>Fan Vote Arena</h2>
+        </div>
+        <p style="color:#94a3b8; margin-bottom:30px; font-size:15px;">Cast your vote and see what fellow cricket fans think! Every vote counts.</p>
+        <div id="fva-polls-container" class="fva-polls-grid">
+            <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Loading polls...</div>
+        </div>
+    </section>
+
+        </div>
+
     </section>
 
     <!-- Quiz / Puzzle Result (must stay outside explore panels for JS) -->
@@ -455,137 +538,17 @@
             </div>
         </div>
 
-        <!-- Playground Content Panels -->
-        <div class="explore-panel active" id="play-last-over">
-
-    <!-- Last Over Challenge -->
-    <section id="last-over-challenge" class="section" style="padding-top:10px;">
-        <div class="section-header">
-            <i class="fa-solid fa-fire"></i>
-            <h2>Last Over Challenge</h2>
-        </div>
-        <p style="color:#94a3b8; margin-bottom:24px; font-size:15px;">Chase the target in just 6 balls! Choose your shots wisely.</p>
-
-        <!-- Difficulty Selection -->
-        <div id="lbc-difficulty-select" class="lbc-difficulty-grid">
-            <div class="lbc-diff-card" onclick="lbcSelectDifficulty('easy')">
-                <div class="lbc-diff-icon"><i class="fa-solid fa-face-smile"></i></div>
-                <h3>Easy</h3>
-                <p>Target: 8 runs | Wickets: 3</p>
-            </div>
-            <div class="lbc-diff-card" onclick="lbcSelectDifficulty('medium')">
-                <div class="lbc-diff-icon"><i class="fa-solid fa-face-meh"></i></div>
-                <h3>Medium</h3>
-                <p>Target: 12 runs | Wickets: 2</p>
-            </div>
-            <div class="lbc-diff-card" onclick="lbcSelectDifficulty('hard')">
-                <div class="lbc-diff-icon"><i class="fa-solid fa-face-flushed"></i></div>
-                <h3>Hard</h3>
-                <p>Target: 16 runs | Wickets: 1</p>
-            </div>
-        </div>
-
-        <!-- Game Area -->
-        <div id="lbc-game-area" style="display:none;">
-            <div class="lbc-game-card">
-                <div class="lbc-scoreboard">
-                    <div class="lbc-score-item lbc-score-target">
-                        <div class="lbc-score-label">Target</div>
-                        <div id="lbc-target" class="lbc-score-value">8</div>
-                    </div>
-                    <div class="lbc-score-item lbc-score-runs">
-                        <div class="lbc-score-label">Score</div>
-                        <div id="lbc-score" class="lbc-score-value">0</div>
-                    </div>
-                    <div class="lbc-score-item lbc-score-needed">
-                        <div class="lbc-score-label">Needed</div>
-                        <div id="lbc-needed" class="lbc-score-value">8</div>
-                    </div>
-                    <div class="lbc-score-item lbc-score-balls">
-                        <div class="lbc-score-label">balls</div>
-                        <div id="lbc-balls" class="lbc-score-value">6</div>
-                    </div>
-                    <div class="lbc-score-item lbc-score-wickets">
-                        <div class="lbc-score-label">wickets</div>
-                        <div id="lbc-wickets" class="lbc-score-value">3</div>
-                    </div>
-                </div>
-                <div id="lbc-over-progress" class="lbc-over-progress"></div>
-                <div id="lbc-message" class="lbc-message">Choose your shot for ball 1!</div>
-                <div id="lbc-actions" class="lbc-actions">
-                    <button onclick="lbcPlayShot('defend')" class="lbc-shot-btn lbc-shot-defend">
-                        <i class="fa-solid fa-shield-halved"></i>
-                        <span class="lbc-shot-name">Defend</span>
-                        <span class="lbc-shot-desc">Safe play</span>
-                    </button>
-                    <button onclick="lbcPlayShot('normal')" class="lbc-shot-btn lbc-shot-normal">
-                        <i class="fa-solid fa-baseball-bat-ball"></i>
-                        <span class="lbc-shot-name">Normal Shot</span>
-                        <span class="lbc-shot-desc">Balanced risk</span>
-                    </button>
-                    <button onclick="lbcPlayShot('power')" class="lbc-shot-btn lbc-shot-power">
-                        <i class="fa-solid fa-bolt"></i>
-                        <span class="lbc-shot-name">Power Shot</span>
-                        <span class="lbc-shot-desc">High risk</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Result Area -->
-        <div id="lbc-result-area" style="display:none;">
-            <div class="lbc-result-card">
-                <div id="lbc-result-icon" class="lbc-result-icon"></div>
-                <h2 id="lbc-result-title"></h2>
-                <p id="lbc-result-subtitle" class="lbc-result-subtitle"></p>
-                <div class="lbc-result-stats">
-                    <div class="lbc-stat-box"><span class="lbc-stat-val" id="lbc-final-score">0</span><span class="lbc-stat-label">Runs Scored</span></div>
-                    <div class="lbc-stat-box"><span class="lbc-stat-val" id="lbc-final-target">0</span><span class="lbc-stat-label">Target</span></div>
-                    <div class="lbc-stat-box"><span class="lbc-stat-val" id="lbc-final-balls">0</span><span class="lbc-stat-label">Balls Used</span></div>
-                </div>
-                <div id="lbc-best-score-banner" class="lbc-best-score-banner" style="display:none;">
-                    <i class="fa-solid fa-crown"></i> New Best Score: <span id="lbc-best-display">0</span> runs!
-                </div>
-                <div class="lbc-result-actions">
-                    <button onclick="lbcPlayAgain()" class="lbc-btn lbc-btn-primary"><i class="fa-solid fa-rotate-right"></i> Play Again</button>
-                    <button onclick="lbcNewChallenge()" class="lbc-btn lbc-btn-secondary"><i class="fa-solid fa-shuffle"></i> New Challenge</button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-        </div>
-
-        <div class="explore-panel" id="play-fan-vote">
-
-    <!-- Fan Vote Arena -->
-    <section id="fan-vote-arena" class="section" style="padding-top:10px;">
-        <div class="section-header">
-            <i class="fa-solid fa-check-to-slot"></i>
-            <h2>Fan Vote Arena</h2>
-        </div>
-        <p style="color:#94a3b8; margin-bottom:30px; font-size:15px;">Cast your vote and see what fellow cricket fans think! Every vote counts.</p>
-        <div id="fva-polls-container" class="fva-polls-grid">
-            <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Loading polls...</div>
-        </div>
-    </section>
-
-        </div>
-
-        <div class="explore-panel" id="play-future">
         <!-- 30 Second Cricket -->
         <div id="t30c-container" style="display:none;">
             <button class="pg-back-btn" onclick="pgBackToLanding()"><i class="fa-solid fa-arrow-left"></i> Back to Games</button>
             <div class="section-header"><i class="fa-solid fa-stopwatch"></i><h2>30 Second Cricket</h2></div>
             <p style="color:#94a3b8; margin-bottom:24px; font-size:15px;">Answer as many cricket questions as you can in 30 seconds!</p>
-            <!-- Start Screen -->
             <div id="t30c-start" class="t30c-card">
                 <div class="t30c-timer-icon"><i class="fa-solid fa-stopwatch"></i></div>
                 <h3>Ready to Play?</h3>
                 <p style="color:#94a3b8; margin-bottom:20px;">You have 30 seconds to answer as many cricket questions as possible.</p>
                 <button onclick="t30cStart()" class="t30c-btn t30c-btn-start"><i class="fa-solid fa-play"></i> Start Game</button>
             </div>
-            <!-- Game Screen -->
             <div id="t30c-game" style="display:none;" class="t30c-card">
                 <div class="t30c-hud">
                     <div class="t30c-hud-item"><i class="fa-solid fa-clock"></i> <span id="t30c-time">30</span>s</div>
@@ -597,7 +560,6 @@
                 <div id="t30c-options" class="t30c-options"></div>
                 <div id="t30c-feedback" class="t30c-feedback"></div>
             </div>
-            <!-- Result Screen -->
             <div id="t30c-result" style="display:none;" class="t30c-card">
                 <div id="t30c-result-icon" class="t30c-result-icon"></div>
                 <h2 id="t30c-result-title"></h2>
@@ -620,7 +582,6 @@
             <button class="pg-back-btn" onclick="pgBackToLanding()"><i class="fa-solid fa-arrow-left"></i> Back to Games</button>
             <div class="section-header"><i class="fa-solid fa-users"></i><h2>Build the XI</h2></div>
             <p style="color:#94a3b8; margin-bottom:24px; font-size:15px;">Build your dream cricket XI! Select players by role and create the ultimate team.</p>
-            <!-- Role Filter -->
             <div class="btxi-role-filter">
                 <button class="btxi-filter-btn active" onclick="btxiFilter('all')"><i class="fa-solid fa-users"></i> All</button>
                 <button class="btxi-filter-btn" onclick="btxiFilter('BAT')"><i class="fa-solid fa-baseball-bat-ball"></i> Batsmen</button>
@@ -629,20 +590,13 @@
                 <button class="btxi-filter-btn" onclick="btxiFilter('WK')"><i class="fa-solid fa-mitten"></i> Wicketkeepers</button>
             </div>
             <div class="btxi-layout">
-                <!-- Player Pool -->
                 <div class="btxi-pool">
                     <div class="btxi-pool-header"><i class="fa-solid fa-star"></i> Available Players</div>
                     <div id="btxi-pool-list" class="btxi-pool-list"></div>
                 </div>
-                <!-- Selected XI -->
                 <div class="btxi-selected">
-                    <div class="btxi-selected-header">
-                        <span><i class="fa-solid fa-shield-halved"></i> Your XI (<span id="btxi-count">0</span>/11)</span>
-                    </div>
-                    <div id="btxi-selected-list" class="btxi-selected-list">
-                        <div class="btxi-empty">Select players from the pool →</div>
-                    </div>
-                    <!-- Role Requirements -->
+                    <div class="btxi-selected-header"><span><i class="fa-solid fa-shield-halved"></i> Your XI (<span id="btxi-count">0</span>/11)</span></div>
+                    <div id="btxi-selected-list" class="btxi-selected-list"><div class="btxi-empty">Select players from the pool →</div></div>
                     <div class="btxi-requirements" id="btxi-requirements">
                         <div class="btxi-req" id="btxi-req-bat"><i class="fa-solid fa-baseball-bat-ball"></i> BAT: <span>0</span>/3+</div>
                         <div class="btxi-req" id="btxi-req-bowl"><i class="fa-solid fa-circle-dot"></i> BOWL: <span>0</span>/3+</div>
@@ -653,7 +607,6 @@
                     <button class="btxi-clear-btn" onclick="btxiClearAll()"><i class="fa-solid fa-trash"></i> Clear All</button>
                 </div>
             </div>
-            <!-- Result Area -->
             <div id="btxi-result" style="display:none;" class="btxi-result-card">
                 <div id="btxi-result-icon" class="btxi-result-icon"></div>
                 <h2 id="btxi-result-title"></h2>
@@ -678,7 +631,6 @@
             <button class="pg-back-btn" onclick="pgBackToLanding()"><i class="fa-solid fa-arrow-left"></i> Back to Games</button>
             <div class="section-header"><i class="fa-solid fa-dna"></i><h2>Cricket DNA</h2></div>
             <p style="color:#94a3b8; margin-bottom:24px; font-size:15px;">Answer 8 questions and discover your unique Cricket DNA profile!</p>
-            <!-- Quiz Screen -->
             <div id="dna-quiz" class="dna-card">
                 <div class="dna-hud">
                     <div class="dna-hud-item"><i class="fa-solid fa-dna"></i> Q<span id="dna-qnum">1</span>/8</div>
@@ -688,7 +640,6 @@
                 <div id="dna-question" class="dna-question"></div>
                 <div id="dna-options" class="dna-options"></div>
             </div>
-            <!-- Result Screen -->
             <div id="dna-result" style="display:none;" class="dna-card">
                 <div id="dna-result-icon" class="dna-result-icon"></div>
                 <h2 id="dna-result-title"></h2>
@@ -708,9 +659,7 @@
             <button class="pg-back-btn" onclick="pgBackToLanding()"><i class="fa-solid fa-arrow-left"></i> Back to Games</button>
             <div class="section-header"><i class="fa-solid fa-shield-halved"></i><h2>Fan Battle</h2></div>
             <p style="color:#94a3b8; margin-bottom:24px; font-size:15px;">Pick your side in epic cricket showdowns! Every vote counts.</p>
-            <div id="fb-battles-grid" class="fb-battles-grid">
-                <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Loading battles...</div>
-            </div>
+            <div id="fb-battles-grid" class="fb-battles-grid"><div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Loading battles...</div></div>
         </div>
 
         <!-- Cricket Streak -->
@@ -718,30 +667,13 @@
             <button class="pg-back-btn" onclick="pgBackToLanding()"><i class="fa-solid fa-arrow-left"></i> Back to Games</button>
             <div class="section-header"><i class="fa-solid fa-fire"></i><h2>Cricket Streak</h2></div>
             <p style="color:#94a3b8; margin-bottom:24px; font-size:15px;">Complete today's cricket challenge and keep your streak alive!</p>
-            <!-- Streak Stats -->
             <div class="streak-stats">
-                <div class="streak-stat-card">
-                    <div class="streak-stat-icon streak-icon-fire"><i class="fa-solid fa-fire"></i></div>
-                    <div class="streak-stat-val" id="streak-current">0</div>
-                    <div class="streak-stat-label">Current Streak</div>
-                </div>
-                <div class="streak-stat-card">
-                    <div class="streak-stat-icon streak-icon-best"><i class="fa-solid fa-crown"></i></div>
-                    <div class="streak-stat-val" id="streak-best">0</div>
-                    <div class="streak-stat-label">Best Streak</div>
-                </div>
-                <div class="streak-stat-card">
-                    <div class="streak-stat-icon streak-icon-total"><i class="fa-solid fa-calendar-check"></i></div>
-                    <div class="streak-stat-val" id="streak-total">0</div>
-                    <div class="streak-stat-label">Days Played</div>
-                </div>
+                <div class="streak-stat-card"><div class="streak-stat-icon streak-icon-fire"><i class="fa-solid fa-fire"></i></div><div class="streak-stat-val" id="streak-current">0</div><div class="streak-stat-label">Current Streak</div></div>
+                <div class="streak-stat-card"><div class="streak-stat-icon streak-icon-best"><i class="fa-solid fa-crown"></i></div><div class="streak-stat-val" id="streak-best">0</div><div class="streak-stat-label">Best Streak</div></div>
+                <div class="streak-stat-card"><div class="streak-stat-icon streak-icon-total"><i class="fa-solid fa-calendar-check"></i></div><div class="streak-stat-val" id="streak-total">0</div><div class="streak-stat-label">Days Played</div></div>
             </div>
-            <!-- Streak Calendar -->
             <div class="streak-calendar" id="streak-calendar"></div>
-            <!-- Challenge Area -->
-            <div id="streak-challenge" class="streak-card">
-                <div id="streak-challenge-content"></div>
-            </div>
+            <div id="streak-challenge" class="streak-card"><div id="streak-challenge-content"></div></div>
         </div>
 
         <!-- Cricket Mission -->
@@ -758,8 +690,6 @@
             <div id="cm-daily-list" class="cm-missions-list"></div>
             <div class="cm-section-label"><i class="fa-solid fa-calendar-week"></i> Weekly Missions</div>
             <div id="cm-weekly-list" class="cm-missions-list"></div>
-        </div>
-
         </div>
 
     </section>
