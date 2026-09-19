@@ -2784,7 +2784,8 @@ function pgOpenGame(gameId) {
         "mission": "cm-container",
         "btxi": "btxi-container",
         "dna": "dna-container",
-        "streak": "streak-container"
+        "streak": "streak-container",
+        "predictions": "pred-container"
     };
     var targetId = gameMap[gameId];
     if (targetId) {
@@ -2798,9 +2799,10 @@ function pgOpenGame(gameId) {
 }
 function pgBackToLanding() {
     t30cStopTimer();
+    predStopCD();
     var landing = document.getElementById("pg-landing");
     var panels = document.querySelectorAll("#playground .explore-panel");
-    var games = document.querySelectorAll("#playground .pg-game-container, #t30c-container, #fb-container, #cm-container, #btxi-container, #dna-container, #streak-container");
+    var games = document.querySelectorAll("#playground .pg-game-container, #t30c-container, #fb-container, #cm-container, #btxi-container, #dna-container, #streak-container, #pred-container");
     if (landing) landing.style.display = "";
     panels.forEach(function(p) { p.style.display = ""; });
     games.forEach(function(g) { g.style.display = "none"; });
@@ -3897,6 +3899,585 @@ function cmRender() {
 }
 
 cmRender();
+
+// ========================================
+// 🔮 PREDICTIONS
+// ========================================
+
+var predMatches = [
+    {
+        id: "pred-m1",
+        teamA: { name: "India", short: "IND", flag: "🇮🇳", players: ["Virat Kohli","Rohit Sharma","Shubman Gill","Jasprit Bumrah","Kuldeep Yadav"] },
+        teamB: { name: "Australia", short: "AUS", flag: "🇦🇺", players: ["Steve Smith","Travis Head","Pat Cummins","Mitchell Starc","Glenn Maxwell"] },
+        venue: "MCG, Melbourne", type: "ODI",
+        lockTime: Date.now() + 2 * 60 * 60 * 1000, result: null
+    },
+    {
+        id: "pred-m2",
+        teamA: { name: "England", short: "ENG", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", players: ["Joe Root","Ben Stokes","Harry Brook","Jofra Archer","Mark Wood"] },
+        teamB: { name: "South Africa", short: "SA", flag: "🇿🇦", players: ["Aiden Markram","Kagiso Rabada","David Miller","Quinton de Kock","Anrich Nortje"] },
+        venue: "Lord's, London", type: "Test",
+        lockTime: Date.now() - 30 * 60 * 1000, result: null
+    },
+    {
+        id: "pred-m3",
+        teamA: { name: "Pakistan", short: "PAK", flag: "🇵🇰", players: ["Babar Azam","Shaheen Afridi","Mohammad Rizwan","Fakhar Zaman","Haris Rauf"] },
+        teamB: { name: "New Zealand", short: "NZ", flag: "🇳🇿", players: ["Kane Williamson","Trent Boult","Devon Conway","Tim Southee","Glenn Phillips"] },
+        venue: "Eden Park, Auckland", type: "T20I",
+        lockTime: Date.now() - 24 * 60 * 60 * 1000,
+        result: { winner: "NZ", topBatter: "Kane Williamson", topBowler: "Trent Boult", player50Plus: true, scoreRange: "200-249" }
+    }
+];
+
+var predCats = [
+    { id: "winner", title: "Make Your Call", icon: "👀", desc: "Who's winning this one?" },
+    { id: "topBatter", title: "Who'll Cook?", icon: "🔥", desc: "Who's smashing it today?" },
+    { id: "topBowler", title: "Bowler Mode", icon: "⚡", desc: "Who's taking the most wickets?" },
+    { id: "player50Plus", title: "50+ or Nah?", icon: "🎯", desc: "Will someone score a fifty?" },
+    { id: "score", title: "Score Guess", icon: "📊", desc: "Predict the winning team's score" }
+];
+
+var predScoreRanges = ["Under 150", "150-199", "200-249", "250-299", "300+"];
+
+var predBadgesDef = [
+    { id: "first_pred", title: "First Timer", icon: "🎯", desc: "Make your first prediction", check: function(d) { return d.totalPredictions >= 1; } },
+    { id: "hat_trick", title: "Hat-Trick Hero", icon: "🎩", desc: "3-day prediction streak", check: function(d) { return d.bestStreak >= 3; } },
+    { id: "on_fire", title: "On Fire", icon: "🔥", desc: "5-day prediction streak", check: function(d) { return d.bestStreak >= 5; } },
+    { id: "perfect_round", title: "Perfect Round", icon: "🏆", desc: "All 5 correct in one match", check: function(d) { return d.perfectRounds >= 1; } },
+    { id: "oracle", title: "Oracle", icon: "🔮", desc: "15 correct predictions", check: function(d) { return d.totalCorrect >= 15; } },
+    { id: "big_brain", title: "Big Brain", icon: "🧠", desc: "80%+ accuracy (min 10)", check: function(d) { return d.totalPredictions >= 10 && (d.totalCorrect / d.totalPredictions * 100) >= 80; } },
+    { id: "streak_lord", title: "Streak Lord", icon: "👑", desc: "10-day streak", check: function(d) { return d.bestStreak >= 10; } },
+    { id: "dedicated", title: "Dedicated Fan", icon: "❤️", desc: "Predict 5 different matches", check: function(d) { return d.totalMatchesPredicted >= 5; } }
+];
+
+var predLeaderboardData = [
+    { name: "CricketKing99", xp: 1250, streak: 7, accuracy: 82, badge: "👑" },
+    { name: "PitchReader", xp: 980, streak: 5, accuracy: 78, badge: "🧠" },
+    { name: "SixerQueen", xp: 870, streak: 3, accuracy: 75, badge: "🔥" },
+    { name: "BoundaryHunter", xp: 720, streak: 4, accuracy: 71, badge: "⚡" },
+    { name: "T20Fanatic", xp: 650, streak: 2, accuracy: 68, badge: "🎯" }
+];
+
+var predCurrentMatchId = null;
+var predCatIdx = 0;
+var predCDTimer = null;
+
+function predGetData() {
+    try { return JSON.parse(localStorage.getItem("wch_pred_data")) || predDefData(); }
+    catch(e) { return predDefData(); }
+}
+function predDefData() {
+    return { xp:0, totalCorrect:0, totalPredictions:0, totalMatchesPredicted:0, perfectRounds:0, streak:0, bestStreak:0, lastPredDate:null, badges:[], predictions:{} };
+}
+function predSave(d) { localStorage.setItem("wch_pred_data", JSON.stringify(d)); }
+
+function predMatchStatus(m) {
+    if (m.result) return "completed";
+    if (Date.now() >= m.lockTime) return "locked";
+    return "upcoming";
+}
+function predFmtCD(ms) {
+    if (ms <= 0) return "⏰ Locked";
+    var s = Math.floor(ms/1000), h = Math.floor(s/3600); s %= 3600;
+    var m = Math.floor(s/60); s %= 60;
+    if (h > 0) return h + "h " + m + "m " + s + "s";
+    return m + "m " + s + "s";
+}
+
+function predRender() {
+    predRenderStats();
+    predRenderMatchList();
+    predRenderLeaderboard();
+    predRenderBadges();
+    predStartCD();
+}
+
+function predRenderStats() {
+    var d = predGetData();
+    var acc = d.totalPredictions > 0 ? Math.round(d.totalCorrect / d.totalPredictions * 100) : 0;
+    var els = { "pred-xp": d.xp, "pred-streak": d.streak, "pred-acc": acc + "%", "pred-badge-count": d.badges.length };
+    for (var k in els) { var el = document.getElementById(k); if (el) el.textContent = els[k]; }
+}
+
+function predRenderMatchList() {
+    var c = document.getElementById("pred-match-list"); if (!c) return;
+    var d = predGetData();
+    var html = "";
+    predMatches.forEach(function(match) {
+        var st = predMatchStatus(match);
+        var has = d.predictions[match.id] && d.predictions[match.id].submitted;
+        html += '<div class="pred-match-card pred-st-' + st + '" onclick="predOpenMatch(\'' + match.id + '\')">';
+        html += '<div class="pred-mc-top">';
+        html += '<div class="pred-teams-row">';
+        html += '<span class="pred-flag">' + match.teamA.flag + '</span><span class="pred-tname">' + match.teamA.short + '</span>';
+        html += '<span class="pred-vs">VS</span>';
+        html += '<span class="pred-tname">' + match.teamB.short + '</span><span class="pred-flag">' + match.teamB.flag + '</span>';
+        html += '</div>';
+        html += '<div class="pred-mc-meta">' + match.type + ' • ' + match.venue + '</div>';
+        html += '</div><div class="pred-mc-bot">';
+        if (st === "upcoming") {
+            html += '<span class="pred-tag-open">Predictions Open 🔓</span>';
+            html += '<span class="pred-cd-label" id="pred-cd-' + match.id + '">' + predFmtCD(match.lockTime - Date.now()) + '</span>';
+        } else if (st === "locked") {
+            html += '<span class="pred-tag-locked">🔒 Locked</span>';
+            if (has) html += '<span class="pred-wait">Waiting for result...</span>';
+        } else {
+            html += '<span class="pred-tag-done">✅ Results out!</span>';
+            if (has) {
+                var sc = predCalcScore(match.id);
+                html += '<span class="pred-resscore">' + sc.correct + '/5 correct</span>';
+            }
+        }
+        html += '</div></div>';
+    });
+    c.innerHTML = html;
+}
+
+function predRenderLeaderboard() {
+    var c = document.getElementById("pred-leaderboard"); if (!c) return;
+    var d = predGetData();
+    var acc = d.totalPredictions > 0 ? Math.round(d.totalCorrect / d.totalPredictions * 100) : 0;
+    var all = predLeaderboardData.slice();
+    all.push({ name: "You", xp: d.xp, streak: d.streak, accuracy: acc, badge: "⭐", isUser: true });
+    all.sort(function(a,b) { return b.xp - a.xp; });
+    var top5 = all.slice(0, 6);
+    var html = "";
+    top5.forEach(function(p, i) {
+        var medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "#" + (i+1);
+        html += '<div class="pred-lb-row' + (p.isUser ? ' pred-lb-you' : '') + '">';
+        html += '<span class="pred-lb-rank">' + medal + '</span>';
+        html += '<span class="pred-lb-badge">' + p.badge + '</span>';
+        html += '<span class="pred-lb-name">' + p.name + '</span>';
+        html += '<span class="pred-lb-xp">' + p.xp + ' XP</span>';
+        html += '</div>';
+    });
+    c.innerHTML = html;
+}
+
+function predRenderBadges() {
+    var c = document.getElementById("pred-badges"); if (!c) return;
+    var d = predGetData();
+    var html = "";
+    predBadgesDef.forEach(function(b) {
+        var has = d.badges.indexOf(b.id) !== -1;
+        html += '<div class="pred-badge-card' + (has ? ' pred-badge-earned' : ' pred-badge-locked') + '">';
+        html += '<div class="pred-badge-icon">' + (has ? b.icon : '🔒') + '</div>';
+        html += '<div class="pred-badge-title">' + b.title + '</div>';
+        html += '<div class="pred-badge-desc">' + b.desc + '</div>';
+        html += '</div>';
+    });
+    c.innerHTML = html;
+}
+
+function predOpenMatch(matchId) {
+    var match = predMatches.find(function(m) { return m.id === matchId; });
+    if (!match) return;
+    var st = predMatchStatus(match);
+    if (st === "completed") { predShowResults(matchId); return; }
+    predCurrentMatchId = matchId;
+    predCatIdx = 0;
+    document.getElementById("pred-list-view").style.display = "none";
+    document.getElementById("pred-results-view").style.display = "none";
+    document.getElementById("pred-panel-view").style.display = "block";
+    predRenderPanel(match);
+}
+
+function predShowList() {
+    predStopCD();
+    document.getElementById("pred-list-view").style.display = "";
+    document.getElementById("pred-panel-view").style.display = "none";
+    document.getElementById("pred-results-view").style.display = "none";
+    predCurrentMatchId = null;
+    predRender();
+    document.getElementById("pred-container").scrollIntoView({ behavior: "smooth" });
+}
+
+function predRenderPanel(match) {
+    var d = predGetData();
+    var st = predMatchStatus(match);
+    var has = d.predictions[match.id] && d.predictions[match.id].submitted;
+    var locked = st === "locked";
+    // Header
+    document.getElementById("pred-panel-teams").innerHTML = match.teamA.flag + ' ' + match.teamA.short + ' vs ' + match.teamB.short + ' ' + match.teamB.flag;
+    document.getElementById("pred-panel-meta").textContent = match.type + ' • ' + match.venue;
+    var cdEl = document.getElementById("pred-panel-cd");
+    if (locked) {
+        cdEl.innerHTML = '<span class="pred-cd-locked">🔒 Predictions Locked</span>';
+    } else if (has) {
+        cdEl.innerHTML = '<span class="pred-cd-submitted">✅ Your picks are locked in!</span>';
+    } else {
+        cdEl.innerHTML = '<span class="pred-cd-time" id="pred-panel-cd-time">' + predFmtCD(match.lockTime - Date.now()) + '</span>';
+    }
+    // Category tabs
+    var tabsHtml = "";
+    predCats.forEach(function(cat, i) {
+        tabsHtml += '<button class="pred-cat-btn' + (i === predCatIdx ? ' active' : '') + '" onclick="predSetCat(' + i + ')">' + cat.icon + ' ' + cat.title + '</button>';
+    });
+    document.getElementById("pred-cat-tabs").innerHTML = tabsHtml;
+    // Content
+    predRenderCatContent(match, predCatIdx);
+    // Submit button
+    var subBtn = document.getElementById("pred-submit-btn");
+    if (locked || has) {
+        subBtn.style.display = "none";
+    } else {
+        subBtn.style.display = "";
+        subBtn.disabled = false;
+    }
+}
+
+function predSetCat(idx) {
+    predCatIdx = idx;
+    var match = predMatches.find(function(m) { return m.id === predCurrentMatchId; });
+    if (!match) return;
+    var d = predGetData();
+    var st = predMatchStatus(match);
+    var locked = st === "locked";
+    var has = d.predictions[match.id] && d.predictions[match.id].submitted;
+    document.querySelectorAll(".pred-cat-btn").forEach(function(b, i) {
+        b.classList.toggle("active", i === idx);
+    });
+    predRenderCatContent(match, predCatIdx);
+}
+
+function predRenderCatContent(match, catIdx) {
+    var cat = predCats[catIdx];
+    var c = document.getElementById("pred-cat-content");
+    if (!c) return;
+    var d = predGetData();
+    var preds = d.predictions[match.id] || {};
+    var st = predMatchStatus(match);
+    var locked = st === "locked";
+    var submitted = preds.submitted;
+    var disabled = locked || submitted;
+    var allPlayers = match.teamA.players.concat(match.teamB.players);
+
+    var html = '<div class="pred-cat-header"><span class="pred-cat-title">' + cat.icon + ' ' + cat.title + '</span><span class="pred-cat-desc">' + cat.desc + '</span></div>';
+
+    if (cat.id === "winner") {
+        [match.teamA, match.teamB].forEach(function(team) {
+            var sel = preds.winner === team.short;
+            html += '<button class="pred-opt-btn' + (sel ? ' pred-sel' : '') + '"' + (disabled ? '' : ' onclick="predSelect(\'winner\',\'' + team.short + '\')"') + '>';
+            html += '<span class="pred-opt-flag">' + team.flag + '</span>';
+            html += '<span class="pred-opt-name">' + team.name + '</span>';
+            if (sel) html += ' <i class="fa-solid fa-check"></i>';
+            html += '</button>';
+        });
+    } else if (cat.id === "topBatter") {
+        allPlayers.forEach(function(p) {
+            var sel = preds.topBatter === p;
+            html += '<button class="pred-opt-btn pred-opt-sm' + (sel ? ' pred-sel' : '') + '"' + (disabled ? '' : ' onclick="predSelect(\'topBatter\',\'' + p.replace(/'/g,"\\'") + '\')"') + '>';
+            html += p;
+            if (sel) html += ' <i class="fa-solid fa-check"></i>';
+            html += '</button>';
+        });
+    } else if (cat.id === "topBowler") {
+        allPlayers.forEach(function(p) {
+            var sel = preds.topBowler === p;
+            html += '<button class="pred-opt-btn pred-opt-sm' + (sel ? ' pred-sel' : '') + '"' + (disabled ? '' : ' onclick="predSelect(\'topBowler\',\'' + p.replace(/'/g,"\\'") + '\')"') + '>';
+            html += p;
+            if (sel) html += ' <i class="fa-solid fa-check"></i>';
+            html += '</button>';
+        });
+    } else if (cat.id === "player50Plus") {
+        var keyBatters = [match.teamA.players[0], match.teamA.players[1], match.teamB.players[0], match.teamB.players[1]];
+        keyBatters.forEach(function(p) {
+            var val = preds.player50Plus ? preds.player50Plus[p] : null;
+            html += '<div class="pred-50-row">';
+            html += '<span class="pred-50-name">' + p + '</span>';
+            html += '<div class="pred-50-btns">';
+            html += '<button class="pred-yn-btn' + (val === true ? ' pred-yn-sel-yes' : '') + '"' + (disabled ? '' : ' onclick="predSelect50(\'' + p.replace(/'/g,"\\'") + '\',true)"') + '>Yes 🔥</button>';
+            html += '<button class="pred-yn-btn' + (val === false ? ' pred-yn-sel-no' : '') + '"' + (disabled ? '' : ' onclick="predSelect50(\'' + p.replace(/'/g,"\\'") + '\',false)"') + '>Nah 😭</button>';
+            html += '</div></div>';
+        });
+    } else if (cat.id === "score") {
+        predScoreRanges.forEach(function(r) {
+            var sel = preds.score === r;
+            html += '<button class="pred-opt-btn pred-opt-score' + (sel ? ' pred-sel' : '') + '"' + (disabled ? '' : ' onclick="predSelect(\'score\',\'' + r + '\')"') + '>';
+            html += r;
+            if (sel) html += ' <i class="fa-solid fa-check"></i>';
+            html += '</button>';
+        });
+    }
+
+    if (disabled && submitted) {
+        html += '<div class="pred-locked-msg">✅ Your picks are locked in. Let\'s see if you\'re right! 👀</div>';
+    }
+    c.innerHTML = html;
+}
+
+function predSelect(key, val) {
+    if (!predCurrentMatchId) return;
+    var d = predGetData();
+    if (!d.predictions[predCurrentMatchId]) d.predictions[predCurrentMatchId] = {};
+    d.predictions[predCurrentMatchId][key] = val;
+    predSave(d);
+    var match = predMatches.find(function(m) { return m.id === predCurrentMatchId; });
+    if (match) predRenderCatContent(match, predCatIdx);
+}
+
+function predSelect50(player, val) {
+    if (!predCurrentMatchId) return;
+    var d = predGetData();
+    if (!d.predictions[predCurrentMatchId]) d.predictions[predCurrentMatchId] = {};
+    if (!d.predictions[predCurrentMatchId].player50Plus) d.predictions[predCurrentMatchId].player50Plus = {};
+    d.predictions[predCurrentMatchId].player50Plus[player] = val;
+    predSave(d);
+    var match = predMatches.find(function(m) { return m.id === predCurrentMatchId; });
+    if (match) predRenderCatContent(match, predCatIdx);
+}
+
+function predSubmitAll() {
+    if (!predCurrentMatchId) return;
+    var d = predGetData();
+    var preds = d.predictions[predCurrentMatchId] || {};
+    // Validate all categories
+    var missing = [];
+    if (!preds.winner) missing.push("Make Your Call");
+    if (!preds.topBatter) missing.push("Who'll Cook?");
+    if (!preds.topBowler) missing.push("Bowler Mode");
+    if (!preds.player50Plus || Object.keys(preds.player50Plus).length < 4) missing.push("50+ or Nah?");
+    if (!preds.score) missing.push("Score Guess");
+
+    if (missing.length > 0) {
+        alert("Complete all predictions first!\nMissing: " + missing.join(", "));
+        return;
+    }
+
+    // Mark as submitted
+    preds.submitted = true;
+    preds.timestamp = Date.now();
+    d.predictions[predCurrentMatchId] = preds;
+    d.totalPredictions += 5;
+    d.totalMatchesPredicted++;
+    // Streak
+    var today = new Date().toISOString().split("T")[0];
+    if (d.lastPredDate) {
+        var prev = new Date(d.lastPredDate);
+        var now = new Date(today);
+        var diff = Math.floor((now - prev) / 86400000);
+        if (diff === 1) { d.streak++; }
+        else if (diff > 1) { d.streak = 1; }
+    } else { d.streak = 1; }
+    if (d.streak > d.bestStreak) d.bestStreak = d.streak;
+    d.lastPredDate = today;
+    predSave(d);
+
+    // Check if result already available
+    var match = predMatches.find(function(m) { return m.id === predCurrentMatchId; });
+    if (match && match.result) {
+        var score = predCalcScore(predCurrentMatchId);
+        d.totalCorrect += score.correct;
+        if (score.correct === 5) d.perfectRounds++;
+        var xp = score.correct * 15 + (score.correct === 5 ? 50 : 0) + (d.streak * 5);
+        d.xp += xp;
+        predSave(d);
+        predCheckBadges();
+        predShowConfirm(predCurrentMatchId, score.correct, xp);
+    } else {
+        predShowConfirm(predCurrentMatchId, null, 0);
+    }
+}
+
+function predShowConfirm(matchId, correct, xp) {
+    var match = predMatches.find(function(m) { return m.id === matchId; });
+    var c = document.getElementById("pred-results-view");
+    document.getElementById("pred-list-view").style.display = "none";
+    document.getElementById("pred-panel-view").style.display = "none";
+    c.style.display = "block";
+    var html = '<div class="pred-confirm-card">';
+    html += '<div class="pred-confirm-icon">🎯</div>';
+    html += '<h2 class="pred-confirm-title">Locked in! 🔒</h2>';
+    html += '<p class="pred-confirm-sub">' + match.teamA.short + ' vs ' + match.teamB.short + ' — Let\'s see if you\'re right! 👀</p>';
+    html += '<div class="pred-confirm-picks">';
+    var d = predGetData();
+    var preds = d.predictions[matchId] || {};
+    html += '<div class="pred-pick-row"><span class="pred-pick-cat">👀 Winner</span><span class="pred-pick-val">' + (preds.winner || '-') + '</span></div>';
+    html += '<div class="pred-pick-row"><span class="pred-pick-cat">🔥 Top Batter</span><span class="pred-pick-val">' + (preds.topBatter || '-') + '</span></div>';
+    html += '<div class="pred-pick-row"><span class="pred-pick-cat">⚡ Top Bowler</span><span class="pred-pick-val">' + (preds.topBowler || '-') + '</span></div>';
+    html += '<div class="pred-pick-row"><span class="pred-pick-cat">📊 Score</span><span class="pred-pick-val">' + (preds.score || '-') + '</span></div>';
+    html += '</div>';
+    if (correct !== null) {
+        html += '<div class="pred-confirm-result">';
+        html += '<div class="pred-res-big">' + correct + '/5</div>';
+        html += '<div class="pred-res-label">' + (correct === 5 ? 'You called it! 🔥' : correct >= 3 ? 'Not bad! 💪' : 'Oops… not this time 😭') + '</div>';
+        html += '<div class="pred-res-xp">+' + xp + ' XP</div>';
+        html += '</div>';
+    } else {
+        html += '<div class="pred-confirm-wait"><div class="pred-res-big">⏳</div><div class="pred-res-label">Results coming after the match...</div></div>';
+    }
+    html += '<button class="pred-back-btn" onclick="predShowList()"><i class="fa-solid fa-arrow-left"></i> Back to Predictions</button>';
+    html += '</div>';
+    c.innerHTML = html;
+}
+
+function predShowResults(matchId) {
+    var match = predMatches.find(function(m) { return m.id === matchId; });
+    if (!match || !match.result) return;
+    var d = predGetData();
+    var preds = d.predictions[matchId];
+    var score = predCalcScore(matchId);
+    var c = document.getElementById("pred-results-view");
+    document.getElementById("pred-list-view").style.display = "none";
+    document.getElementById("pred-panel-view").style.display = "none";
+    c.style.display = "block";
+
+    var html = '<div class="pred-results-card">';
+    html += '<div class="pred-results-header">';
+    html += '<div class="pred-results-teams">' + match.teamA.flag + ' ' + match.teamA.short + ' vs ' + match.teamB.short + ' ' + match.teamB.flag + '</div>';
+    html += '<div class="pred-results-venue">' + match.type + ' • ' + match.venue + '</div>';
+    html += '</div>';
+
+    if (!preds || !preds.submitted) {
+        html += '<div class="pred-results-empty"><div class="pred-res-big">😅</div><div class="pred-res-label">You didn\'t predict this one!</div><p class="pred-res-sub">Don\'t miss the next match 🔥</p></div>';
+    } else {
+        html += '<div class="pred-results-score">';
+        html += '<div class="pred-res-big">' + score.correct + '/5</div>';
+        html += '<div class="pred-res-label">' + (score.correct === 5 ? 'You called it! 🔥🔥🔥' : score.correct >= 3 ? 'Solid predictions! 💪' : 'Tough luck! 😭') + '</div>';
+        html += '</div>';
+        html += '<div class="pred-results-breakdown">';
+        var cats = [
+            { key: "winner", label: "👀 Winner", field: "winner" },
+            { key: "topBatter", label: "🔥 Top Batter", field: "topBatter" },
+            { key: "topBowler", label: "⚡ Top Bowler", field: "topBowler" },
+            { key: "score", label: "📊 Score", field: "scoreRange" }
+        ];
+        cats.forEach(function(cat) {
+            var pred = preds[cat.key] || "-";
+            var actual = match.result[cat.field] || "-";
+            var isCorrect = pred === actual;
+            html += '<div class="pred-result-row ' + (isCorrect ? 'pred-row-correct' : 'pred-row-wrong') + '">';
+            html += '<span class="pred-result-label">' + cat.label + '</span>';
+            html += '<span class="pred-result-pred">You: ' + pred + '</span>';
+            html += '<span class="pred-result-actual">Actual: ' + actual + '</span>';
+            html += '<span class="pred-result-icon">' + (isCorrect ? '✅' : '❌') + '</span>';
+            html += '</div>';
+        });
+        // 50+ check
+        var keyBatters = [match.teamA.players[0], match.teamA.players[1], match.teamB.players[0], match.teamB.players[1]];
+        var any50 = match.result.player50Plus;
+        var predAny = false;
+        if (preds.player50Plus) {
+            keyBatters.forEach(function(p) { if (preds.player50Plus[p] === true) predAny = true; });
+        }
+        var is50Correct = predAny === any50;
+        html += '<div class="pred-result-row ' + (is50Correct ? 'pred-row-correct' : 'pred-row-wrong') + '">';
+        html += '<span class="pred-result-label">🎯 50+</span>';
+        html += '<span class="pred-result-pred">You: ' + (predAny ? "Yes" : "Nah") + '</span>';
+        html += '<span class="pred-result-actual">Actual: ' + (any50 ? "Yes" : "Nah") + '</span>';
+        html += '<span class="pred-result-icon">' + (is50Correct ? '✅' : '❌') + '</span>';
+        html += '</div>';
+        html += '</div>';
+    }
+    html += '<button class="pred-back-btn" onclick="predShowList()"><i class="fa-solid fa-arrow-left"></i> Back to Predictions</button>';
+    html += '</div>';
+    c.innerHTML = html;
+}
+
+function predCalcScore(matchId) {
+    var d = predGetData();
+    var preds = d.predictions[matchId];
+    var match = predMatches.find(function(m) { return m.id === matchId; });
+    var result = match && match.result;
+    var correct = 0;
+    if (!preds || !result) return { correct: 0 };
+    if (preds.winner === result.winner) correct++;
+    if (preds.topBatter === result.topBatter) correct++;
+    if (preds.topBowler === result.topBowler) correct++;
+    if (preds.score === result.scoreRange) correct++;
+    var keyBatters = [match.teamA.players[0], match.teamA.players[1], match.teamB.players[0], match.teamB.players[1]];
+    var any50 = result.player50Plus;
+    var predAny = false;
+    if (preds.player50Plus) {
+        keyBatters.forEach(function(p) { if (preds.player50Plus[p] === true) predAny = true; });
+    }
+    if (predAny === any50) correct++;
+    return { correct: correct };
+}
+
+function predCheckBadges() {
+    var d = predGetData();
+    var changed = false;
+    predBadgesDef.forEach(function(b) {
+        if (d.badges.indexOf(b.id) === -1 && b.check(d)) {
+            d.badges.push(b.id);
+            changed = true;
+            predShowBadgeNotif(b);
+        }
+    });
+    if (changed) predSave(d);
+}
+
+function predShowBadgeNotif(b) {
+    var n = document.createElement("div");
+    n.style.cssText = "position:fixed;top:80px;right:20px;background:rgba(168,85,247,0.95);color:white;padding:14px 20px;border-radius:12px;font-weight:700;font-size:14px;z-index:9999;box-shadow:0 8px 30px rgba(168,85,247,0.4);font-family:'Inter',sans-serif;display:flex;align-items:center;gap:8px;";
+    n.innerHTML = b.icon + ' Badge Unlocked: ' + b.title + '!';
+    document.body.appendChild(n);
+    setTimeout(function() { n.remove(); }, 3500);
+}
+
+function predStartCD() {
+    predStopCD();
+    predCDTimer = setInterval(function() {
+        predMatches.forEach(function(match) {
+            if (predMatchStatus(match) !== "upcoming") return;
+            var el = document.getElementById("pred-cd-" + match.id);
+            var remaining = match.lockTime - Date.now();
+            if (el) el.textContent = predFmtCD(remaining);
+            if (remaining <= 0) {
+                predRenderMatchList();
+                if (predCurrentMatchId === match.id) {
+                    var panel = document.getElementById("pred-panel-cd");
+                    if (panel) panel.innerHTML = '<span class="pred-cd-locked">🔒 Predictions Locked</span>';
+                    var btn = document.getElementById("pred-submit-btn");
+                    if (btn) btn.style.display = "none";
+                    var d = predGetData();
+                    if (d.predictions[match.id] && d.predictions[match.id].submitted) {
+                        var cd = document.getElementById("pred-panel-cd");
+                        if (cd) cd.innerHTML = '<span class="pred-cd-submitted">✅ Your picks are locked in!</span>';
+                    }
+                }
+            }
+        });
+        // Auto-check results for locked matches
+        predMatches.forEach(function(match) {
+            if (predMatchStatus(match) === "locked" && !match.result) {
+                // Auto-complete after 5 minutes for demo
+                if (Date.now() >= match.lockTime + 5 * 60 * 1000) {
+                    var winners = [match.teamA.short, match.teamB.short];
+                    var allP = match.teamA.players.concat(match.teamB.players);
+                    match.result = {
+                        winner: winners[Math.floor(Math.random() * 2)],
+                        topBatter: allP[Math.floor(Math.random() * allP.length)],
+                        topBowler: allP[Math.floor(Math.random() * allP.length)],
+                        player50Plus: Math.random() > 0.4,
+                        scoreRange: predScoreRanges[Math.floor(Math.random() * predScoreRanges.length)]
+                    };
+                    predCalcAndScore(match.id);
+                    predRenderMatchList();
+                }
+            }
+        });
+    }, 1000);
+}
+function predStopCD() { if (predCDTimer) { clearInterval(predCDTimer); predCDTimer = null; } }
+
+function predCalcAndScore(matchId) {
+    var d = predGetData();
+    var preds = d.predictions[matchId];
+    if (!preds || !preds.submitted) return;
+    var match = predMatches.find(function(m) { return m.id === matchId; });
+    if (!match || !match.result) return;
+    var score = predCalcScore(matchId);
+    d.totalCorrect += score.correct;
+    if (score.correct === 5) d.perfectRounds++;
+    var xp = score.correct * 15 + (score.correct === 5 ? 50 : 0) + (d.streak * 5);
+    d.xp += xp;
+    predSave(d);
+    predCheckBadges();
+}
+
+predRender();
 
 // ========================================
 // Hook: 30 Second Cricket end -> mission

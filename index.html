@@ -535,6 +535,7 @@
                 <div class="pg-card" onclick="pgOpenGame('battle')"><div class="pg-card-icon pg-icon-4"><i class="fa-solid fa-shield-halved"></i></div><h3>Fan Battle</h3><p>Vote for your side!</p></div>
                 <div class="pg-card" onclick="pgOpenGame('dna')"><div class="pg-card-icon pg-icon-5"><i class="fa-solid fa-dna"></i></div><h3>Cricket DNA</h3><p>Discover your personality.</p></div>
                 <div class="pg-card" onclick="pgOpenGame('mission')"><div class="pg-card-icon pg-icon-6"><i class="fa-solid fa-bullseye"></i></div><h3>Cricket Mission</h3><p>Complete missions, earn XP.</p></div>
+                <div class="pg-card" onclick="pgOpenGame('predictions')"><div class="pg-card-icon pg-icon-7"><i class="fa-solid fa-ranking-star"></i></div><h3>Predictions</h3><p>Make your calls! 🔮</p></div>
             </div>
         </div>
 
@@ -690,6 +691,51 @@
             <div id="cm-daily-list" class="cm-missions-list"></div>
             <div class="cm-section-label"><i class="fa-solid fa-calendar-week"></i> Weekly Missions</div>
             <div id="cm-weekly-list" class="cm-missions-list"></div>
+        </div>
+
+        <!-- Predictions -->
+        <div id="pred-container" style="display:none;">
+            <button class="pg-back-btn" onclick="pgBackToLanding()"><i class="fa-solid fa-arrow-left"></i> Back to Games</button>
+
+            <!-- List View -->
+            <div id="pred-list-view">
+                <div class="section-header"><i class="fa-solid fa-ranking-star"></i><h2>Predictions</h2></div>
+                <p class="pred-subtitle">Make your calls, earn XP, and climb the leaderboard! 🔥</p>
+
+                <div class="pred-stats-banner">
+                    <div class="pred-stat-card"><div class="pred-stat-icon pred-stat-xp">⭐</div><div class="pred-stat-val" id="pred-xp">0</div><div class="pred-stat-label">XP</div></div>
+                    <div class="pred-stat-card"><div class="pred-stat-icon pred-stat-streak">🔥</div><div class="pred-stat-val" id="pred-streak">0</div><div class="pred-stat-label">Streak</div></div>
+                    <div class="pred-stat-card"><div class="pred-stat-icon pred-stat-acc">📈</div><div class="pred-stat-val" id="pred-acc">0%</div><div class="pred-stat-label">Accuracy</div></div>
+                    <div class="pred-stat-card"><div class="pred-stat-icon pred-stat-badges">🏅</div><div class="pred-stat-val" id="pred-badge-count">0</div><div class="pred-stat-label">Badges</div></div>
+                </div>
+
+                <div class="pred-section-label"><i class="fa-solid fa-calendar-day"></i> Matches</div>
+                <div id="pred-match-list" class="pred-match-list"></div>
+
+                <div class="pred-section-label"><i class="fa-solid fa-ranking-star"></i> Leaderboard</div>
+                <div id="pred-leaderboard" class="pred-lb-list"></div>
+
+                <div class="pred-section-label"><i class="fa-solid fa-medal"></i> Your Badges</div>
+                <div id="pred-badges" class="pred-badges-grid"></div>
+            </div>
+
+            <!-- Panel View -->
+            <div id="pred-panel-view" style="display:none;">
+                <button class="pg-back-btn" onclick="predShowList()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                <div class="pred-panel-header">
+                    <div class="pred-panel-teams" id="pred-panel-teams"></div>
+                    <div class="pred-panel-meta" id="pred-panel-meta"></div>
+                    <div class="pred-panel-cd" id="pred-panel-cd"></div>
+                </div>
+                <div class="pred-cat-tabs" id="pred-cat-tabs"></div>
+                <div class="pred-cat-content" id="pred-cat-content"></div>
+                <div class="pred-submit-area">
+                    <button class="pred-submit-btn" id="pred-submit-btn" onclick="predSubmitAll()"><i class="fa-solid fa-lock"></i> Lock it in 🔒</button>
+                </div>
+            </div>
+
+            <!-- Results View -->
+            <div id="pred-results-view" style="display:none;"></div>
         </div>
 
     </section>
