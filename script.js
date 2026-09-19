@@ -1072,6 +1072,1166 @@ function showPuzzleFinalResult() {
     gameArea.innerHTML = '<div class="game-card"><h2><i class="fa-solid fa-trophy"></i> Puzzle Challenge Completed!</h2><div class="progress-bar"><div class="progress-fill" style="width: ' + percentage + '%"></div></div><h3>Your Score: ' + puzzleScore + ' / ' + cricketPuzzleQuestions.length + '</h3><h2><i class="fa-solid fa-percent"></i> ' + percentage + '%</h2><button class="btn-replay" onclick="showPuzzle()"><i class="fa-solid fa-rotate-right"></i> Play Puzzle Again</button></div>';
 }
 
+// ========================================
+// 🏏 LAST OVER CHALLENGE
+// ========================================
+
+const lbcConfig = {
+    easy:   { target: 8,  wickets: 3 },
+    medium: { target: 12, wickets: 2 },
+    hard:   { target: 16, wickets: 1 }
+};
+
+const lbcOutcomes = {
+    easy: {
+        defend:  { runs: [[0, 60], [1, 100]], wicket: 0 },
+        normal:  { runs: [[0, 30], [1, 55], [2, 75], [4, 90], [6, 100]], wicket: 5 },
+        power:   { runs: [[0, 20], [1, 35], [2, 50], [4, 75], [6, 100]], wicket: 15 }
+    },
+    medium: {
+        defend:  { runs: [[0, 55], [1, 100]], wicket: 5 },
+        normal:  { runs: [[0, 25], [1, 50], [2, 70], [4, 88], [6, 100]], wicket: 10 },
+        power:   { runs: [[0, 20], [1, 35], [2, 50], [4, 73], [6, 100]], wicket: 25 }
+    },
+    hard: {
+        defend:  { runs: [[0, 50], [1, 100]], wicket: 10 },
+        normal:  { runs: [[0, 20], [1, 45], [2, 65], [4, 85], [6, 100]], wicket: 18 },
+        power:   { runs: [[0, 18], [1, 32], [2, 47], [4, 70], [6, 100]], wicket: 32 }
+    }
+};
+
+let lbcState = {
+    difficulty: null,
+    target: 0,
+    score: 0,
+    ballsLeft: 6,
+    wicketsLeft: 0,
+    ballHistory: [],
+    gameOver: false
+};
+
+function lbcGetRandomOutcome(shotType) {
+    const diff = lbcState.difficulty;
+    const outcome = lbcOutcomes[diff][shotType];
+    const roll = Math.random() * 100;
+    if (roll < outcome.wicket) return "W";
+    for (const [runs, threshold] of outcome.runs) {
+        if (roll < threshold) return runs;
+    }
+    return 0;
+}
+
+function lbcGetBestScore() {
+    return Number(localStorage.getItem("worldCricketHubLastOverBest")) || 0;
+}
+
+function lbcSaveBest(score) {
+    const best = lbcGetBestScore();
+    if (score > best) {
+        localStorage.setItem("worldCricketHubLastOverBest", score);
+        return true;
+    }
+    return false;
+}
+
+function lbcSelectDifficulty(diff) {
+    const config = lbcConfig[diff];
+    lbcState.difficulty = diff;
+    lbcState.target = config.target;
+    lbcState.score = 0;
+    lbcState.ballsLeft = 6;
+    lbcState.wicketsLeft = config.wickets;
+    lbcState.ballHistory = [];
+    lbcState.gameOver = false;
+
+    document.getElementById("lbc-difficulty-select").style.display = "none";
+    document.getElementById("lbc-result-area").style.display = "none";
+    document.getElementById("lbc-game-area").style.display = "block";
+
+    lbcUpdateScoreboard();
+    lbcUpdateProgress();
+    document.getElementById("lbc-message").textContent = "Choose your shot for ball 1!";
+    document.getElementById("lbc-message").style.color = "#e0e7ff";
+    lbcEnableButtons(true);
+}
+
+function lbcUpdateScoreboard() {
+    document.getElementById("lbc-target").textContent = lbcState.target;
+    document.getElementById("lbc-score").textContent = lbcState.score;
+    document.getElementById("lbc-needed").textContent = Math.max(0, lbcState.target - lbcState.score);
+    document.getElementById("lbc-balls").textContent = lbcState.ballsLeft;
+    document.getElementById("lbc-wickets").textContent = lbcState.wicketsLeft;
+}
+
+function lbcUpdateProgress() {
+    const container = document.getElementById("lbc-over-progress");
+    container.innerHTML = "";
+    for (let i = 0; i < 6; i++) {
+        const dot = document.createElement("div");
+        dot.className = "lbc-ball-dot";
+        if (i < lbcState.ballHistory.length) {
+            const result = lbcState.ballHistory[i];
+            dot.classList.add("lbc-dot-done");
+            if (result === "W") { dot.classList.add("lbc-dot-wicket"); dot.textContent = "W"; }
+            else if (result === 0) { dot.classList.add("lbc-dot-dot"); dot.textContent = "•"; }
+            else { dot.classList.add("lbc-dot-" + result); dot.textContent = result; }
+        } else if (i === lbcState.ballHistory.length) {
+            dot.style.borderColor = "#818cf8";
+            dot.style.boxShadow = "0 0 10px rgba(129,140,248,0.4)";
+            dot.textContent = (i + 1);
+        } else {
+            dot.textContent = (i + 1);
+        }
+        container.appendChild(dot);
+    }
+}
+
+function lbcEnableButtons(enabled) {
+    document.querySelectorAll(".lbc-shot-btn").forEach(function(btn) {
+        btn.disabled = !enabled;
+    });
+}
+
+function lbcPlayShot(shotType) {
+    if (lbcState.gameOver) return;
+
+    lbcEnableButtons(false);
+    const result = lbcGetRandomOutcome(shotType);
+    lbcState.ballHistory.push(result);
+    lbcState.ballsLeft--;
+
+    const ballNum = lbcState.ballHistory.length;
+    let message = "";
+
+    if (result === "W") {
+        lbcState.wicketsLeft--;
+        message = "🔴 WICKET! You're out!";
+    } else if (result === 0) {
+        message = "⬜ Dot ball. No run scored.";
+    } else if (result === 4) {
+        message = "🟢 FOUR! Great boundary!";
+    } else if (result === 6) {
+        message = "🟣 SIX! Massive hit!";
+    } else {
+        message = "🔵 " + result + " run" + (result > 1 ? "s" : "") + " taken.";
+    }
+
+    lbcState.score += (result === "W" ? 0 : result);
+    lbcUpdateScoreboard();
+    lbcUpdateProgress();
+
+    document.getElementById("lbc-message").textContent = message;
+
+    const won = lbcState.score >= lbcState.target;
+    const allOut = lbcState.wicketsLeft <= 0;
+    const noBallsLeft = lbcState.ballsLeft <= 0;
+
+    if (won) {
+        setTimeout(function() { lbcShowResult("win"); }, 800);
+        return;
+    }
+    if (allOut || noBallsLeft) {
+        setTimeout(function() {
+            if (lbcState.score === lbcState.target) lbcShowResult("tie");
+            else lbcShowResult("lose");
+        }, 800);
+        return;
+    }
+
+    setTimeout(function() {
+        const nextBall = 7 - lbcState.ballsLeft;
+        document.getElementById("lbc-message").textContent =
+            "Choose your shot for ball " + nextBall + "!";
+        lbcEnableButtons(true);
+    }, 700);
+}
+
+function lbcShowResult(outcome) {
+    lbcState.gameOver = true;
+    document.getElementById("lbc-game-area").style.display = "none";
+    document.getElementById("lbc-result-area").style.display = "block";
+
+    const isNewBest = lbcSaveBest(lbcState.score);
+
+    const icon = document.getElementById("lbc-result-icon");
+    const title = document.getElementById("lbc-result-title");
+    const subtitle = document.getElementById("lbc-result-subtitle");
+    const card = document.querySelector(".lbc-result-card");
+
+    card.classList.remove("lbc-win-glow", "lbc-lose-shake");
+
+    if (outcome === "win") {
+        icon.textContent = "🏆";
+        title.textContent = "YOU WIN!";
+        subtitle.textContent = "Chased the target with " + lbcState.ballsLeft + " ball" + (lbcState.ballsLeft !== 1 ? "s" : "") + " remaining!";
+        card.classList.add("lbc-win-glow");
+    } else if (outcome === "tie") {
+        icon.textContent = "🤝";
+        title.textContent = "IT'S A TIE!";
+        subtitle.textContent = "What a match! You matched the target exactly.";
+    } else {
+        icon.textContent = "😢";
+        title.textContent = "YOU LOSE!";
+        subtitle.textContent = "Needed " + (lbcState.target - lbcState.score) + " more run" + ((lbcState.target - lbcState.score) !== 1 ? "s" : "") + " to win.";
+        card.classList.add("lbc-lose-shake");
+    }
+
+    document.getElementById("lbc-final-score").textContent = lbcState.score;
+    document.getElementById("lbc-final-target").textContent = lbcState.target;
+    document.getElementById("lbc-final-balls").textContent = 6 - lbcState.ballsLeft;
+
+    const bestBanner = document.getElementById("lbc-best-score-banner");
+    if (isNewBest) {
+        bestBanner.style.display = "block";
+        document.getElementById("lbc-best-display").textContent = lbcState.score;
+    } else {
+        bestBanner.style.display = "none";
+    }
+}
+
+function lbcPlayAgain() {
+    lbcSelectDifficulty(lbcState.difficulty);
+}
+
+function lbcNewChallenge() {
+    document.getElementById("lbc-game-area").style.display = "none";
+    document.getElementById("lbc-result-area").style.display = "none";
+    document.getElementById("lbc-difficulty-select").style.display = "grid";
+}
+
+// ========================================
+// ⏰ CRICKET TIME MACHINE
+// ========================================
+
+const ctmMoments = [
+    {
+        id: 1, year: 1877, era: "early",
+        title: "The First Ever Test Match",
+        subtitle: "Australia vs England — Melbourne Cricket Ground",
+        team1: "Australia", team2: "England",
+        venue: "Melbourne Cricket Ground, Australia",
+        result: "Australia won by 45 runs",
+        matchType: "Test",
+        players: "Charles Bannerman (scorer of the first Test century, 165), Dave Gregory (Australia captain), James Lillywhite (England captain)",
+        details: "The very first official Test match in cricket history was played from March 15 to March 19, 1877. Australia batted first and scored 244, with Charles Bannerman making 165 — the first-ever Test century. England were bowled out for 196 and 108. Australia won by 45 runs.",
+        facts: [
+            "Charles Bannerman scored 165, the first Test century ever. He retired hurt during the innings.",
+            "The match was not originally planned as a 'Test match' — the term was added later.",
+            "Only 4,000 spectators attended Day 1. Admission was free.",
+            "Australia's Tom Kendell took 7 wickets in England's second innings."
+        ]
+    },
+    {
+        id: 2, year: 1882, era: "early",
+        title: "The Birth of The Ashes",
+        subtitle: "England vs Australia — The Oval, London",
+        team1: "Australia", team2: "England",
+        venue: "The Oval, London, England",
+        result: "Australia won by 7 runs",
+        matchType: "Test",
+        players: "Fred Spofforth (Australia), W.G. Grace (England), Alec Hood",
+        details: "After Australia defeated England at The Oval, a satirical obituary appeared in The Sporting Times stating that English cricket had died and 'the body will be cremated and the ashes taken to Australia'. Thus, The Ashes were born — cricket's most famous rivalry.",
+        facts: [
+            "Fred Spofforth took 7/44 in the second innings, refusing to be 'bowled out' despite being ill.",
+            "The obituary was written by Reginald Brooks, a journalist at The Sporting Times.",
+            "The actual ashes are held in a small urn at the MCC Museum at Lord's.",
+            "Australia retained the Ashes for the first time with this victory."
+        ]
+    },
+    {
+        id: 3, year: 1930, era: "early",
+        title: "Bradman's 334 at Headingley",
+        subtitle: "Don Bradman's record-breaking innings",
+        team1: "Australia", team2: "England",
+        venue: "Headingley, Leeds, England",
+        result: "Australia won by an innings and 39 runs",
+        matchType: "Test",
+        players: "Don Bradman (334), Bill Ponsford, Harold Larwood",
+        details: "Don Bradman smashed 334 runs in the first innings, breaking the Test record of 325 held by W.G. Grace. Bradman's innings included 46 fours. He was eventually out for 334, 6 runs short of the then-first-class record of 340.",
+        facts: [
+            "Bradman scored 309 runs on the first day alone — a single-day record that stood for decades.",
+            "He hit 46 fours in his innings, batting for over 6 hours.",
+            "Harold Larwood bowled 21 overs for just 42 runs in a tireless effort.",
+            "Bradman's Test average at the end of this match was 131.00."
+        ]
+    },
+    {
+        id: 4, year: 1948, era: "early",
+        title: "The Invincibles Tour",
+        subtitle: "Australia's unbeaten tour of England",
+        team1: "Australia", team2: "England + Counties",
+        venue: "England (Nationwide)",
+        result: "Australia unbeaten — 25 matches, 0 losses",
+        matchType: "Tour",
+        players: "Don Bradman (captain), Keith Miller, Ray Lindwall, Bill Brown, Arthur Morris",
+        details: "The 1948 Australian team, led by Don Bradman, toured England and went unbeaten across all 34 matches (5 Tests, 25 tour matches, 4 other). They won 25 matches and drew 9. They remain the only Australian team to complete an unbeaten tour of England.",
+        facts: [
+            "Bradman scored 2,476 runs on the tour at an average of 89.09.",
+            "Keith Miller scored 2,055 runs and took 54 wickets on the tour.",
+            "Ray Lindwall was the fastest bowler of his generation, regularly clocking 90 mph+.",
+            "Bradman's farewell Test innings at The Oval: he was out for a duck (0), missing by one run the average of 100 he needed."
+        ]
+    },
+    {
+        id: 5, year: 1952, era: "golden",
+        title: "Hundum's 336* — First Indian Triple Century",
+        subtitle: "Datta Khamkaranbhai Phadke's record broken",
+        team1: "India", team2: "Pakistan",
+        venue: "Holkar Stadium, Indore, India",
+        result: "Match drawn",
+        matchType: "Test",
+        players: "Vijay Hazare (India)",
+        details: "Vijay Hazare became the first Indian to score a triple century in first-class cricket with 316 against Holkar in the Ranji Trophy. However, the first triple century in Test cricket by an Indian came much later. This moment marks India's rise as a batting powerhouse.",
+        facts: [
+            "Hazare scored 316 against Holkar in the Ranji Trophy final.",
+            "India gained Test status in 1932 but won their first Test match only in 1952 (vs England at Madras).",
+            "Vijay Hazare was the first Indian to score a century in both innings of a Test match.",
+            "India's first Test victory came against England at Madras in February 1952."
+        ]
+    },
+    {
+        id: 6, year: 1960, era: "golden",
+        title: "First Tie in Test Cricket History",
+        subtitle: "Australia vs West Indies — Brisbane",
+        team1: "Australia", team2: "West Indies",
+        venue: "The Gabba, Brisbane, Australia",
+        result: "Match TIED — the only tie in Test history for decades",
+        matchType: "Test",
+        players: "Gary Sobers (West Indies), Bobby Simpson (Australia), Wes Hall, Charlie Griffith",
+        details: "In one of the most dramatic finishes in cricket history, the first-ever tied Test match occurred. West Indies needed 6 runs off the last ball — Joe Solomon ran out Ian Meckiff at the striker's end. The scores were level — Australia 232 and 284, West Indies 453 and 260.",
+        facts: [
+            "This was the first tied Test in the history of cricket — only the second occurred in 1986.",
+            "Wes Hall bowled the final over with extreme pace and hostility.",
+            "Gary Sobers was the West Indies captain and scored 70 in the second innings.",
+            "Joe Solomon's direct hit run-out sealed the historic tie."
+        ]
+    },
+    {
+        id: 7, year: 1971, era: "golden",
+        title: "Birth of One Day International Cricket",
+        subtitle: "First ever ODI — Australia vs England at Melbourne",
+        team1: "Australia", team2: "England",
+        venue: "Melbourne Cricket Ground, Australia",
+        result: "Australia won by 5 wickets",
+        matchType: "ODI",
+        players: "Gilchrist (Australia, first ODI fifty), Keith Stackpole, John Edrich",
+        details: "The first ever One Day International was played on January 5, 1971, as a replacement for a rain-affected Test match. Each team played 8 overs per innings. England scored 65/8 and Australia chased it down with 6 wickets in hand.",
+        facts: [
+            "The match was only 8 overs per side — the first ever limited-overs international.",
+            "England's score of 65/8 is the lowest completed innings in ODI history.",
+            "Australia reached the target with 2 overs to spare.",
+            "ODIs evolved from this experiment into a 50-over format by 1975."
+        ]
+    },
+    {
+        id: 8, year: 1975, era: "golden",
+        title: "First Cricket World Cup",
+        subtitle: "West Indies crowned champions at Lord's",
+        team1: "West Indies", team2: "Australia",
+        venue: "Lord's Cricket Ground, London",
+        result: "West Indies won by 17 runs",
+        matchType: "World Cup",
+        players: "Clive Lloyd (captain, 102 in final), Viv Richards, Andy Roberts, Dennis Lillee",
+        details: "The first Cricket World Cup was held in England across 15 days. The West Indies, led by Clive Lloyd's magnificent 102 in the final, defeated Australia by 17 runs. Viv Richards was named Player of the Tournament.",
+        facts: [
+            "Clive Lloyd scored the first-ever World Cup century in the final — 102 off 85 balls.",
+            "Viv Richards took the most catches in the tournament (7) and was Player of the Tournament.",
+            "The West Indies won all 5 matches they played in the tournament.",
+            "Only 8 teams participated — England, Australia, West Indies, India, Pakistan, Sri Lanka, East Africa, and New Zealand."
+        ]
+    },
+    {
+        id: 9, year: 1983, era: "modern",
+        title: "India Wins First World Cup",
+        subtitle: "Kapil Dev lifts the trophy at Lord's",
+        team1: "India", team2: "West Indies",
+        venue: "Lord's Cricket Ground, London",
+        result: "India won by 43 runs",
+        matchType: "World Cup",
+        players: "Kapil Dev (captain), Mohinder Amarnath (Man of the Match), Yashpal Sharma, Roger Binny",
+        details: "India stunned the cricket world by defeating the two-time defending champions West Indies in the final. India scored 183, which looked below par, but the bowling attack led by Madan Lal and Mohinder Amarnath dismissed West Indies for just 140.",
+        facts: [
+            "India were 17/5 in the group stage against Zimbabwe when Kapil Dev scored 175 not out.",
+            "Kapil Dev's 175* against Zimbabwe is considered one of the greatest ODI innings ever.",
+            "West Indies had won the 1975 and 1979 World Cups — aiming for a hat-trick.",
+            "India's victory sparked a cricket revolution in the country, leading to the IPL era."
+        ]
+    },
+    {
+        id: 10, year: 1996, era: "modern",
+        title: "Sachin's Desert Storm at Sharjah",
+        subtitle: "Tendulkar's iconic 143 against Australia",
+        team1: "India", team2: "Australia",
+        venue: "Sharjah Cricket Stadium, UAE",
+        result: "India won by 6 wickets (chasing 276)",
+        matchType: "ODI (Sharjah Cup)",
+        players: "Sachin Tendulkar (143*, 134), Shane Warne, Mark Taylor",
+        details: "In one of the most iconic ODI innings ever played, Sachin Tendulkar smashed 143 not out against Australia in a day-night match at Sharjah. He hit 9 sixes and 9 fours, chasing down 276. The innings is remembered as 'Desert Storm' due to the sandstorm that interrupted play.",
+        facts: [
+            "Sachin scored 143 off just 131 balls, including 9 sixes and 9 fours.",
+            "The sandstorm interrupted play, and Sachin came back even more aggressive.",
+            "This was during the Coca-Cola Cup at Sharjah — one of cricket's most glamorous tournaments.",
+            "Sachin's aggressive batting against Shane Warne is still considered one of the greatest batting displays."
+        ]
+    },
+    {
+        id: 11, year: 1999, era: "modern",
+        title: "Lara's 375 — World Record Broken",
+        subtitle: "Brian Lara reclaims the world record",
+        team1: "West Indies", team2: "England",
+        venue: "Antigua Recreation Ground, Antigua",
+        result: "West Indies won by an innings and 176 runs",
+        matchType: "Test",
+        players: "Brian Lara (375), Courtney Walsh, Curtly Ambrose",
+        details: "Brian Lara became the highest individual scorer in Test cricket history with 375 against England in Antigua, surpassing Matthew Hayden's 380. Lara batted for 10 hours and 51 minutes, facing 582 balls. The West Indies won by an innings and 176 runs.",
+        facts: [
+            "Lara batted for 777 minutes — over 12 hours of batting.",
+            "He hit 45 fours and 0 sixes in his record-breaking innings.",
+            "Lara would later break his own record with 400* against England in 2004.",
+            "Courtney Walsh supported Lara with a 29-run partnership for the 10th wicket."
+        ]
+    },
+    {
+        id: 12, year: 2002, era: "modern",
+        title: "NatWest Series Final — Kaif & Yuvraj's Miracle",
+        subtitle: "India chase 326 at Lord's",
+        team1: "India", team2: "England",
+        venue: "Lord's Cricket Ground, London",
+        result: "India won by 2 wickets (DLS method)",
+        matchType: "ODI",
+        players: "Mohammad Kaif (87*), Yuvraj Singh (69), Virender Sehwag, Sourav Ganguly (captain)",
+        details: "Chasing 326 in the final, India were reduced to 146/5 when Yuvraj Singh and Mohammad Kaif launched an incredible comeback. Kaif's unbeaten 87 and Yuvraj's 69 powered India to a famous 2-wicket victory. Sourav Ganguly famously waved his shirt on the Lord's balcony.",
+        facts: [
+            "India were 146/5 chasing 326 — a near-impossible situation.",
+            "Kaif and Yuvraj added 121 runs for the 6th wicket.",
+            "Sourav Ganguly's shirt-waving celebration on the Lord's balcony became iconic.",
+            "This victory ended England's dominance in home ODIs."
+        ]
+    },
+    {
+        id: 13, year: 2005, era: "modern",
+        title: "Ashes 2005 — Greatest Series Ever",
+        subtitle: "England reclaim The Ashes after 18 years",
+        team1: "England", team2: "Australia",
+        venue: "Various venues, England",
+        result: "England won 2-1 (with 1 draw and 1 tie)",
+        matchType: "Test Series",
+        players: "Andrew Flintoff, Kevin Pietersen, Shane Warne, Ricky Ponting, Steve Harmison",
+        details: "The 2005 Ashes is widely regarded as the greatest Test series ever played. England won 2-1 to reclaim The Ashes after 18 years. The series featured incredible drama, including the famous tied Test at Edgbaston, Flintoff consoling Brett Lee, and Kevin Pietersen's match-winning 158 at The Oval.",
+        facts: [
+            "The Edgbaston Test was decided by just 2 runs — the closest Ashes Test ever.",
+            "Andrew Flintoff consoled a devastated Brett Lee after the Edgbaston Test — a great sportsmanship moment.",
+            "Kevin Pietersen scored 158 at The Oval to clinch the Ashes.",
+            "Shane Warne took 40 wickets in the series — one of the greatest bowling performances ever."
+        ]
+    },
+    {
+        id: 14, year: 2011, era: "t20",
+        title: "India Wins World Cup at Home",
+        subtitle: "Dhoni's six seals the dream",
+        team1: "India", team2: "Sri Lanka",
+        venue: "Wankhede Stadium, Mumbai, India",
+        result: "India won by 6 wickets",
+        matchType: "World Cup",
+        players: "MS Dhoni (91*), Gautam Gambhir (97), Yuvraj Singh, Zaheer Khan",
+        details: "India won the 2011 Cricket World Cup at home, defeating Sri Lanka in the final at the Wankhede Stadium in Mumbai. MS Dhoni's unbeaten 91, including the iconic winning six, sealed India's second World Cup triumph. Gautam Gambhir's crucial 97 steadied the innings after a top-order collapse.",
+        facts: [
+            "MS Dhoni hit a towering six over long-on to win the World Cup — one of cricket's most iconic moments.",
+            "Gautam Gambhir's 97 off 122 balls was the backbone of India's chase.",
+            "Sri Lanka scored 274/6 with Mahela Jayawardene scoring a brilliant 103 not out.",
+            "India became the first team to win a World Cup final at home."
+        ]
+    },
+    {
+        id: 15, year: 2023, era: "t20",
+        title: "India's Dominant 2023 World Cup Run",
+        subtitle: "India's unbeaten streak until the final",
+        team1: "India", team2: "Australia",
+        venue: "Narendra Modi Stadium, Ahmedabad, India",
+        result: "Australia won by 6 wickets",
+        matchType: "World Cup",
+        players: "Virat Kohli (765 runs in tournament), Rohit Sharma, Travis Head, Mohammed Shami",
+        details: "India won 10 consecutive matches in the 2023 ODI World Cup, including a group stage victory over Australia by 6 wickets. Virat Kohli scored 765 runs — the most by any batter in a single World Cup edition. However, Australia won the final by 6 wickets, ending India's dream run.",
+        facts: [
+            "Virat Kohli scored 765 runs in 11 innings, including 3 centuries and 6 fifties.",
+            "Kohli equalled Sachin Tendulkar's record of 49 ODI centuries during the tournament.",
+            "India won all 10 matches before the final — an unprecedented run in World Cup history.",
+            "Travis Head scored 137 in the final to guide Australia to victory."
+        ]
+    }
+];
+
+let ctmCurrentIndex = -1;
+let ctmFiltered = [...ctmMoments];
+
+function ctmInit() {
+    ctmRenderTimeline(ctmMoments);
+}
+
+function ctmFilterEra(era) {
+    document.querySelectorAll(".ctm-era-btn").forEach(function(btn) {
+        btn.classList.remove("active");
+    });
+    event.currentTarget.classList.add("active");
+
+    if (era === "all") {
+        ctmFiltered = [...ctmMoments];
+    } else {
+        ctmFiltered = ctmMoments.filter(function(m) { return m.era === era; });
+    }
+
+    var searchVal = document.getElementById("ctm-search").value.toLowerCase().trim();
+    if (searchVal) {
+        ctmFiltered = ctmFiltered.filter(function(m) {
+            return m.title.toLowerCase().includes(searchVal) ||
+                   m.subtitle.toLowerCase().includes(searchVal) ||
+                   m.team1.toLowerCase().includes(searchVal) ||
+                   m.team2.toLowerCase().includes(searchVal) ||
+                   m.players.toLowerCase().includes(searchVal) ||
+                   m.venue.toLowerCase().includes(searchVal);
+        });
+    }
+
+    ctmRenderTimeline(ctmFiltered);
+}
+
+function ctmSearchMoments() {
+    var searchVal = document.getElementById("ctm-search").value.toLowerCase().trim();
+    var activeEraBtn = document.querySelector(".ctm-era-btn.active");
+    var currentEra = "all";
+    if (activeEraBtn) {
+        var eraText = activeEraBtn.textContent.toLowerCase();
+        if (eraText.includes("early")) currentEra = "early";
+        else if (eraText.includes("golden")) currentEra = "golden";
+        else if (eraText.includes("modern")) currentEra = "modern";
+        else if (eraText.includes("t20")) currentEra = "t20";
+    }
+
+    if (currentEra === "all") {
+        ctmFiltered = [...ctmMoments];
+    } else {
+        ctmFiltered = ctmMoments.filter(function(m) { return m.era === currentEra; });
+    }
+
+    if (searchVal) {
+        ctmFiltered = ctmFiltered.filter(function(m) {
+            return m.title.toLowerCase().includes(searchVal) ||
+                   m.subtitle.toLowerCase().includes(searchVal) ||
+                   m.team1.toLowerCase().includes(searchVal) ||
+                   m.team2.toLowerCase().includes(searchVal) ||
+                   m.players.toLowerCase().includes(searchVal) ||
+                   m.venue.toLowerCase().includes(searchVal) ||
+                   m.year.toString().includes(searchVal);
+        });
+    }
+
+    ctmRenderTimeline(ctmFiltered);
+}
+
+function ctmRenderTimeline(moments) {
+    var container = document.getElementById("ctm-timeline");
+    if (!container) return;
+
+    if (moments.length === 0) {
+        container.innerHTML = '<div class="ctm-no-results"><i class="fa-solid fa-clock-rotate-left"></i><p>No moments found. Try a different search or era filter.</p></div>';
+        return;
+    }
+
+    var html = "";
+    var lastYear = null;
+
+    moments.forEach(function(moment, index) {
+        if (moment.year !== lastYear) {
+            html += '<div class="ctm-year-marker"><div class="ctm-year-dot"></div><h3>' + moment.year + '</h3></div>';
+            lastYear = moment.year;
+        }
+        html += '<div class="ctm-moment-card" onclick="ctmShowDetail(' + index + ')">';
+        html += '<div class="ctm-moment-title">' + moment.title + '</div>';
+        html += '<div class="ctm-moment-subtitle">';
+        html += '<span class="ctm-moment-tag"><i class="fa-solid fa-tag"></i> ' + moment.matchType + '</span>';
+        html += '<span>' + moment.subtitle + '</span>';
+        html += '</div>';
+        html += '</div>';
+    });
+
+    container.innerHTML = html;
+}
+
+function ctmShowDetail(index) {
+    ctmCurrentIndex = index;
+    var moment = ctmFiltered[index];
+    if (!moment) return;
+
+    var detail = document.getElementById("ctm-detail");
+    var content = document.getElementById("ctm-detail-content");
+
+    var html = "";
+    html += '<div class="ctm-detail-year"><i class="fa-solid fa-calendar"></i> ' + moment.year + ' — ' + moment.matchType + '</div>';
+    html += '<h2>' + moment.title + '</h2>';
+    html += '<div class="ctm-detail-teams">';
+    html += '<div class="ctm-detail-team"><h4>' + moment.team1 + '</h4></div>';
+    html += '<div class="ctm-detail-vs">VS</div>';
+    html += '<div class="ctm-detail-team"><h4>' + moment.team2 + '</h4></div>';
+    html += '</div>';
+    html += '<div class="ctm-detail-result"><i class="fa-solid fa-trophy"></i> ' + moment.result + '</div>';
+    html += '<div class="ctm-detail-section"><h4><i class="fa-solid fa-location-dot"></i> Venue</h4><p>' + moment.venue + '</p></div>';
+    html += '<div class="ctm-detail-section"><h4><i class="fa-solid fa-book-open"></i> Match Summary</h4><p>' + moment.details + '</p></div>';
+    html += '<div class="ctm-detail-section"><h4><i class="fa-solid fa-users"></i> Key Players</h4><p>' + moment.players + '</p></div>';
+    html += '<div class="ctm-detail-section"><h4><i class="fa-solid fa-lightbulb"></i> Interesting Facts</h4><ul class="ctm-detail-facts">';
+    moment.facts.forEach(function(fact) {
+        html += '<li>' + fact + '</li>';
+    });
+    html += '</ul></div>';
+
+    content.innerHTML = html;
+    detail.style.display = "block";
+
+    document.getElementById("ctm-prev-btn").disabled = (index <= 0);
+    document.getElementById("ctm-next-btn").disabled = (index >= ctmFiltered.length - 1);
+
+    detail.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function ctmCloseDetail() {
+    document.getElementById("ctm-detail").style.display = "none";
+    ctmCurrentIndex = -1;
+}
+
+function ctmNavigate(direction) {
+    var newIndex = ctmCurrentIndex + direction;
+    if (newIndex >= 0 && newIndex < ctmFiltered.length) {
+        ctmShowDetail(newIndex);
+    }
+}
+
+ctmInit();
+
+// ========================================
+// 🏏 PLAYER FACE-OFF
+// ========================================
+
+var pfoPlayers = [
+    { id:1, name:"Sachin Tendulkar", country:"India", role:"Batter", avatar:"#e53935", initials:"ST", batting:{tests:{m:200,r:15921,avg:53.78,sr:56.08,c:51,f:68},odis:{m:463,r:18426,avg:44.83,sr:86.23,c:49,f:96},t20s:{m:1,r:10,avg:10.00,sr:100.00,c:0,f:0}}, bowling:{tests:{w:48,avg:54.17,eco:3.46},odis:{w:154,avg:44.48,eco:5.10}} },
+    { id:2, name:"Virat Kohli", country:"India", role:"Batter", avatar:"#1565c0", initials:"VK", batting:{tests:{m:113,r:8848,avg:49.34,sr:57.28,c:29,f:30},odis:{m:292,r:13848,avg:58.18,sr:93.17,c:50,f:72},t20s:{m:120,r:4008,avg:52.05,sr:137.44,c:1,f:37}}, bowling:{tests:{w:0,avg:0,eco:0},odis:{w:4,avg:166.50,eco:6.30}} },
+    { id:3, name:"Ricky Ponting", country:"Australia", role:"Batter", avatar:"#f57c00", initials:"RP", batting:{tests:{m:168,r:13378,avg:51.85,sr:58.72,c:41,f:62},odis:{m:375,r:13704,avg:42.03,sr:80.39,c:30,f:82},t20s:{m:17,r:401,avg:28.64,sr:114.88,c:0,f:2}}, bowling:{tests:{w:5,avg:54.00,eco:2.88},odis:{w:3,avg:108.00,eco:5.45}} },
+    { id:4, name:"Brian Lara", country:"West Indies", role:"Batter", avatar:"#2e7d32", initials:"BL", batting:{tests:{m:131,r:11953,avg:52.88,sr:60.49,c:34,f:48},odis:{m:299,r:10405,avg:40.48,sr:80.52,c:19,f:63},t20s:{m:0,r:0,avg:0,sr:0,c:0,f:0}}, bowling:{tests:{w:0,avg:0,eco:0},odis:{w:3,avg:150.00,eco:5.35}} },
+    { id:5, name:"MS Dhoni", country:"India", role:"Wicketkeeper-Batter", avatar:"#4527a0", initials:"MD", batting:{tests:{m:90,r:4876,avg:38.09,sr:59.11,c:6,f:33},odis:{m:350,r:10773,avg:50.57,sr:86.55,c:10,f:73},t20s:{m:98,r:1617,avg:37.60,sr:126.13,c:2,f:2}}, bowling:{tests:{w:0,avg:0,eco:0},odis:{w:1,avg:174.00,eco:7.18}} },
+    { id:6, name:"Kumar Sangakkara", country:"Sri Lanka", role:"Wicketkeeper-Batter", avatar:"#00838f", initials:"KS", batting:{tests:{m:134,r:12400,avg:57.40,sr:54.19,c:38,f:52},odis:{m:404,r:14234,avg:41.98,sr:78.13,c:25,f:93},t20s:{m:56,r:1382,avg:31.41,sr:119.89,c:0,f:8}}, bowling:{tests:{w:0,avg:0,eco:0},odis:{w:0,avg:0,eco:0}} },
+    { id:7, name:"Jacques Kallis", country:"South Africa", role:"All-Rounder", avatar:"#f9a825", initials:"JK", batting:{tests:{m:166,r:13289,avg:55.37,sr:45.73,c:45,f:58},odis:{m:328,r:11579,avg:44.36,sr:72.89,c:17,f:86},t20s:{m:25,r:666,avg:35.05,sr:119.57,c:0,f:3}}, bowling:{tests:{w:292,avg:32.65,eco:2.72},odis:{w:273,avg:31.79,eco:4.84}} },
+    { id:8, name:"Shane Warne", country:"Australia", role:"Bowler", avatar:"#c62828", initials:"SW", batting:{tests:{m:145,r:3154,avg:17.32,sr:57.43,c:0,f:12},odis:{m:194,r:1018,avg:13.05,sr:74.36,c:0,f:0},t20s:{m:2,r:8,avg:4.00,sr:53.33,c:0,f:0}}, bowling:{tests:{w:708,avg:25.41,eco:2.65},odis:{w:293,avg:25.73,eco:4.25}} },
+    { id:9, name:"Wasim Akram", country:"Pakistan", role:"Bowler", avatar:"#ad1457", initials:"WA", batting:{tests:{m:104,r:2898,avg:22.64,sr:55.86,c:3,f:10},odis:{m:356,r:3717,avg:20.53,sr:83.47,c:0,f:12},t20s:{m:0,r:0,avg:0,sr:0,c:0,f:0}}, bowling:{tests:{w:414,avg:23.62,eco:2.75},odis:{w:502,avg:23.52,eco:3.89}} },
+    { id:10, name:"AB de Villiers", country:"South Africa", role:"Wicketkeeper-Batter", avatar:"#0277bd", initials:"AB", batting:{tests:{m:114,r:8765,avg:50.66,sr:54.04,c:22,f:46},odis:{m:228,r:9577,avg:53.50,sr:101.09,c:25,f:53},t20s:{m:78,r:1672,avg:34.83,sr:135.09,c:1,f:10}}, bowling:{tests:{w:2,avg:54.00,eco:3.03},odis:{w:7,avg:62.57,eco:5.82}} },
+    { id:11, name:"Rohit Sharma", country:"India", role:"Batter", avatar:"#6a1b9a", initials:"RS", batting:{tests:{m:67,r:4835,avg:40.29,sr:59.56,c:12,f:18},odis:{m:264,r:10709,avg:48.89,sr:90.93,c:31,f:48},t20s:{m:148,r:3974,avg:32.05,sr:139.97,c:5,f:27}}, bowling:{tests:{w:2,avg:112.50,eco:3.00},odis:{w:8,avg:71.50,eco:5.49}} },
+    { id:12, name:"Don Bradman", country:"Australia", role:"Batter", avatar:"#ff6f00", initials:"DB", batting:{tests:{m:52,r:6996,avg:99.94,sr:39.71,c:29,f:13},odis:{m:0,r:0,avg:0,sr:0,c:0,f:0},t20s:{m:0,r:0,avg:0,sr:0,c:0,f:0}}, bowling:{tests:{w:2,avg:36.00,eco:1.98},odis:{w:0,avg:0,eco:0}} },
+    { id:13, name:"Rahul Dravid", country:"India", role:"Batter", avatar:"#37474f", initials:"RD", batting:{tests:{m:164,r:13288,avg:52.31,sr:42.51,c:36,f:63},odis:{m:344,r:10889,avg:39.07,sr:71.24,c:12,f:83},t20s:{m:1,r:31,avg:31.00,sr:110.71,c:0,f:0}}, bowling:{tests:{w:1,avg:231.00,eco:3.28},odis:{w:4,avg:138.50,eco:5.70}} },
+    { id:14, name:"Muttiah Muralitharan", country:"Sri Lanka", role:"Bowler", avatar:"#1b5e20", initials:"MM", batting:{tests:{m:133,r:1261,avg:11.67,sr:53.53,c:0,f:1},odis:{m:350,r:674,avg:6.81,sr:72.64,c:0,f:0},t20s:{m:12,r:31,avg:7.75,sr:65.96,c:0,f:0}}, bowling:{tests:{w:800,avg:22.72,eco:2.47},odis:{w:534,avg:23.08,eco:3.93}} },
+    { id:15, name:"Glenn McGrath", country:"Australia", role:"Bowler", avatar:"#4a148c", initials:"GM", batting:{tests:{m:124,r:641,avg:7.49,sr:33.91,c:0,f:0},odis:{m:250,r:310,avg:9.39,sr:62.00,c:0,f:0},t20s:{m:2,r:3,avg:1.50,sr:30.00,c:0,f:0}}, bowling:{tests:{w:563,avg:21.64,eco:2.49},odis:{w:381,avg:22.02,eco:3.88}} }
+];
+
+var pfoSelected = { 1: null, 2: null };
+
+function pfoSearchPlayer(slot) {
+    var input = document.getElementById("pfo-search-" + slot);
+    var dropdown = document.getElementById("pfo-dropdown-" + slot);
+    var query = input.value.toLowerCase().trim();
+    if (!query) { pfoShowDropdown(slot); return; }
+    var filtered = pfoPlayers.filter(function(p) {
+        return p.name.toLowerCase().includes(query) || p.country.toLowerCase().includes(query) || p.role.toLowerCase().includes(query);
+    });
+    pfoRenderDropdown(slot, filtered);
+}
+
+function pfoShowDropdown(slot) {
+    var dropdown = document.getElementById("pfo-dropdown-" + slot);
+    var otherSlot = slot === 1 ? 2 : 1;
+    var otherId = pfoSelected[otherSlot] ? pfoSelected[otherSlot].id : null;
+    var available = pfoPlayers.filter(function(p) { return p.id !== otherId; });
+    pfoRenderDropdown(slot, available);
+}
+
+function pfoRenderDropdown(slot, players) {
+    var dropdown = document.getElementById("pfo-dropdown-" + slot);
+    if (players.length === 0) { dropdown.innerHTML = '<div class="pfo-no-results">No players found</div>'; dropdown.style.display = "block"; return; }
+    var html = "";
+    players.forEach(function(p) {
+        html += '<div class="pfo-dropdown-item" onclick="pfoSelectPlayer(' + slot + ',' + p.id + ')">';
+        html += '<div class="pfo-dd-avatar" style="background:' + p.avatar + '">' + p.initials + '</div>';
+        html += '<div class="pfo-dd-info"><h4>' + p.name + '</h4><p>' + p.country + ' — ' + p.role + '</p></div>';
+        html += '<span class="pfo-dd-tag">' + p.country.substring(0,3).toUpperCase() + '</span>';
+        html += '</div>';
+    });
+    dropdown.innerHTML = html;
+    dropdown.style.display = "block";
+}
+
+function pfoSelectPlayer(slot, id) {
+    var player = pfoPlayers.find(function(p) { return p.id === id; });
+    if (!player) return;
+    pfoSelected[slot] = player;
+    document.getElementById("pfo-search-" + slot).value = "";
+    document.getElementById("pfo-dropdown-" + slot).style.display = "none";
+    var selected = document.getElementById("pfo-selected-" + slot);
+    selected.style.display = "flex";
+    selected.innerHTML = '<div class="pfo-sp-avatar" style="background:' + player.avatar + '">' + player.initials + '</div><div class="pfo-sp-info"><h4>' + player.name + '</h4><p>' + player.country + ' — ' + player.role + '</p></div><button class="pfo-sp-remove" onclick="pfoRemovePlayer(' + slot + ')"><i class="fa-solid fa-xmark"></i></button>';
+    document.getElementById("pfo-search-" + slot).parentElement.parentElement.style.display = "none";
+    document.getElementById("pfo-actions").style.display = "flex";
+    document.getElementById("pfo-result").style.display = "none";
+}
+
+function pfoRemovePlayer(slot) {
+    pfoSelected[slot] = null;
+    document.getElementById("pfo-selected-" + slot).style.display = "none";
+    document.getElementById("pfo-search-" + slot).parentElement.parentElement.style.display = "flex";
+    document.getElementById("pfo-search-" + slot).value = "";
+    if (!pfoSelected[1] && !pfoSelected[2]) document.getElementById("pfo-actions").style.display = "none";
+    document.getElementById("pfo-result").style.display = "none";
+}
+
+function pfoChangePlayers() {
+    pfoRemovePlayer(1);
+    pfoRemovePlayer(2);
+    document.getElementById("pfo-actions").style.display = "none";
+}
+
+function pfoReset() {
+    pfoChangePlayers();
+}
+
+function pfoCompare() {
+    if (!pfoSelected[1] || !pfoSelected[2]) return;
+    var p1 = pfoSelected[1], p2 = pfoSelected[2];
+    var result = document.getElementById("pfo-result");
+    var stats = [
+        { section:"Test Batting", rows:[
+            { label:"Matches", v1:p1.batting.tests.m, v2:p2.batting.tests.m, higher:true },
+            { label:"Runs", v1:p1.batting.tests.r, v2:p2.batting.tests.r, higher:true },
+            { label:"Average", v1:p1.batting.tests.avg, v2:p2.batting.tests.avg, higher:true },
+            { label:"Strike Rate", v1:p1.batting.tests.sr, v2:p2.batting.tests.sr, higher:true },
+            { label:"Centuries", v1:p1.batting.tests.c, v2:p2.batting.tests.c, higher:true },
+            { label:"Fifties", v1:p1.batting.tests.f, v2:p2.batting.tests.f, higher:true }
+        ]},
+        { section:"ODI Batting", rows:[
+            { label:"Matches", v1:p1.batting.odis.m, v2:p2.batting.odis.m, higher:true },
+            { label:"Runs", v1:p1.batting.odis.r, v2:p2.batting.odis.r, higher:true },
+            { label:"Average", v1:p1.batting.odis.avg, v2:p2.batting.odis.avg, higher:true },
+            { label:"Strike Rate", v1:p1.batting.odis.sr, v2:p2.batting.odis.sr, higher:true },
+            { label:"Centuries", v1:p1.batting.odis.c, v2:p2.batting.odis.c, higher:true },
+            { label:"Fifties", v1:p1.batting.odis.f, v2:p2.batting.odis.f, higher:true }
+        ]},
+        { section:"T20I Batting", rows:[
+            { label:"Matches", v1:p1.batting.t20s.m, v2:p2.batting.t20s.m, higher:true },
+            { label:"Runs", v1:p1.batting.t20s.r, v2:p2.batting.t20s.r, higher:true },
+            { label:"Average", v1:p1.batting.t20s.avg, v2:p2.batting.t20s.avg, higher:true },
+            { label:"Strike Rate", v1:p1.batting.t20s.sr, v2:p2.batting.t20s.sr, higher:true }
+        ]},
+        { section:"Test Bowling", rows:[
+            { label:"Wickets", v1:p1.bowling.tests.w, v2:p2.bowling.tests.w, higher:true },
+            { label:"Average", v1:p1.bowling.tests.avg, v2:p2.bowling.tests.avg, higher:false },
+            { label:"Economy", v1:p1.bowling.tests.eco, v2:p2.bowling.tests.eco, higher:false }
+        ]},
+        { section:"ODI Bowling", rows:[
+            { label:"Wickets", v1:p1.bowling.odis.w, v2:p2.bowling.odis.w, higher:true },
+            { label:"Average", v1:p1.bowling.odis.avg, v2:p2.bowling.odis.avg, higher:false },
+            { label:"Economy", v1:p1.bowling.odis.eco, v2:p2.bowling.odis.eco, higher:false }
+        ]}
+    ];
+    var p1wins=0, p2wins=0, draws=0;
+    stats.forEach(function(s){ s.rows.forEach(function(r){
+        if(r.v1===0&&r.v2===0){r.winner=0;draws++;}
+        else if(r.v1===r.v2){r.winner=0;draws++;}
+        else if(r.higher){if(r.v1>r.v2){r.winner=1;p1wins++;}else{r.winner=2;p2wins++;}}
+        else{if(r.v1<r.v2&&r.v1>0){r.winner=1;p1wins++;}else if(r.v2<r.v1&&r.v2>0){r.winner=2;p2wins++;}else{r.winner=0;draws++;}}
+    });});
+    var overall = p1wins > p2wins ? p1.name : p2wins > p1wins ? p2.name : "Draw";
+    var html = '<div class="pfo-result-card">';
+    html += '<div class="pfo-result-header">';
+    html += '<div class="pfo-result-player"><div class="pfo-rp-avatar" style="background:'+p1.avatar+'">'+p1.initials+'</div><h3>'+p1.name+'</h3><p>'+p1.country+' — '+p1.role+'</p></div>';
+    html += '<div class="pfo-result-vs">VS</div>';
+    html += '<div class="pfo-result-player"><div class="pfo-rp-avatar" style="background:'+p2.avatar+'">'+p2.initials+'</div><h3>'+p2.name+'</h3><p>'+p2.country+' — '+p2.role+'</p></div>';
+    html += '</div>';
+    html += '<table class="pfo-stat-table"><thead><tr><th>'+p1.name.split(" ").pop()+'</th><th>Stat</th><th>'+p2.name.split(" ").pop()+'</th></tr></thead><tbody>';
+    stats.forEach(function(s){
+        html += '<tr class="pfo-section-label"><td colspan="3"><i class="fa-solid fa-layer-group"></i> '+s.section+'</td></tr>';
+        s.rows.forEach(function(r){
+            var cls = r.winner===1?"pfo-winner-row":"";
+            var badge1 = r.winner===1?'<span class="pfo-winner-badge"><i class="fa-solid fa-crown"></i></span>':"";
+            var badge2 = r.winner===2?'<span class="pfo-winner-badge"><i class="fa-solid fa-crown"></i></span>':"";
+            var badgeD = r.winner===0?'<span class="pfo-draw-badge">=</span>':"";
+            html += '<tr class="'+cls+'"><td>'+r.v1+(r.label==="Average"||r.label==="Strike Rate"||r.label==="Economy"?"":"")+' '+badge1+'</td><td>'+r.label+'</td><td>'+r.v2+' '+badge2+'</td></tr>';
+        });
+    });
+    html += '</tbody></table>';
+    html += '<div class="pfo-overall-result">';
+    if(overall==="Draw"){html+='<h3>🤝 It\'s a Draw!</h3><p>Both players are evenly matched across all stats.</p>';}
+    else{html+='<h3>🏆 '+overall+' leads the comparison!</h3><p>'+p1wins+' stats won vs '+p2wins+' stats won ('+draws+' draws).</p>';}
+    html += '</div></div>';
+    result.innerHTML = html;
+    result.style.display = "block";
+    result.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+document.addEventListener("click", function(e) {
+    if (!e.target.closest(".pfo-player-select")) {
+        document.getElementById("pfo-dropdown-1").style.display = "none";
+        document.getElementById("pfo-dropdown-2").style.display = "none";
+    }
+});
+
+// ========================================
+// 🎓 CRICKET IQ TEST
+// ========================================
+
+var iqQuestionBank = {
+    easy: [
+        { q:"Who is popularly known as King Kohli?", opts:["Rohit Sharma","Virat Kohli","MS Dhoni","Sachin Tendulkar"], ans:1 },
+        { q:"Which country won the 2011 Cricket World Cup?", opts:["Australia","Sri Lanka","India","Pakistan"], ans:2 },
+        { q:"How many players are there in a cricket team on the field?", opts:["10","11","12","9"], ans:1 },
+        { q:"How many overs are bowled in a T20 innings?", opts:["10","50","20","15"], ans:2 },
+        { q:"What is a score of zero by a batter called?", opts:["Dot","Maiden","Duck","Golden Duck"], ans:2 },
+        { q:"Who captained India to victory in the 1983 World Cup?", opts:["Sourav Ganguly","Kapil Dev","MS Dhoni","Rahul Dravid"], ans:1 },
+        { q:"Which format of cricket can last up to five days?", opts:["T20","ODI","Test Cricket","The Hundred"], ans:2 },
+        { q:"How many runs are awarded for hitting the ball over the boundary without bouncing?", opts:["4","5","6","8"], ans:2 },
+        { q:"What does LBW stand for?", opts:["Leg Bat Wicket","Leg Before Wicket","Left Ball Wicket","Long Boundary Win"], ans:1 },
+        { q:"Who is known as the God of Cricket?", opts:["Virat Kohli","Brian Lara","Sachin Tendulkar","Ricky Ponting"], ans:2 }
+    ],
+    medium: [
+        { q:"Which country hosted the 2011 Cricket World Cup?", opts:["India and Sri Lanka","India and Bangladesh","India only","India, Sri Lanka, and Bangladesh"], ans:3 },
+        { q:"What is the highest individual score in Test cricket?", opts:["375 by Brian Lara","400* by Brian Lara","365 by Garry Sobers","380 by Matthew Hayden"], ans:1 },
+        { q:"Who took the most wickets in Test cricket history?", opts:["Muttiah Muralitharan","Shane Warne","Anil Kumble","James Anderson"], ans:0 },
+        { q:"Which team won the first ever Cricket World Cup in 1975?", opts:["India","England","Australia","West Indies"], ans:3 },
+        { q:"What is a maiden over?", opts:["An over with six wickets","An over with no runs conceded","An over with a hat-trick","An over with all boundaries"], ans:1 },
+        { q:"How many balls are there in a standard over?", opts:["4","8","6","5"], ans:2 },
+        { q:"Which IPL team has Virat Kohli represented throughout his IPL career?", opts:["Mumbai Indians","Chennai Super Kings","Royal Challengers Bengaluru","Kolkata Knight Riders"], ans:2 },
+        { q:"Who is known as Captain Cool in cricket?", opts:["Rohit Sharma","Rahul Dravid","MS Dhoni","Kapil Dev"], ans:2 },
+        { q:"Which trophy is contested between India and Australia in Test cricket?", opts:["The Ashes","Border-Gavaskar Trophy","Champions Trophy","Pataudi Trophy"], ans:1 },
+        { q:"How many runs does a batter get for hitting a four?", opts:["2","4","6","3"], ans:1 }
+    ],
+    hard: [
+        { q:"What was Sachin Tendulkar's score on his Test cricket debut?", opts:["15","68","0","36"], ans:2 },
+        { q:"Who scored 400 not out in a single Test innings, the highest individual score ever?", opts:["Matthew Hayden","Brian Lara","Virender Sehwag","Sir Garfield Sobers"], ans:1 },
+        { q:"Which country won the 1983 Cricket World Cup final against West Indies?", opts:["England","Australia","India","Pakistan"], ans:2 },
+        { q:"Who was the first player to take 800 Test wickets?", opts:["Shane Warne","Anil Kumble","Muttiah Muralitharan","James Anderson"], ans:2 },
+        { q:"What is the only country to have won all three ICC trophies (World Cup, T20 World Cup, Champions Trophy)?", opts:["India","Australia","England","Sri Lanka"], ans:1 },
+        { q:"Who scored the fastest century in ODI cricket off just 36 balls?", opts:["AB de Villiers","Chris Gayle","Shahid Afridi","Corey Anderson"], ans:0 },
+        { q:"In which year did India win their first-ever Test match?", opts:["1932","1952","1947","1960"], ans:1 },
+        { q:"Who was the first Indian cricketer to score a double century in ODI cricket?", opts:["Virender Sehwag","Sachin Tendulkar","Rohit Sharma","Virat Kohli"], ans:1 },
+        { q:"What is the nickname of the Australian cricket team?", opts:["The Blacks","The Kangaroos","The Baggy Greens","The Southern Stars"], ans:2 },
+        { q:"Who holds the record for the most catches in Test cricket as a non-wicketkeeper?", opts:["Rahul Dravid","Jacques Kallis","Ricky Ponting","Steve Smith"], ans:0 }
+    ]
+};
+
+var iqState = { level:null, questions:[], current:0, score:0, answered:false, locked:false };
+
+function iqShuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+}
+
+function iqStartTest(level) {
+    iqState.level = level;
+    iqState.questions = iqShuffle(iqQuestionBank[level]).slice(0, 10);
+    iqState.current = 0;
+    iqState.score = 0;
+    iqState.answered = false;
+    iqState.locked = false;
+
+    document.getElementById("iq-level-select").style.display = "none";
+    document.getElementById("iq-result-area").style.display = "none";
+    document.getElementById("iq-test-area").style.display = "block";
+
+    var badge = document.getElementById("iq-level-badge");
+    badge.className = "iq-badge iq-badge-" + level;
+    badge.textContent = level.charAt(0).toUpperCase() + level.slice(1);
+
+    iqRenderQuestion();
+}
+
+function iqRenderQuestion() {
+    iqState.answered = false;
+    iqState.locked = false;
+    var q = iqState.questions[iqState.current];
+    var total = iqState.questions.length;
+
+    document.getElementById("iq-progress-text").textContent = "Question " + (iqState.current + 1) + " of " + total;
+    document.getElementById("iq-score-display").textContent = "Score: " + iqState.score;
+    document.getElementById("iq-progress-fill").style.width = ((iqState.current / total) * 100) + "%";
+    document.getElementById("iq-question-text").textContent = q.q;
+    document.getElementById("iq-feedback").style.display = "none";
+    document.getElementById("iq-next-btn").style.display = "none";
+
+    var letters = ["A","B","C","D"];
+    var optHtml = "";
+    for (var i = 0; i < q.opts.length; i++) {
+        optHtml += '<button class="iq-option" onclick="iqAnswer(' + i + ')" id="iq-opt-' + i + '">';
+        optHtml += '<span class="iq-opt-letter">' + letters[i] + '</span>';
+        optHtml += '<span>' + q.opts[i] + '</span>';
+        optHtml += '</button>';
+    }
+    document.getElementById("iq-options").innerHTML = optHtml;
+}
+
+function iqAnswer(idx) {
+    if (iqState.locked) return;
+    iqState.locked = true;
+    iqState.answered = true;
+
+    var q = iqState.questions[iqState.current];
+    var correct = q.ans;
+    var feedback = document.getElementById("iq-feedback");
+    var btns = document.querySelectorAll(".iq-option");
+
+    btns.forEach(function(b) { b.disabled = true; });
+
+    if (idx === correct) {
+        iqState.score++;
+        btns[idx].classList.add("iq-option-correct");
+        feedback.className = "iq-feedback iq-feedback-correct";
+        feedback.innerHTML = '<i class="fa-solid fa-circle-check"></i> Correct! Well done!';
+    } else {
+        btns[idx].classList.add("iq-option-wrong");
+        btns[correct].classList.add("iq-option-correct");
+        feedback.className = "iq-feedback iq-feedback-wrong";
+        feedback.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Wrong! Correct answer: <strong>' + q.opts[correct] + '</strong>';
+    }
+
+    for (var i = 0; i < btns.length; i++) {
+        if (i !== idx && i !== correct) btns[i].classList.add("iq-option-dim");
+    }
+
+    feedback.style.display = "flex";
+    document.getElementById("iq-score-display").textContent = "Score: " + iqState.score;
+
+    if (iqState.current < iqState.questions.length - 1) {
+        document.getElementById("iq-next-btn").style.display = "inline-flex";
+    } else {
+        setTimeout(function() { iqShowResult(); }, 800);
+    }
+}
+
+function iqNextQuestion() {
+    iqState.current++;
+    iqRenderQuestion();
+}
+
+function iqShowResult() {
+    document.getElementById("iq-test-area").style.display = "none";
+    document.getElementById("iq-result-area").style.display = "block";
+
+    var total = iqState.questions.length;
+    var pct = Math.round((iqState.score / total) * 100);
+    var icon = document.getElementById("iq-result-icon");
+    var title = document.getElementById("iq-result-title");
+    var subtitle = document.getElementById("iq-result-subtitle");
+
+    if (pct >= 80) {
+        icon.textContent = "🏆";
+        title.textContent = "Cricket Genius!";
+        subtitle.textContent = "Outstanding! You really know your cricket!";
+    } else if (pct >= 60) {
+        icon.textContent = "🌟";
+        title.textContent = "Great Performance!";
+        subtitle.textContent = "Solid knowledge! Keep learning!";
+    } else if (pct >= 40) {
+        icon.textContent = "📝";
+        title.textContent = "Not Bad!";
+        subtitle.textContent = "You know some basics. Try again to improve!";
+    } else {
+        icon.textContent = "📚";
+        title.textContent = "Keep Studying!";
+        subtitle.textContent = "Cricket has many surprises. Learn and try again!";
+    }
+
+    document.getElementById("iq-final-score").textContent = iqState.score + "/" + total;
+    document.getElementById("iq-final-correct").textContent = iqState.score;
+    document.getElementById("iq-final-pct").textContent = pct + "%";
+
+    var bestKey = "worldCricketHubIQBest_" + iqState.level;
+    var oldBest = Number(localStorage.getItem(bestKey)) || 0;
+    var isNewBest = iqState.score > oldBest;
+    if (isNewBest) localStorage.setItem(bestKey, iqState.score);
+
+    var banner = document.getElementById("iq-best-banner");
+    if (isNewBest) {
+        banner.style.display = "block";
+        document.getElementById("iq-best-val").textContent = iqState.score;
+    } else {
+        banner.style.display = "none";
+    }
+}
+
+function iqRestartTest() {
+    iqStartTest(iqState.level);
+}
+
+function iqChangeLevel() {
+    document.getElementById("iq-test-area").style.display = "none";
+    document.getElementById("iq-result-area").style.display = "none";
+    document.getElementById("iq-level-select").style.display = "grid";
+}
+
+// ========================================
+// 🗳️ FAN VOTE ARENA
+// ========================================
+
+var fvaPolls = [];
+var fvaSelectedOptions = {};
+var fvaVotedPolls = {};
+
+function fvaGetToken() {
+    var token = localStorage.getItem("wch_fan_vote_token");
+    if (!token) {
+        token = "voter_" + Date.now() + "_" + Math.random().toString(36).substring(2, 10);
+        localStorage.setItem("wch_fan_vote_token", token);
+    }
+    return token;
+}
+
+function fvaGetVotedPolls() {
+    try {
+        return JSON.parse(localStorage.getItem("wch_fan_voted_polls")) || {};
+    } catch(e) { return {}; }
+}
+
+function fvaSaveVotedPoll(pollId) {
+    var voted = fvaGetVotedPolls();
+    voted[pollId] = true;
+    localStorage.setItem("wch_fan_voted_polls", JSON.stringify(voted));
+}
+
+function fvaPollIconClass(index) {
+    return "fva-poll-icon-" + ((index % 5) + 1);
+}
+
+var fvaIcons = ["fa-heart","fa-trophy","fa-star","fa-fire","fa-gem"];
+
+async function fvaLoadPolls() {
+    var container = document.getElementById("fva-polls-container");
+    try {
+        var response = await fetch("/api/polls");
+        var result = await response.json();
+        if (result.success) {
+            fvaPolls = result.polls;
+            fvaRenderPolls();
+        } else {
+            container.innerHTML = '<p class="loading-spinner"><i class="fa-solid fa-circle-exclamation"></i> Failed to load polls.</p>';
+        }
+    } catch(e) {
+        container.innerHTML = '<p class="loading-spinner"><i class="fa-solid fa-circle-exclamation"></i> Unable to connect to voting server.</p>';
+    }
+}
+
+function fvaRenderPolls() {
+    var container = document.getElementById("fva-polls-container");
+    var voted = fvaGetVotedPolls();
+    var html = "";
+
+    fvaPolls.forEach(function(poll, pIdx) {
+        var hasVoted = voted[poll.id] || false;
+        var selected = fvaSelectedOptions[poll.id] || null;
+        var iconClass = fvaPollIconClass(pIdx);
+        var iconName = fvaIcons[pIdx % fvaIcons.length];
+
+        html += '<div class="fva-poll-card">';
+        html += '<div class="fva-poll-icon ' + iconClass + '"><i class="fa-solid ' + iconName + '"></i></div>';
+        html += '<div class="fva-poll-question">' + poll.question + '</div>';
+
+        if (hasVoted || poll.totalVotes > 0 && voted[poll.id]) {
+            // Show results
+            html += fvaRenderResults(poll);
+            html += '<div class="fva-voted-tag"><i class="fa-solid fa-check-circle"></i> You voted</div>';
+        } else {
+            // Show voting options
+            html += '<div class="fva-option-list">';
+            poll.options.forEach(function(opt) {
+                var isSelected = selected === opt.id;
+                html += '<button class="fva-option-btn' + (isSelected ? ' selected' : '') + '" onclick="fvaSelectOption(\'' + poll.id + '\',\'' + opt.id + '\')">';
+                html += '<span class="fva-radio"></span>';
+                html += '<span>' + opt.text + '</span>';
+                html += '</button>';
+            });
+            html += '</div>';
+            html += '<button class="fva-vote-btn" id="fva-vote-' + poll.id + '" onclick="fvaSubmitVote(\'' + poll.id + '\')" ' + (!selected ? 'disabled' : '') + '>';
+            html += '<i class="fa-solid fa-check-to-slot"></i> Vote Now';
+            html += '</button>';
+        }
+
+        html += '</div>';
+    });
+
+    container.innerHTML = html;
+}
+
+function fvaRenderResults(poll) {
+    var html = '<div class="fva-results">';
+    var colors = ["fva-bar-1","fva-bar-2","fva-bar-3","fva-bar-4"];
+    poll.options.forEach(function(opt, idx) {
+        html += '<div class="fva-result-row">';
+        html += '<div class="fva-result-header">';
+        html += '<span class="fva-result-name">' + opt.text + '</span>';
+        html += '<span class="fva-result-pct">' + opt.percentage + '%</span>';
+        html += '</div>';
+        html += '<div class="fva-bar-bg"><div class="fva-bar-fill ' + colors[idx % 4] + '" style="width:' + opt.percentage + '%"></div></div>';
+        html += '<div class="fva-result-votes">' + opt.votes + ' vote' + (opt.votes !== 1 ? 's' : '') + '</div>';
+        html += '</div>';
+    });
+    html += '<div class="fva-total-votes"><i class="fa-solid fa-chart-simple"></i> Total votes: ' + poll.totalVotes + '</div>';
+    html += '</div>';
+    return html;
+}
+
+function fvaSelectOption(pollId, optionId) {
+    var voted = fvaGetVotedPolls();
+    if (voted[pollId]) return;
+
+    fvaSelectedOptions[pollId] = optionId;
+    fvaRenderPolls();
+}
+
+async function fvaSubmitVote(pollId) {
+    var selected = fvaSelectedOptions[pollId];
+    if (!selected) return;
+
+    var btn = document.getElementById("fva-vote-" + pollId);
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Voting...'; }
+
+    var token = fvaGetToken();
+
+    try {
+        var response = await fetch("/api/polls/" + pollId + "/vote", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ optionId: selected, token: token })
+        });
+        var result = await response.json();
+
+        if (result.success) {
+            fvaSaveVotedPoll(pollId);
+            // Update local poll data
+            var pollIdx = fvaPolls.findIndex(function(p) { return p.id === pollId; });
+            if (pollIdx !== -1) {
+                fvaPolls[pollIdx] = result.poll;
+            }
+            fvaRenderPolls();
+        } else if (result.alreadyVoted) {
+            fvaSaveVotedPoll(pollId);
+            fvaRenderPolls();
+        } else {
+            if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check-to-slot"></i> Vote Now'; }
+            alert(result.error || "Failed to submit vote.");
+        }
+    } catch(e) {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check-to-slot"></i> Vote Now'; }
+        alert("Unable to connect to server. Please try again.");
+    }
+}
+
+// Load polls on page load
+fvaLoadPolls();
+
 // Start
 loadMatches();
 loadSchedule();

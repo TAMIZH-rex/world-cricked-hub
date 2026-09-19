@@ -1,0 +1,59 @@
+{
+  "polls": [
+    {
+      "id": "favourite-cricketer",
+      "question": "Who is your favourite cricketer of all time?",
+      "options": [
+        { "id": "sachin", "text": "Sachin Tendulkar", "votes": 0 },
+        { "id": "kohli", "text": "Virat Kohli", "votes": 0 },
+        { "id": "bradman", "text": "Don Bradman", "votes": 0 },
+        { "id": "lara", "text": "Brian Lara", "votes": 0 }
+      ],
+      "votedTokens": []
+    },
+    {
+      "id": "best-captain",
+      "question": "Who is the best cricket captain ever?",
+      "options": [
+        { "id": "dhoni", "text": "MS Dhoni", "votes": 0 },
+        { "id": "border", "text": "Allan Border", "votes": 0 },
+        { "id": "fleming", "text": "Stephen Fleming", "votes": 0 },
+        { "id": "sourav", "text": "Sourav Ganguly", "votes": 0 }
+      ],
+      "votedTokens": []
+    },
+    {
+      "id": "best-format",
+      "question": "Which cricket format do you enjoy the most?",
+      "options": [
+        { "id": "test", "text": "Test Cricket", "votes": 0 },
+        { "id": "odi", "text": "ODI Cricket", "votes": 0 },
+        { "id": "t20", "text": "T20 Cricket", "votes": 0 },
+        { "id": "ipl", "text": "IPL / Franchise Leagues", "votes": 0 }
+      ],
+      "votedTokens": []
+    },
+    {
+      "id": "memorable-moment",
+      "question": "What is the most memorable cricket moment?",
+      "options": [
+        { "id": "wc2011", "text": "India winning 2011 World Cup", "votes": 0 },
+        { "id": "ashes2005", "text": "Ashes 2005 epic series", "votes": 0 },
+        { "id": "lara400", "text": "Brian Lara's 400*", "votes": 0 },
+        { "id": "ind2007", "text": "India winning 2007 T20 World Cup", "votes": 0 }
+      ],
+      "votedTokens": []
+    },
+    {
+      "id": "best-bowler",
+      "question": "Who is the greatest bowler in cricket history?",
+      "options": [
+        { "id": "murali", "text": "Muttiah Muralitharan", "votes": 0 },
+        { "id": "warne", "text": "Shane Warne", "votes": 0 },
+        { "id": "wasim", "text": "Wasim Akram", "votes": 0 },
+        { "id": "mcgrath", "text": "Glenn McGrath", "votes": 0 }
+      ],
+      "votedTokens": []
+    }
+  ]
+}
