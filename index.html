@@ -615,6 +615,32 @@
             </div>
         </div>
 
+        <!-- Fan Battle -->
+        <div id="fb-container" style="display:none;">
+            <button class="pg-back-btn" onclick="pgBackToLanding()"><i class="fa-solid fa-arrow-left"></i> Back to Games</button>
+            <div class="section-header"><i class="fa-solid fa-shield-halved"></i><h2>Fan Battle</h2></div>
+            <p style="color:#94a3b8; margin-bottom:24px; font-size:15px;">Pick your side in epic cricket showdowns! Every vote counts.</p>
+            <div id="fb-battles-grid" class="fb-battles-grid">
+                <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Loading battles...</div>
+            </div>
+        </div>
+
+        <!-- Cricket Mission -->
+        <div id="cm-container" style="display:none;">
+            <button class="pg-back-btn" onclick="pgBackToLanding()"><i class="fa-solid fa-arrow-left"></i> Back to Games</button>
+            <div class="section-header"><i class="fa-solid fa-bullseye"></i><h2>Cricket Mission</h2></div>
+            <p style="color:#94a3b8; margin-bottom:24px; font-size:15px;">Complete daily missions, earn XP, and level up your cricket profile!</p>
+            <div id="cm-xp-banner" class="cm-xp-banner">
+                <div class="cm-xp-item"><i class="fa-solid fa-star"></i> XP: <span id="cm-total-xp">0</span></div>
+                <div class="cm-xp-item"><i class="fa-solid fa-calendar-day"></i> Daily: <span id="cm-daily-done">0</span>/<span id="cm-daily-total">0</span></div>
+                <div class="cm-xp-item"><i class="fa-solid fa-calendar-week"></i> Weekly: <span id="cm-weekly-done">0</span>/<span id="cm-weekly-total">0</span></div>
+            </div>
+            <div class="cm-section-label"><i class="fa-solid fa-calendar-day"></i> Daily Missions</div>
+            <div id="cm-daily-list" class="cm-missions-list"></div>
+            <div class="cm-section-label"><i class="fa-solid fa-calendar-week"></i> Weekly Missions</div>
+            <div id="cm-weekly-list" class="cm-missions-list"></div>
+        </div>
+
         </div>
 
     </section>

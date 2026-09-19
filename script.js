@@ -2780,7 +2780,9 @@ function pgOpenGame(gameId) {
     panels.forEach(function(p) { p.style.display = "none"; });
     var gameMap = {
         "30sec": "t30c-container",
-        "btxi": null, "streak": null, "battle": null, "dna": null, "mission": null
+        "battle": "fb-container",
+        "mission": "cm-container",
+        "btxi": null, "streak": null, "dna": null
     };
     var targetId = gameMap[gameId];
     if (targetId) {
@@ -2796,7 +2798,7 @@ function pgBackToLanding() {
     t30cStopTimer();
     var landing = document.getElementById("pg-landing");
     var panels = document.querySelectorAll("#playground .explore-panel");
-    var games = document.querySelectorAll("#playground .pg-game-container, #t30c-container");
+    var games = document.querySelectorAll("#playground .pg-game-container, #t30c-container, #fb-container, #cm-container");
     if (landing) landing.style.display = "";
     panels.forEach(function(p) { p.style.display = ""; });
     games.forEach(function(g) { g.style.display = "none"; });
@@ -2961,6 +2963,345 @@ function t30cEndGame() {
         document.getElementById("t30c-best-banner").style.display = "none";
     }
 }
+
+// ========================================
+// ⚔️ FAN BATTLE
+// Reuses existing /api/polls Supabase endpoints
+// ========================================
+
+var fbBattles = [
+    {
+        id: "fb-ind-vs-aus",
+        question: "Who will dominate — India or Australia?",
+        sideA: { id: "ind", name: "India", emoji: "🇮🇳" },
+        sideB: { id: "aus", name: "Australia", emoji: "🇦🇺" }
+    },
+    {
+        id: "fb-kohli-vs-sachin",
+        question: "Greatest batsman of all time?",
+        sideA: { id: "kohli", name: "Virat Kohli", emoji: "👑" },
+        sideB: { id: "sachin", name: "Sachin Tendulkar", emoji: "🏏" }
+    },
+    {
+        id: "fb-ind-vs-eng",
+        question: "Who will win — India or England?",
+        sideA: { id: "ind2", name: "India", emoji: "🇮🇳" },
+        sideB: { id: "eng", name: "England", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" }
+    },
+    {
+        id: "fb-babar-vs-kohli",
+        question: "Best modern-era batsman?",
+        sideA: { id: "babar", name: "Babar Azam", emoji: "⭐" },
+        sideB: { id: "kohli2", name: "Virat Kohli", emoji: "👑" }
+    },
+    {
+        id: "fb-warne-vs-murali",
+        question: "Greatest spinner of all time?",
+        sideA: { id: "warne", name: "Shane Warne", emoji: "🧙" },
+        sideB: { id: "murali", name: "Muralitharan", emoji: "🌀" }
+    },
+    {
+        id: "fb-dhoni-vs-ponting",
+        question: "Greatest captain ever?",
+        sideA: { id: "dhoni", name: "MS Dhoni", emoji: "🛡️" },
+        sideB: { id: "ponting", name: "Ricky Ponting", emoji: "🇦🇺" }
+    }
+];
+
+var fbVotedBattles = {};
+
+function fbGetVoted() {
+    try { return JSON.parse(localStorage.getItem("wch_fb_voted")) || {}; }
+    catch(e) { return {}; }
+}
+
+function fbSaveVoted(battleId) {
+    var v = fbGetVoted();
+    v[battleId] = true;
+    localStorage.setItem("wch_fb_voted", JSON.stringify(v));
+}
+
+async function fbLoadBattles() {
+    var container = document.getElementById("fb-battles-grid");
+    if (!container) return;
+    try {
+        var response = await fetch("/api/polls");
+        var result = await response.json();
+        if (!result.success) {
+            container.innerHTML = '<p class="loading-spinner"><i class="fa-solid fa-circle-exclamation"></i> Failed to load battles.</p>';
+            return;
+        }
+        var polls = result.polls;
+        fbVotedBattles = fbGetVoted();
+        var html = "";
+        fbBattles.forEach(function(battle) {
+            var poll = polls.find(function(p) { return p.id === battle.id; });
+            if (!poll) return;
+            var hasVoted = fbVotedBattles[battle.id] || false;
+            html += '<div class="fb-battle-card" id="fb-card-' + battle.id + '">';
+            html += '<div class="fb-battle-q">' + battle.question + '</div>';
+            html += '<div class="fb-battle-sides">';
+            var aPct = poll.options[0] ? poll.options[0].percentage : 0;
+            var bPct = poll.options[1] ? poll.options[1].percentage : 0;
+            html += '<div class="fb-side' + (hasVoted ? ' fb-voted' : '') + '" onclick="fbSelectSide(\'' + battle.id + '\',\'' + battle.sideA.id + '\')">';
+            html += '<div class="fb-side-emoji">' + battle.sideA.emoji + '</div>';
+            html += '<div class="fb-side-name">' + battle.sideA.name + '</div>';
+            if (hasVoted) html += '<div style="font-size:20px;font-weight:900;color:#818cf8;margin-top:6px;">' + aPct + '%</div>';
+            html += '</div>';
+            html += '<div class="fb-vs">VS</div>';
+            html += '<div class="fb-side' + (hasVoted ? ' fb-voted' : '') + '" onclick="fbSelectSide(\'' + battle.id + '\',\'' + battle.sideB.id + '\')">';
+            html += '<div class="fb-side-emoji">' + battle.sideB.emoji + '</div>';
+            html += '<div class="fb-side-name">' + battle.sideB.name + '</div>';
+            if (hasVoted) html += '<div style="font-size:20px;font-weight:900;color:#f97316;margin-top:6px;">' + bPct + '%</div>';
+            html += '</div>';
+            html += '</div>';
+            if (hasVoted) {
+                html += '<div class="fb-results">';
+                poll.options.forEach(function(opt, i) {
+                    var barClass = i === 0 ? "fb-bar-a" : "fb-bar-b";
+                    html += '<div class="fb-res-row">';
+                    html += '<div class="fb-res-head"><span class="fb-res-name">' + opt.text + '</span><span class="fb-res-pct">' + opt.percentage + '%</span></div>';
+                    html += '<div class="fb-res-bar-bg"><div class="fb-res-bar-fill ' + barClass + '" style="width:' + opt.percentage + '%"></div></div>';
+                    html += '<div class="fb-res-votes">' + opt.votes + ' vote' + (opt.votes !== 1 ? 's' : '') + '</div>';
+                    html += '</div>';
+                });
+                html += '<div class="fb-total"><i class="fa-solid fa-chart-simple"></i> Total: ' + poll.totalVotes + ' votes</div>';
+                html += '</div>';
+                html += '<div class="fb-voted-tag"><i class="fa-solid fa-check-circle"></i> You voted!</div>';
+            } else {
+                html += '<div class="fb-vote-label">Pick your side and vote!</div>';
+                html += '<button class="fb-battle-btn" id="fb-btn-' + battle.id + '" onclick="fbSubmitVote(\'' + battle.id + '\')" disabled><i class="fa-solid fa-check-to-slot"></i> Vote</button>';
+            }
+            html += '</div>';
+        });
+        container.innerHTML = html;
+    } catch(e) {
+        container.innerHTML = '<p class="loading-spinner"><i class="fa-solid fa-circle-exclamation"></i> Unable to connect to voting server.</p>';
+    }
+}
+
+var fbSelectedSide = {};
+
+function fbSelectSide(battleId, sideId) {
+    if (fbVotedBattles[battleId]) return;
+    fbSelectedSide[battleId] = sideId;
+    var card = document.getElementById("fb-card-" + battleId);
+    if (!card) return;
+    var sides = card.querySelectorAll(".fb-side");
+    sides.forEach(function(s) { s.classList.remove("fb-selected"); });
+    var battle = fbBattles.find(function(b) { return b.id === battleId; });
+    if (battle) {
+        if (sideId === battle.sideA.id) sides[0].classList.add("fb-selected");
+        else sides[1].classList.add("fb-selected");
+    }
+    var btn = document.getElementById("fb-btn-" + battleId);
+    if (btn) btn.disabled = false;
+}
+
+async function fbSubmitVote(battleId) {
+    var selected = fbSelectedSide[battleId];
+    if (!selected) return;
+    var btn = document.getElementById("fb-btn-" + battleId);
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Voting...'; }
+    var battle = fbBattles.find(function(b) { return b.id === battleId; });
+    if (!battle) return;
+    try {
+        var response = await fetch("/api/polls");
+        var result = await response.json();
+        if (!result.success) throw new Error("Failed to load polls");
+        var poll = result.polls.find(function(p) { return p.id === battleId; });
+        if (!poll) throw new Error("Poll not found");
+        var option = poll.options.find(function(o) {
+            return o.text.toLowerCase().indexOf(selected.toLowerCase()) !== -1 ||
+                   o.id.toLowerCase().indexOf(selected.toLowerCase()) !== -1;
+        });
+        if (!option) {
+            var sideIndex = (selected === battle.sideA.id) ? 0 : 1;
+            option = poll.options[sideIndex];
+        }
+        if (!option) throw new Error("Option not found");
+        var token = fvaGetToken();
+        var voteResponse = await fetch("/api/polls/" + battleId + "/vote", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ optionId: option.id, token: token })
+        });
+        var voteResult = await voteResponse.json();
+        if (voteResult.success || voteResult.alreadyVoted) {
+            fbSaveVoted(battleId);
+            fbLoadBattles();
+            if (typeof cmCompleteMission === "function") cmCompleteMission("cm_battle");
+            if (typeof cmTrackVote === "function") cmTrackVote();
+        } else {
+            if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check-to-slot"></i> Vote'; }
+            alert(voteResult.error || "Failed to submit vote.");
+        }
+    } catch(e) {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check-to-slot"></i> Vote'; }
+        alert("Unable to connect to server. Please try again.");
+    }
+}
+
+fbLoadBattles();
+
+// ========================================
+// 🎯 CRICKET MISSION
+// ========================================
+
+var cmMissions = [
+    { id: "cm_quiz", title: "Quiz Master", desc: "Complete one quiz in Explore", xp: 20, icon: "fa-brain", type: "daily" },
+    { id: "cm_puzzle", title: "Puzzle Solver", desc: "Solve one puzzle in Explore", xp: 15, icon: "fa-puzzle-piece", type: "daily" },
+    { id: "cm_30sec", title: "Speed Demon", desc: "Play 30 Second Cricket", xp: 25, icon: "fa-stopwatch", type: "daily" },
+    { id: "cm_battle", title: "Fan Fighter", desc: "Cast a Fan Battle vote", xp: 10, icon: "fa-shield-halved", type: "daily" },
+    { id: "cm_lastover", title: "Last Over Hero", desc: "Play the Last Over Challenge", xp: 20, icon: "fa-fire", type: "daily" },
+    { id: "cm_play5games", title: "Playground Pro", desc: "Play any 5 Playground games", xp: 50, icon: "fa-gamepad", type: "weekly" },
+    { id: "cm_vote3", title: "Democracy Voice", desc: "Cast 3 Fan Battle votes", xp: 30, icon: "fa-check-to-slot", type: "weekly" },
+    { id: "cm_highscore", title: "Score Champion", desc: "Score 8+ in 30 Second Cricket", xp: 40, icon: "fa-trophy", type: "weekly" }
+];
+
+function cmGetData() {
+    try { return JSON.parse(localStorage.getItem("wch_cm_data")) || { xp: 0, completed: {}, gamesPlayed: 0, votesCast: 0, highScores: [] }; }
+    catch(e) { return { xp: 0, completed: {}, gamesPlayed: 0, votesCast: 0, highScores: [] }; }
+}
+
+function cmSaveData(data) {
+    localStorage.setItem("wch_cm_data", JSON.stringify(data));
+}
+
+function cmIsCompleted(missionId) {
+    var data = cmGetData();
+    return data.completed[missionId] || false;
+}
+
+function cmCompleteMission(missionId) {
+    var data = cmGetData();
+    if (data.completed[missionId]) return;
+    var mission = cmMissions.find(function(m) { return m.id === missionId; });
+    if (!mission) return;
+    data.completed[missionId] = true;
+    data.xp += mission.xp;
+    cmSaveData(data);
+    cmRender();
+    cmShowXpNotification(mission.title, mission.xp);
+}
+
+function cmShowXpNotification(title, xp) {
+    var notif = document.createElement("div");
+    notif.style.cssText = "position:fixed;top:80px;right:20px;background:rgba(34,197,94,0.95);color:white;padding:14px 20px;border-radius:12px;font-weight:700;font-size:14px;z-index:9999;box-shadow:0 8px 30px rgba(34,197,94,0.4);font-family:'Inter',sans-serif;display:flex;align-items:center;gap:8px;";
+    notif.innerHTML = '<i class="fa-solid fa-star"></i> +' + xp + ' XP — ' + title + '!';
+    document.body.appendChild(notif);
+    setTimeout(function() { notif.remove(); }, 3000);
+}
+
+function cmTrackGamePlay() {
+    var data = cmGetData();
+    data.gamesPlayed = (data.gamesPlayed || 0) + 1;
+    if (data.gamesPlayed >= 5 && !data.completed["cm_play5games"]) {
+        data.completed["cm_play5games"] = true;
+        data.xp += 50;
+        cmShowXpNotification("Playground Pro", 50);
+    }
+    cmSaveData(data);
+}
+
+function cmTrackVote() {
+    var data = cmGetData();
+    data.votesCast = (data.votesCast || 0) + 1;
+    if (data.votesCast >= 3 && !data.completed["cm_vote3"]) {
+        data.completed["cm_vote3"] = true;
+        data.xp += 30;
+        cmShowXpNotification("Democracy Voice", 30);
+    }
+    cmSaveData(data);
+}
+
+function cmTrackHighScore(score) {
+    var data = cmGetData();
+    if (!data.highScores) data.highScores = [];
+    data.highScores.push(score);
+    if (score >= 8 && !data.completed["cm_highscore"]) {
+        data.completed["cm_highscore"] = true;
+        data.xp += 40;
+        cmShowXpNotification("Score Champion", 40);
+    }
+    cmSaveData(data);
+}
+
+function cmRender() {
+    var data = cmGetData();
+    var xpEl = document.getElementById("cm-total-xp");
+    if (xpEl) xpEl.textContent = data.xp;
+
+    var dailyMissions = cmMissions.filter(function(m) { return m.type === "daily"; });
+    var weeklyMissions = cmMissions.filter(function(m) { return m.type === "weekly"; });
+
+    var dailyDone = dailyMissions.filter(function(m) { return data.completed[m.id]; }).length;
+    var weeklyDone = weeklyMissions.filter(function(m) { return data.completed[m.id]; }).length;
+
+    var ddEl = document.getElementById("cm-daily-done");
+    var dtEl = document.getElementById("cm-daily-total");
+    var wdEl = document.getElementById("cm-weekly-done");
+    var wtEl = document.getElementById("cm-weekly-total");
+    if (ddEl) ddEl.textContent = dailyDone;
+    if (dtEl) dtEl.textContent = dailyMissions.length;
+    if (wdEl) wdEl.textContent = weeklyDone;
+    if (wtEl) wtEl.textContent = weeklyMissions.length;
+
+    var dailyList = document.getElementById("cm-daily-list");
+    if (dailyList) {
+        var html = "";
+        dailyMissions.forEach(function(m) {
+            var done = data.completed[m.id] || false;
+            html += '<div class="cm-mission' + (done ? ' cm-completed' : '') + '">';
+            html += '<div class="cm-mission-icon"><i class="fa-solid ' + m.icon + '"></i></div>';
+            html += '<div class="cm-mission-info">';
+            html += '<div class="cm-mission-title">' + m.title + '</div>';
+            html += '<div class="cm-mission-desc">' + m.desc + '</div>';
+            html += '</div>';
+            html += '<div class="cm-mission-xp">' + (done ? '<i class="fa-solid fa-check"></i> Done' : '+' + m.xp + ' XP') + '</div>';
+            html += '</div>';
+        });
+        dailyList.innerHTML = html;
+    }
+
+    var weeklyList = document.getElementById("cm-weekly-list");
+    if (weeklyList) {
+        var html2 = "";
+        weeklyMissions.forEach(function(m) {
+            var done = data.completed[m.id] || false;
+            html2 += '<div class="cm-mission' + (done ? ' cm-completed' : '') + '">';
+            html2 += '<div class="cm-mission-icon"><i class="fa-solid ' + m.icon + '"></i></div>';
+            html2 += '<div class="cm-mission-info">';
+            html2 += '<div class="cm-mission-title">' + m.title + '</div>';
+            html2 += '<div class="cm-mission-desc">' + m.desc + '</div>';
+            html2 += '</div>';
+            html2 += '<div class="cm-mission-xp">' + (done ? '<i class="fa-solid fa-check"></i> Done' : '+' + m.xp + ' XP') + '</div>';
+            html2 += '</div>';
+        });
+        weeklyList.innerHTML = html2;
+    }
+}
+
+cmRender();
+
+// ========================================
+// Hook: 30 Second Cricket end -> mission
+// ========================================
+var _origT30cEndGame = t30cEndGame;
+t30cEndGame = function() {
+    _origT30cEndGame();
+    if (typeof cmCompleteMission === "function") cmCompleteMission("cm_30sec");
+    if (typeof cmTrackGamePlay === "function") cmTrackGamePlay();
+    if (typeof cmTrackHighScore === "function") cmTrackHighScore(t30cScore);
+};
+
+// Hook: Last Over Challenge end -> mission
+var _origLbcShowResult = lbcShowResult;
+lbcShowResult = function(outcome) {
+    _origLbcShowResult(outcome);
+    if (typeof cmCompleteMission === "function") cmCompleteMission("cm_lastover");
+    if (typeof cmTrackGamePlay === "function") cmTrackGamePlay();
+};
 
 // Start
 loadMatches();
