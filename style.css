@@ -1056,3 +1056,53 @@ body.light-mode .dna-opt { background: rgba(30,5,5,0.4); border-color: rgba(220,
 body.light-mode .dna-opt:hover { border-color: #ef4444; background: rgba(220,38,38,0.08); }
 body.light-mode .dna-btn-back { background: rgba(30,5,5,0.8); border-color: rgba(220,38,38,0.2); color: #ef4444; }
 @media (max-width: 768px) { .dna-result-actions { flex-direction: column; align-items: stretch; } .dna-btn { justify-content: center; } .dna-traits { flex-direction: column; align-items: center; } }
+
+/* ================================
+   CRICKET STREAK
+   ================================ */
+.streak-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+.streak-stat-card { background: rgba(30,41,59,0.7); border: 1px solid rgba(99,102,241,0.12); border-radius: 16px; padding: 20px; text-align: center; }
+.streak-stat-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin: 0 auto 10px; }
+.streak-icon-fire { background: rgba(239,68,68,0.12); color: #f87171; }
+.streak-icon-best { background: rgba(251,191,36,0.12); color: #fbbf24; }
+.streak-icon-total { background: rgba(99,102,241,0.12); color: #818cf8; }
+.streak-stat-val { font-size: 32px; font-weight: 900; color: #e0e7ff; font-family: 'Courier New', monospace; margin-bottom: 4px; }
+.streak-stat-label { font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; }
+.streak-calendar { display: flex; gap: 6px; justify-content: center; margin-bottom: 24px; flex-wrap: wrap; }
+.streak-day { width: 42px; height: 52px; border-radius: 10px; border: 2px solid rgba(99,102,241,0.1); background: rgba(30,41,59,0.5); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; transition: all 0.3s ease; }
+.streak-day-name { font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase; }
+.streak-day-num { font-size: 14px; font-weight: 800; color: #94a3b8; }
+.streak-day.streak-done { border-color: rgba(239,68,68,0.5); background: rgba(239,68,68,0.1); }
+.streak-day.streak-done .streak-day-num { color: #f87171; }
+.streak-day.streak-today { border-color: #818cf8; box-shadow: 0 0 12px rgba(129,140,248,0.3); }
+.streak-day.streak-today .streak-day-num { color: #818cf8; }
+.streak-day.streak-missed { opacity: 0.4; }
+.streak-card { background: rgba(30,41,59,0.7); border: 1px solid rgba(99,102,241,0.12); border-radius: 18px; padding: 28px; max-width: 600px; margin: 0 auto; }
+.streak-q-text { font-size: 17px; font-weight: 700; color: #e0e7ff; margin-bottom: 18px; line-height: 1.4; }
+.streak-q-progress { font-size: 13px; color: #64748b; margin-bottom: 16px; display: flex; align-items: center; gap: 6px; }
+.streak-q-progress i { color: #818cf8; }
+.streak-q-opts { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.streak-q-opt { padding: 14px 18px; border: 2px solid rgba(99,102,241,0.15); border-radius: 12px; background: rgba(15,23,42,0.4); color: #e0e7ff; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; text-align: left; font-family: 'Inter', sans-serif; }
+.streak-q-opt:hover:not(:disabled) { border-color: #818cf8; background: rgba(99,102,241,0.08); transform: translateX(3px); }
+.streak-q-opt:disabled { cursor: default; }
+.streak-q-opt.streak-correct { border-color: #22c55e !important; background: rgba(34,197,94,0.15) !important; color: #4ade80 !important; }
+.streak-q-opt.streak-wrong { border-color: #ef4444 !important; background: rgba(239,68,68,0.15) !important; color: #f87171 !important; }
+.streak-q-opt.streak-dim { opacity: 0.3; pointer-events: none; }
+.streak-feedback { min-height: 24px; font-weight: 700; font-size: 14px; margin-bottom: 10px; }
+.streak-next-btn { padding: 12px 24px; border: none; border-radius: 10px; background: linear-gradient(135deg,#ef4444,#f97316); color: white; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.3s ease; font-family: 'Inter', sans-serif; display: inline-flex; align-items: center; gap: 8px; }
+.streak-next-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(239,68,68,0.4); }
+.streak-done-card { text-align: center; }
+.streak-done-icon { font-size: 56px; margin-bottom: 12px; }
+.streak-done-card h2 { font-size: 24px; color: #e0e7ff; margin-bottom: 8px; }
+.streak-done-card p { font-size: 14px; color: #94a3b8; margin-bottom: 16px; }
+.streak-done-stats { display: flex; gap: 14px; justify-content: center; margin-bottom: 20px; }
+.streak-done-stat { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.15); border-radius: 12px; padding: 12px 18px; text-align: center; }
+.streak-done-stat-val { display: block; font-size: 24px; font-weight: 900; color: #f87171; font-family: 'Courier New', monospace; }
+.streak-done-stat-label { display: block; font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; margin-top: 2px; }
+.streak-done-actions { display: flex; gap: 10px; justify-content: center; }
+body.light-mode .streak-stat-card, body.light-mode .streak-card { background: rgba(30,5,5,0.8); border-color: rgba(220,38,38,0.15); }
+body.light-mode .streak-stat-val, body.light-mode .streak-q-text { color: #1e293b; }
+body.light-mode .streak-day { background: rgba(30,5,5,0.5); border-color: rgba(220,38,38,0.1); }
+body.light-mode .streak-q-opt { background: rgba(30,5,5,0.4); border-color: rgba(220,38,38,0.15); color: #1e293b; }
+body.light-mode .streak-q-opt:hover:not(:disabled) { border-color: #ef4444; background: rgba(220,38,38,0.08); }
+@media (max-width: 768px) { .streak-stats { grid-template-columns: 1fr; } .streak-calendar { gap: 4px; } .streak-day { width: 36px; height: 46px; } .streak-done-stats { flex-direction: column; align-items: center; } .streak-done-actions { flex-direction: column; align-items: stretch; } .streak-next-btn { justify-content: center; } }

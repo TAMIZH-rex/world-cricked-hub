@@ -713,6 +713,37 @@
             </div>
         </div>
 
+        <!-- Cricket Streak -->
+        <div id="streak-container" style="display:none;">
+            <button class="pg-back-btn" onclick="pgBackToLanding()"><i class="fa-solid fa-arrow-left"></i> Back to Games</button>
+            <div class="section-header"><i class="fa-solid fa-fire"></i><h2>Cricket Streak</h2></div>
+            <p style="color:#94a3b8; margin-bottom:24px; font-size:15px;">Complete today's cricket challenge and keep your streak alive!</p>
+            <!-- Streak Stats -->
+            <div class="streak-stats">
+                <div class="streak-stat-card">
+                    <div class="streak-stat-icon streak-icon-fire"><i class="fa-solid fa-fire"></i></div>
+                    <div class="streak-stat-val" id="streak-current">0</div>
+                    <div class="streak-stat-label">Current Streak</div>
+                </div>
+                <div class="streak-stat-card">
+                    <div class="streak-stat-icon streak-icon-best"><i class="fa-solid fa-crown"></i></div>
+                    <div class="streak-stat-val" id="streak-best">0</div>
+                    <div class="streak-stat-label">Best Streak</div>
+                </div>
+                <div class="streak-stat-card">
+                    <div class="streak-stat-icon streak-icon-total"><i class="fa-solid fa-calendar-check"></i></div>
+                    <div class="streak-stat-val" id="streak-total">0</div>
+                    <div class="streak-stat-label">Days Played</div>
+                </div>
+            </div>
+            <!-- Streak Calendar -->
+            <div class="streak-calendar" id="streak-calendar"></div>
+            <!-- Challenge Area -->
+            <div id="streak-challenge" class="streak-card">
+                <div id="streak-challenge-content"></div>
+            </div>
+        </div>
+
         <!-- Cricket Mission -->
         <div id="cm-container" style="display:none;">
             <button class="pg-back-btn" onclick="pgBackToLanding()"><i class="fa-solid fa-arrow-left"></i> Back to Games</button>

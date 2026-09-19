@@ -2784,7 +2784,7 @@ function pgOpenGame(gameId) {
         "mission": "cm-container",
         "btxi": "btxi-container",
         "dna": "dna-container",
-        "streak": null
+        "streak": "streak-container"
     };
     var targetId = gameMap[gameId];
     if (targetId) {
@@ -2800,7 +2800,7 @@ function pgBackToLanding() {
     t30cStopTimer();
     var landing = document.getElementById("pg-landing");
     var panels = document.querySelectorAll("#playground .explore-panel");
-    var games = document.querySelectorAll("#playground .pg-game-container, #t30c-container, #fb-container, #cm-container, #btxi-container, #dna-container");
+    var games = document.querySelectorAll("#playground .pg-game-container, #t30c-container, #fb-container, #cm-container, #btxi-container, #dna-container, #streak-container");
     if (landing) landing.style.display = "";
     panels.forEach(function(p) { p.style.display = ""; });
     games.forEach(function(g) { g.style.display = "none"; });
@@ -3344,6 +3344,239 @@ function dnaShowResult() {
 }
 
 dnaStart();
+
+// ========================================
+// 🔥 CRICKET STREAK
+// ========================================
+
+var streakQuestions = [
+    { q: "Who won the 2023 ODI Cricket World Cup?", o: ["India","Australia","England","South Africa"], a: 1 },
+    { q: "How many runs is a 'six' worth in cricket?", o: ["4","5","6","8"], a: 2 },
+    { q: "What does LBW stand for?", o: ["Leg Before Wicket","Long Ball Wicket","Late Bat Walk","Low Bounce Win"], a: 0 },
+    { q: "Who is known as the 'God of Cricket'?", o: ["Virat Kohli","Sachin Tendulkar","MS Dhoni","Kapil Dev"], a: 1 },
+    { q: "How many overs in a T20 innings?", o: ["10","20","50","60"], a: 1 },
+    { q: "Which country won the 2011 Cricket World Cup?", o: ["Australia","India","Sri Lanka","Pakistan"], a: 1 },
+    { q: "What is a 'hat-trick' in cricket?", o: ["3 sixes in a row","3 wickets in 3 consecutive balls","3 centuries in a series","3 catches in one over"], a: 1 },
+    { q: "Who captained India to the 2011 World Cup victory?", o: ["Virat Kohli","Sourav Ganguly","MS Dhoni","Kapil Dev"], a: 2 },
+    { q: "What is a 'maiden over'?", o: ["An over with no runs scored","An over with no wickets","An over bowled by a woman","An over with all dots"], a: 0 },
+    { q: "Who has scored the most international centuries?", o: ["Virat Kohli","Sachin Tendulkar","Ricky Ponting","Kumar Sangakkara"], a: 1 },
+    { q: "Which team has won the most ODI World Cups?", o: ["India","England","Australia","West Indies"], a: 2 },
+    { q: "What is a 'bouncer' in cricket?", o: ["A full toss","A short-pitched delivery at the head","A yorker","An off-spin delivery"], a: 1 },
+    { q: "Who is called 'Captain Cool'?", o: ["Ricky Ponting","MS Dhoni","Virat Kohli","Eoin Morgan"], a: 1 },
+    { q: "How many players per team on a cricket field?", o: ["9","10","11","12"], a: 2 },
+    { q: "What does 'DRS' stand for?", o: ["Decision Review System","Direct Running Score","Dual Reference Strike","Daily Record Stat"], a: 0 },
+    { q: "Which country won the first T20 World Cup in 2007?", o: ["India","Australia","Pakistan","South Africa"], a: 0 },
+    { q: "What is a 'nightwatchman' in cricket?", o: ["The wicketkeeper","A lower-order batsman sent in early","The umpire","The coach"], a: 1 },
+    { q: "Who bowled the 'Ball of the Century' to Mike Gatting?", o: ["Anil Kumble","Shane Warne","Muralitharan","Saqlain Mushtaq"], a: 1 },
+    { q: "What is a 'slip' fielder?", o: ["A fielder near the keeper","A bowler who slips","The umpire","A batsman"], a: 0 },
+    { q: "Which team won the 2023 Ashes?", o: ["England","Australia","Drawn","India"], a: 2 },
+    { q: "What is a 'yorker' delivery?", o: ["A bouncer","A full delivery at the batsman's feet","A googly","A slower ball"], a: 1 },
+    { q: "Who is the highest run-scorer in ODI cricket?", o: ["Virat Kohli","Sachin Tendulkar","Ricky Ponting","Kumar Sangakkara"], a: 1 },
+    { q: "How many balls in a standard over?", o: ["4","5","6","8"], a: 2 },
+    { q: "What is a 'duck' in cricket?", o: ["Scoring 6 runs","Getting out for 0 runs","A type of delivery","A fielding position"], a: 1 },
+    { q: "Who won the 2019 ODI World Cup?", o: ["New Zealand","England","India","Australia"], a: 1 },
+    { q: "What is a 'googly'?", o: ["A fast ball","A leg-break that spins the other way","A bouncer","A full toss"], a: 1 },
+    { q: "Which IPL team has won the most titles?", o: ["CSK","MI","KKR","RR"], a: 1 },
+    { q: "What is a 'sledging' in cricket?", o: ["Batting technique","Verbal intimidation","Bowling strategy","Fielding drill"], a: 1 },
+    { q: "Who is known as 'The Wall' of cricket?", o: ["Sachin Tendulkar","Rahul Dravid","VVS Laxman","Anil Kumble"], a: 1 },
+    { q: "What is a 'flipper' delivery?", o: ["A topspinner","A back-spinner from a leg-spinner","A fast yorker","A slower ball"], a: 1 }
+];
+
+var streakDailyQs = 5;
+var streakCurrentQ = 0;
+var streakDailyCorrect = 0;
+var streakTodayQuestions = [];
+
+function streakGetKey() {
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+
+function streakGetData() {
+    try {
+        return JSON.parse(localStorage.getItem("wch_streak_data")) || { current: 0, best: 0, completedDates: [] };
+    } catch(e) { return { current: 0, best: 0, completedDates: [] }; }
+}
+
+function streakSaveData(data) {
+    localStorage.setItem("wch_streak_data", JSON.stringify(data));
+}
+
+function streakIsCompletedToday() {
+    var data = streakGetData();
+    return data.completedDates.indexOf(streakGetKey()) !== -1;
+}
+
+function streakHash(str) {
+    var hash = 0;
+    for (var i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
+    }
+    return Math.abs(hash);
+}
+
+function streakGenerateDaily() {
+    var key = streakGetKey();
+    var seed = streakHash(key);
+    var indices = [];
+    for (var i = 0; i < streakQuestions.length; i++) indices.push(i);
+    // Fisher-Yates shuffle with seed
+    for (var j = indices.length - 1; j > 0; j--) {
+        seed = (seed * 16807 + 0) % 2147483647;
+        var k = seed % (j + 1);
+        var tmp = indices[j]; indices[j] = indices[k]; indices[k] = tmp;
+    }
+    streakTodayQuestions = indices.slice(0, streakDailyQs).map(function(i) { return streakQuestions[i]; });
+}
+
+function streakUpdateStats() {
+    var data = streakGetData();
+    var curEl = document.getElementById("streak-current");
+    var bestEl = document.getElementById("streak-best");
+    var totalEl = document.getElementById("streak-total");
+    if (curEl) curEl.textContent = data.current;
+    if (bestEl) bestEl.textContent = data.best;
+    if (totalEl) totalEl.textContent = data.completedDates.length;
+}
+
+function streakRenderCalendar() {
+    var cal = document.getElementById("streak-calendar");
+    if (!cal) return;
+    var data = streakGetData();
+    var today = new Date();
+    var html = "";
+    for (var i = 13; i >= 0; i--) {
+        var d = new Date(today);
+        d.setDate(d.getDate() - i);
+        var key = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+        var dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+        var isToday = i === 0;
+        var isDone = data.completedDates.indexOf(key) !== -1;
+        var cls = "streak-day";
+        if (isToday) cls += " streak-today";
+        if (isDone) cls += " streak-done";
+        else if (i > 0) cls += " streak-missed";
+        html += '<div class="' + cls + '">';
+        html += '<div class="streak-day-name">' + dayNames[d.getDay()] + '</div>';
+        html += '<div class="streak-day-num">' + d.getDate() + '</div>';
+        html += '</div>';
+    }
+    cal.innerHTML = html;
+}
+
+function streakRender() {
+    streakUpdateStats();
+    streakRenderCalendar();
+    var content = document.getElementById("streak-challenge-content");
+    if (!content) return;
+
+    if (streakIsCompletedToday()) {
+        var data = streakGetData();
+        content.innerHTML = '<div class="streak-done-card">' +
+            '<div class="streak-done-icon">🔥</div>' +
+            '<h2>Today\'s Challenge Complete!</h2>' +
+            '<p>Come back tomorrow for a new challenge.</p>' +
+            '<div class="streak-done-stats">' +
+            '<div class="streak-done-stat"><span class="streak-done-stat-val">' + data.current + '</span><span class="streak-done-stat-label">Current Streak</span></div>' +
+            '<div class="streak-done-stat"><span class="streak-done-stat-val">' + data.best + '</span><span class="streak-done-stat-label">Best Streak</span></div>' +
+            '</div>' +
+            '<div class="streak-done-actions">' +
+            '<button onclick="pgBackToLanding()" class="streak-next-btn"><i class="fa-solid fa-arrow-left"></i> Back to Games</button>' +
+            '</div></div>';
+        return;
+    }
+
+    streakGenerateDaily();
+    streakCurrentQ = 0;
+    streakDailyCorrect = 0;
+    streakShowQuestion();
+}
+
+function streakShowQuestion() {
+    var content = document.getElementById("streak-challenge-content");
+    if (!content) return;
+    if (streakCurrentQ >= streakTodayQuestions.length) { streakFinishChallenge(); return; }
+    var q = streakTodayQuestions[streakCurrentQ];
+    var html = '<div class="streak-q-progress"><i class="fa-solid fa-fire"></i> Question ' + (streakCurrentQ+1) + ' of ' + streakDailyQs + ' — Answer all correctly to keep your streak!</div>';
+    html += '<div class="streak-q-text">' + q.q + '</div>';
+    html += '<div class="streak-q-opts">';
+    q.o.forEach(function(opt, i) {
+        html += '<button class="streak-q-opt" onclick="streakAnswer(' + i + ')">' + opt + '</button>';
+    });
+    html += '</div>';
+    html += '<div class="streak-feedback" id="streak-feedback"></div>';
+    content.innerHTML = html;
+}
+
+function streakAnswer(idx) {
+    var q = streakTodayQuestions[streakCurrentQ];
+    var btns = document.querySelectorAll(".streak-q-opt");
+    btns.forEach(function(b, i) {
+        b.disabled = true;
+        if (i === q.a) b.classList.add("streak-correct");
+        else if (i === idx && idx !== q.a) b.classList.add("streak-wrong");
+        else b.classList.add("streak-dim");
+    });
+    var fb = document.getElementById("streak-feedback");
+    if (idx === q.a) {
+        streakDailyCorrect++;
+        fb.style.color = "#4ade80";
+        fb.textContent = "Correct! 🔥";
+    } else {
+        fb.style.color = "#f87171";
+        fb.textContent = "Wrong! Answer: " + q.o[q.a];
+    }
+    streakCurrentQ++;
+    // Add next button
+    var nextHtml = '<button class="streak-next-btn" onclick="streakShowQuestion()"><i class="fa-solid fa-arrow-right"></i> Next</button>';
+    document.getElementById("streak-challenge-content").insertAdjacentHTML("beforeend", nextHtml);
+}
+
+function streakFinishChallenge() {
+    var content = document.getElementById("streak-challenge-content");
+    if (!content) return;
+    var allCorrect = streakDailyCorrect === streakDailyQs;
+    var data = streakGetData();
+
+    if (allCorrect) {
+        data.current++;
+        if (data.current > data.best) data.best = data.current;
+        var today = streakGetKey();
+        if (data.completedDates.indexOf(today) === -1) data.completedDates.push(today);
+        streakSaveData(data);
+        // Track mission
+        if (typeof cmTrackGamePlay === "function") cmTrackGamePlay();
+    } else {
+        // Wrong answers — break streak
+        data.current = 0;
+        streakSaveData(data);
+    }
+
+    streakUpdateStats();
+    streakRenderCalendar();
+
+    var icon = allCorrect ? "🏆" : "😢";
+    var title = allCorrect ? "Streak Continues!" : "Streak Broken!";
+    var sub = allCorrect ?
+        "Perfect! You got all " + streakDailyQs + " correct. Come back tomorrow!" :
+        "You got " + streakDailyCorrect + "/" + streakDailyQs + " correct. All 5 are needed to keep the streak.";
+
+    content.innerHTML = '<div class="streak-done-card">' +
+        '<div class="streak-done-icon">' + icon + '</div>' +
+        '<h2>' + title + '</h2>' +
+        '<p>' + sub + '</p>' +
+        '<div class="streak-done-stats">' +
+        '<div class="streak-done-stat"><span class="streak-done-stat-val">' + data.current + '</span><span class="streak-done-stat-label">Current Streak</span></div>' +
+        '<div class="streak-done-stat"><span class="streak-done-stat-val">' + data.best + '</span><span class="streak-done-stat-label">Best Streak</span></div>' +
+        '<div class="streak-done-stat"><span class="streak-done-stat-val">' + data.completedDates.length + '</span><span class="streak-done-stat-label">Days Played</span></div>' +
+        '</div>' +
+        '<div class="streak-done-actions">' +
+        '<button onclick="pgBackToLanding()" class="streak-next-btn"><i class="fa-solid fa-arrow-left"></i> Back to Games</button>' +
+        '</div></div>';
+}
+
+streakRender();
 
 // ========================================
 // ⚔️ FAN BATTLE
