@@ -2232,6 +2232,517 @@ async function fvaSubmitVote(pollId) {
 // Load polls on page load
 fvaLoadPolls();
 
+// ========================================
+// 🔍 MYSTERY CRICKETER
+// ========================================
+
+var mcPlayers = [
+  {
+    name: "Sachin Tendulkar",
+    country: "India",
+    role: "Right-hand Batsman",
+    clues: [
+      "I am from <span class='mc-clue-highlight'>India</span>.",
+      "I am a <span class='mc-clue-highlight'>right-hand batsman</span> who also bowls part-time.",
+      "I hold the record for most runs in Test cricket with <span class='mc-clue-highlight'>15,921 runs</span>.",
+      "I scored <span class='mc-clue-highlight'>100 international centuries</span> in my career.",
+      "I am the only player to score a double century in ODIs — <span class='mc-clue-highlight'>200*</span>.",
+      "I played <span class='mc-clue-highlight'>200 Test matches</span> and 463 ODIs.",
+      "I was known as the '<span class='mc-clue-highlight'>Little Master</span>' and played from 1989 to 2013.",
+      "I was the <span class='mc-clue-highlight'>first batsman</span> to score a double century in World Cup history (2011)."
+    ],
+    hint: "I was named after a famous Indian writer — Sachin.",
+    info: "India | Batsman | 15,921 Test runs | 100 centuries"
+  },
+  {
+    name: "Virat Kohli",
+    country: "India",
+    role: "Right-hand Batsman",
+    clues: [
+      "I am from <span class='mc-clue-highlight'>India</span>.",
+      "I am an aggressive <span class='mc-clue-highlight'>right-hand batsman</span> and former captain.",
+      "I have scored over <span class='mc-clue-highlight'>70 international centuries</span>.",
+      "I hold the record for most runs in <span class='mc-clue-highlight'>T20I cricket</span>.",
+      "I was India's <span class='mc-clue-highlight'>Test captain</span> for several years.",
+      "I am known for my intense <span class='mc-clue-highlight'>fitness and aggression</span> on the field.",
+      "I have over <span class='mc-clue-highlight'>13,000 ODI runs</span> and 50 ODI centuries.",
+      "My nickname is '<span class='mc-clue-highlight'>King Kohli</span>'."
+    ],
+    hint: "My last name sounds like a famous Greek explorer.",
+    info: "India | Batsman | 70+ centuries | Former captain"
+  },
+  {
+    name: "Don Bradman",
+    country: "Australia",
+    role: "Right-hand Batsman",
+    clues: [
+      "I am from <span class='mc-clue-highlight'>Australia</span>.",
+      "I am considered the <span class='mc-clue-highlight'>greatest batsman</span> of all time.",
+      "My career batting average was <span class='mc-clue-highlight'>99.94</span> — the highest ever.",
+      "I played in the <span class='mc-clue-highlight'>1930s and 1940s</span> era.",
+      "I scored <span class='mc-clue-highlight'>29 centuries</span> in just 52 Test innings.",
+      "My final Test innings ended with a <span class='mc-clue-highlight'>duck</span>, missing the perfect 100 average.",
+      "I was nicknamed '<span class='mc-clue-highlight'>The Don</span>'.",
+      "My last Test was in <span class='mc-clue-highlight'>1948</span> during the famous Invincibles tour."
+    ],
+    hint: "My surname is also a common word for a gentleman.",
+    info: "Australia | Batsman | Average 99.94 | 29 Test centuries"
+  },
+  {
+    name: "Brian Lara",
+    country: "West Indies",
+    role: "Left-hand Batsman",
+    clues: [
+      "I am from the <span class='mc-clue-highlight'>West Indies</span>.",
+      "I am a <span class='mc-clue-highlight'>left-hand batsman</span> known for my elegant stroke play.",
+      "I hold the record for the <span class='mc-clue-highlight'>highest individual Test score</span>: 400 not out.",
+      "I also hold the record for the <span class='mc-clue-highlight'>highest first-class score</span>: 501 not out.",
+      "I was named one of Wisden's <span class='mc-clue-highlight'>Five Cricketers of the Century</span>.",
+      "I played for <span class='mc-clue-highlight'>Trinidad and Tobago</span> and West Indies.",
+      "My highest ODI score was <span class='mc-clue-highlight'>169</span> against Pakistan.",
+      "I was known as '<span class='mc-clue-highlight'>The Prince of Port of Spain</span>'."
+    ],
+    hint: "My first name is a common English name.",
+    info: "West Indies | Left-hand batsman | Highest Test score: 400*"
+  },
+  {
+    name: "Shane Warne",
+    country: "Australia",
+    role: "Leg-spin Bowler",
+    clues: [
+      "I am from <span class='mc-clue-highlight'>Australia</span>.",
+      "I am widely regarded as the <span class='mc-clue-highlight'>greatest leg-spinner</span> ever.",
+      "I took <span class='mc-clue-highlight'>708 Test wickets</span> — second most in history.",
+      "My most famous ball was the '<span class='mc-clue-highlight'>Ball of the Century</span>' to Mike Gatting in 1993.",
+      "I bowled with a distinctive <span class='mc-clue-highlight'>big loop</span> and sharp turn.",
+      "I played for <span class='mc-clue-highlight'>Hampshire</span> in county cricket and Rajasthan Royals in IPL.",
+      "My jersey number was <span class='mc-clue-highlight'>23</span> for Australia.",
+      "I retired from international cricket in <span class='mc-clue-highlight'>2007</span>."
+    ],
+    hint: "My surname sounds like a type of warning.",
+    info: "Australia | Leg-spinner | 708 Test wickets"
+  },
+  {
+    name: "MS Dhoni",
+    country: "India",
+    role: "Right-hand Batsman / Wicketkeeper",
+    clues: [
+      "I am from <span class='mc-clue-highlight'>India</span>.",
+      "I am a <span class='mc-clue-highlight'>right-hand batsman</span> and wicketkeeper.",
+      "I captained India to win the <span class='mc-clue-highlight'>2007 T20 World Cup</span>.",
+      "I also led India to win the <span class='mc-clue-highlight'>2011 ODI World Cup</span> at home.",
+      "I am known for my <span class='mc-clue-highlight'>calm demeanor</span> — called '<span class='mc-clue-highlight'>Captain Cool</span>'.",
+      "I popularized the <span class='mc-clue-highlight'>helicopter shot</span> in cricket.",
+      "I played for <span class='mc-clue-highlight'>Chennai Super Kings</span> in IPL throughout my career.",
+      "My jersey number was <span class='mc-clue-highlight'>7</span>."
+    ],
+    hint: "My initials match a famous military acronym.",
+    info: "India | WK-Batsman | Captain | 2011 World Cup winner"
+  },
+  {
+    name: "Wasim Akram",
+    country: "Pakistan",
+    role: "Left-arm Fast Bowler",
+    clues: [
+      "I am from <span class='mc-clue-highlight'>Pakistan</span>.",
+      "I am a <span class='mc-clue-highlight'>left-arm fast bowler</span> known for swing bowling.",
+      "I took <span class='mc-clue-highlight'>414 Test wickets</span> and 502 ODI wickets.",
+      "I am known as the '<span class='mc-clue-highlight'>Sultan of Swing</span>'.",
+      "I formed a deadly bowling partnership with <span class='mc-clue-highlight'>Waqar Younis</span>.",
+      "I could bowl both <span class='mc-clue-highlight'>inswing and outswing</span> at high pace.",
+      "I played for <span class='mc-clue-highlight'>Lahore</span> and represented Pakistan in multiple World Cups.",
+      "I retired from international cricket in <span class='mc-clue-highlight'>2003</span>."
+    ],
+    hint: "My first name means 'beautiful' in Arabic.",
+    info: "Pakistan | Left-arm fast | 414 Test wickets | Sultan of Swing"
+  },
+  {
+    name: "Kumar Sangakkara",
+    country: "Sri Lanka",
+    role: "Left-hand Batsman / Wicketkeeper",
+    clues: [
+      "I am from <span class='mc-clue-highlight'>Sri Lanka</span>.",
+      "I am a <span class='mc-clue-highlight'>left-hand batsman</span> and wicketkeeper.",
+      "I scored over <span class='mc-clue-highlight'>14,000 Test runs</span> and 14,234 ODI runs.",
+      "I have <span class='mc-clue-highlight'>38 Test centuries</span> — among the highest ever.",
+      "I was captain of <span class='mc-clue-highlight'>Sri Lanka</span> and also served as ICC Cricket Committee chairman.",
+      "I played for <span class='mc-clue-highlight'>Kings XI Punjab</span> and Sunrisers Hyderabad in IPL.",
+      "I am a qualified <span class='mc-clue-highlight'>lawyer</span> off the field.",
+      "I was inducted into the <span class='mc-clue-highlight'>ICC Hall of Fame</span> in 2021."
+    ],
+    hint: "My surname starts with 'Sanga' — a common Sri Lankan nickname.",
+    info: "Sri Lanka | WK-Batsman | 14,000+ Test runs | ICC Hall of Fame"
+  },
+  {
+    name: "Jacques Kallis",
+    country: "South Africa",
+    role: "Right-hand Batsman / Medium-fast Bowler",
+    clues: [
+      "I am from <span class='mc-clue-highlight'>South Africa</span>.",
+      "I am considered the greatest <span class='mc-clue-highlight'>all-rounder</span> in cricket history.",
+      "I scored over <span class='mc-clue-highlight'>13,000 Test runs</span> and took 292 Test wickets.",
+      "I am a <span class='mc-clue-highlight'>right-hand batsman</span> and <span class='mc-clue-highlight'>right-arm medium-fast bowler</span>.",
+      "I played <span class='mc-clue-highlight'>166 Tests</span> and 328 ODIs for South Africa.",
+      "I scored <span class='mc-clue-highlight'>45 Test centuries</span> — more than many specialist batsmen.",
+      "I played for <span class='mc-clue-highlight'>Kolkata Knight Riders</span> in IPL.",
+      "I was named <span class='mc-clue-highlight'>Wisden Cricketer of the Year</span> in 2013."
+    ],
+    hint: "My first name is a common Afrikaans name.",
+    info: "South Africa | All-rounder | 13,000+ runs + 292 wickets in Tests"
+  },
+  {
+    name: "Ricky Ponting",
+    country: "Australia",
+    role: "Right-hand Batsman",
+    clues: [
+      "I am from <span class='mc-clue-highlight'>Australia</span>.",
+      "I am a <span class='mc-clue-highlight'>right-hand batsman</span> and one of the most successful captains.",
+      "I captained Australia in <span class='mc-clue-highlight'>two World Cup wins</span> (2003 and 2007).",
+      "I scored <span class='mc-clue-highlight'>41 Test centuries</span> and 30 ODI centuries.",
+      "I am the <span class='mc-clue-highlight'>second-highest run scorer</span> in Test history with 13,378 runs.",
+      "My famous bat brand is the <span class='mc-clue-highlight'>Kookaburra</span>.",
+      "I played for <span class='mc-clue-highlight'>Tasmania</span> and Mumbai Indians in IPL.",
+      "I was nicknamed '<span class='mc-clue-highlight'>Punter</span>' and retired in 2012."
+    ],
+    hint: "My surname sounds like a common Australian slang word.",
+    info: "Australia | Batsman | 13,378 Test runs | 2-time World Cup winning captain"
+  },
+  {
+    name: "Muttiah Muralitharan",
+    country: "Sri Lanka",
+    role: "Off-spin Bowler",
+    clues: [
+      "I am from <span class='mc-clue-highlight'>Sri Lanka</span>.",
+      "I am an <span class='mc-clue-highlight'>off-spin bowler</span> with a unique bowling action.",
+      "I hold the world record for most Test wickets: <span class='mc-clue-highlight'>800</span>.",
+      "I also hold the record for most ODI wickets: <span class='mc-clue-highlight'>534</span>.",
+      "I bowled the '<span class='mc-clue-highlight'>doosra</span>' — a ball that turns the other way.",
+      "My bowling action was famously <span class='mc-clue-highlight'>reviewed</span> by the ICC.",
+      "I took <span class='mc-clue-highlight'>67 five-wicket hauls</span> in Tests — the most ever.",
+      "I was known as '<span class='mc-clue-highlight'>Murali</span>' and played for Chennai Super Kings."
+    ],
+    hint: "My name is very long — people call me by a shorter version.",
+    info: "Sri Lanka | Off-spinner | 800 Test wickets | World record holder"
+  },
+  {
+    name: "AB de Villiers",
+    country: "South Africa",
+    role: "Right-hand Batsman",
+    clues: [
+      "I am from <span class='mc-clue-highlight'>South Africa</span>.",
+      "I am a <span class='mc-clue-highlight'>right-hand batsman</span> known as '<span class='mc-clue-highlight'>Mr. 360</span>'.",
+      "I can play shots to <span class='mc-clue-highlight'>all parts of the ground</span>.",
+      "I held the record for <span class='mc-clue-highlight'>fastest ODI century</span> (31 balls) against West Indies.",
+      "I scored the <span class='mc-clue-highlight'>fastest ODI 50</span> in just 16 balls.",
+      "I played for <span class='mc-clue-highlight'>Royal Challengers Bangalore</span> in IPL.",
+      "I was a multi-sport athlete — also played <span class='mc-clue-highlight'>rugby, tennis, and golf</span>.",
+      "I retired from all cricket in <span class='mc-clue-highlight'>2021</span>."
+    ],
+    hint: "My first two initials stand for my full first names.",
+    info: "South Africa | Batsman | Mr. 360 | Fastest ODI century (31 balls)"
+  },
+  {
+    name: "Sourav Ganguly",
+    country: "India",
+    role: "Left-hand Batsman",
+    clues: [
+      "I am from <span class='mc-clue-highlight'>India</span>.",
+      "I am a <span class='mc-clue-highlight'>left-hand batsman</span> and former captain.",
+      "I was known as '<span class='mc-clue-highlight'>Dada</span>' — meaning elder brother in Bengali.",
+      "I scored <span class='mc-clue-highlight'>16 centuries</span> in ODIs and 16 in Tests.",
+      "I captained India from <span class='mc-clue-highlight'>2000 to 2005</span>.",
+      "I famously waved my shirt at <span class='mc-clue-highlight'>Lord's balcony</span> after scoring a century.",
+      "I later became <span class='mc-clue-highlight'>BCCI President</span> from 2019 to 2022.",
+      "I played for <span class='mc-clue-highlight'>Kolkata Knight Riders</span> as captain and mentor."
+    ],
+    hint: "My first name is also a famous Bengali city name shortened.",
+    info: "India | Left-hand batsman | Former captain | Former BCCI President"
+  },
+  {
+    name: "Ben Stokes",
+    country: "England",
+    role: "Left-hand Batsman / Right-arm Fast-medium Bowler",
+    clues: [
+      "I am from <span class='mc-clue-highlight'>England</span>.",
+      "I am a <span class='mc-clue-highlight'>left-hand batsman</span> and right-arm fast-medium bowler.",
+      "I played the <span class='mc-clue-highlight'>greatest innings in World Cup 2019 final</span> to win it for England.",
+      "I scored an unbeaten <span class='mc-clue-highlight'>84 in the super over</span> and the famous 135* at Headingley.",
+      "I was named <span class='mc-clue-highlight'>ICC Player of the Year</span> in 2019.",
+      "I am currently England's <span class='mc-clue-highlight'>Test captain</span>.",
+      "I play for <span class='mc-clue-highlight'>Rajasthan Royals</span> in IPL.",
+      "My full name is <span class='mc-clue-highlight'>Benjamin Andrew Stokes</span>."
+    ],
+    hint: "My surname is also a common English last name meaning 'dwelling place'.",
+    info: "England | All-rounder | 2019 World Cup hero | Test captain"
+  },
+  {
+    name: "Ravichandran Ashwin",
+    country: "India",
+    role: "Right-arm Off-spin Bowler",
+    clues: [
+      "I am from <span class='mc-clue-highlight'>India</span>.",
+      "I am an <span class='mc-clue-highlight'>off-spin bowler</span> who also bats right-handed.",
+      "I have taken over <span class='mc-clue-highlight'>500 Test wickets</span> — most by any active spinner.",
+      "I have taken <span class='mc-clue-highlight'>37 five-wicket hauls</span> in Tests.",
+      "I am an <span class='mc-clue-highlight'>engineer</span> by education before becoming a cricketer.",
+      "I play for <span class='mc-clue-highlight'>Tamil Nadu</span> in domestic cricket.",
+      "I have scored <span class='mc-clue-highlight'>5 Test centuries</span> as a bowling all-rounder.",
+      "I was named <span class='mc-clue-highlight'>ICC Test Cricketer of the Year</span> in 2016."
+    ],
+    hint: "My initials match a popular chess opening move abbreviation.",
+    info: "India | Off-spinner | 500+ Test wickets | ICC Test Cricketer of the Year 2016"
+  }
+];
+
+var mcCurrentIndex = 0;
+var mcCurrentClue = 0;
+var mcTotalScore = 0;
+var mcPlayersGuessed = 0;
+var mcCorrectGuesses = 0;
+var mcUsedHint = false;
+var mcCluesUsedThisPlayer = 0;
+var mcTotalPlayers = 10;
+var mcShuffledPlayers = [];
+
+function mcShuffleArray(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var temp = a[i]; a[i] = a[j]; a[j] = temp;
+  }
+  return a;
+}
+
+function mcStartNewGame() {
+  mcShuffledPlayers = mcShuffleArray(mcPlayers).slice(0, mcTotalPlayers);
+  mcCurrentIndex = 0;
+  mcTotalScore = 0;
+  mcPlayersGuessed = 0;
+  mcCorrectGuesses = 0;
+  document.getElementById("mc-final-result").style.display = "none";
+  document.getElementById("mc-game-container").querySelector(".mc-clue-card").style.display = "";
+  document.getElementById("mc-game-container").querySelector(".mc-guess-area").style.display = "";
+  document.getElementById("mc-game-container").querySelector(".mc-action-buttons").style.display = "";
+  mcLoadPlayer();
+}
+
+function mcLoadPlayer() {
+  if (mcCurrentIndex >= mcShuffledPlayers.length) {
+    mcShowFinalResult();
+    return;
+  }
+  mcCurrentClue = 0;
+  mcUsedHint = false;
+  mcCluesUsedThisPlayer = 0;
+  var player = mcShuffledPlayers[mcCurrentIndex];
+  document.getElementById("mc-player-num").textContent = "Player " + (mcCurrentIndex + 1) + " / " + mcShuffledPlayers.length;
+  document.getElementById("mc-current-score").textContent = mcTotalScore;
+  document.getElementById("mc-clue-number").textContent = "Clue 1 of " + player.clues.length;
+  document.getElementById("mc-clue-text").innerHTML = player.clues[0];
+  document.getElementById("mc-guess-input").value = "";
+  document.getElementById("mc-guess-input").disabled = false;
+  document.getElementById("mc-submit-btn").disabled = false;
+  document.getElementById("mc-feedback").className = "mc-feedback";
+  document.getElementById("mc-feedback").innerHTML = "";
+  document.getElementById("mc-answer-reveal").style.display = "none";
+  document.getElementById("mc-hint-btn").disabled = false;
+  document.getElementById("mc-next-clue-btn").disabled = false;
+  document.getElementById("mc-action-buttons").style.display = "flex";
+  mcShowChoices();
+}
+
+function mcShowChoices() {
+  var player = mcShuffledPlayers[mcCurrentIndex];
+  var otherNames = mcPlayers.filter(function(p) { return p.name !== player.name; });
+  var wrongChoices = mcShuffleArray(otherNames).slice(0, 3);
+  var allChoices = mcShuffleArray([player].concat(wrongChoices));
+  var html = "";
+  allChoices.forEach(function(p) {
+    html += '<button class="mc-choice-btn" onclick="mcChoiceGuess(\'' + p.name.replace(/'/g, "\\'") + '\')">' + p.name + '</button>';
+  });
+  document.getElementById("mc-choice-area").innerHTML = html;
+}
+
+function mcChoiceGuess(name) {
+  var player = mcShuffledPlayers[mcCurrentIndex];
+  var buttons = document.querySelectorAll(".mc-choice-btn");
+  buttons.forEach(function(btn) {
+    btn.disabled = true;
+    if (btn.textContent === name) {
+      if (name === player.name) {
+        btn.classList.add("mc-correct");
+      } else {
+        btn.classList.add("mc-wrong");
+      }
+    }
+    if (btn.textContent === player.name) {
+      btn.classList.add("mc-correct");
+    }
+    if (btn.textContent !== player.name && btn.textContent !== name) {
+      btn.classList.add("mc-dim");
+    }
+  });
+  if (name === player.name) {
+    mcHandleCorrect();
+  } else {
+    mcHandleWrong();
+  }
+}
+
+function mcSubmitGuess() {
+  var input = document.getElementById("mc-guess-input");
+  var guess = input.value.trim();
+  if (!guess) return;
+  var player = mcShuffledPlayers[mcCurrentIndex];
+  var buttons = document.querySelectorAll(".mc-choice-btn");
+  buttons.forEach(function(btn) {
+    btn.disabled = true;
+    if (btn.textContent.toLowerCase() === guess.toLowerCase()) {
+      btn.classList.add(btn.textContent.toLowerCase() === player.name.toLowerCase() ? "mc-correct" : "mc-wrong");
+    }
+    if (btn.textContent === player.name) {
+      btn.classList.add("mc-correct");
+    }
+    if (btn.textContent.toLowerCase() !== player.name.toLowerCase() && btn.textContent.toLowerCase() !== guess.toLowerCase()) {
+      btn.classList.add("mc-dim");
+    }
+  });
+  if (guess.toLowerCase() === player.name.toLowerCase()) {
+    mcHandleCorrect();
+  } else {
+    mcHandleWrong();
+  }
+}
+
+function mcHandleCorrect() {
+  var cluesAvailable = mcShuffledPlayers[mcCurrentIndex].clues.length;
+  var points = Math.max(10 - (mcCluesUsedThisPlayer * 2) - (mcUsedHint ? 2 : 0), 1);
+  mcTotalScore += points;
+  mcPlayersGuessed++;
+  mcCorrectGuesses++;
+  document.getElementById("mc-current-score").textContent = mcTotalScore;
+  var fb = document.getElementById("mc-feedback");
+  fb.className = "mc-feedback mc-correct";
+  fb.innerHTML = "<i class='fa-solid fa-circle-check'></i> Correct! +" + points + " points";
+  document.getElementById("mc-guess-input").disabled = true;
+  document.getElementById("mc-submit-btn").disabled = true;
+  document.getElementById("mc-hint-btn").disabled = true;
+  document.getElementById("mc-next-clue-btn").disabled = true;
+}
+
+function mcHandleWrong() {
+  var player = mcShuffledPlayers[mcCurrentIndex];
+  mcCluesUsedThisPlayer++;
+  var fb = document.getElementById("mc-feedback");
+  fb.className = "mc-feedback mc-wrong";
+  fb.innerHTML = "<i class='fa-solid fa-circle-xmark'></i> Wrong! Try again or get next clue.";
+  if (mcCluesUsedThisPlayer >= player.clues.length) {
+    fb.innerHTML = "<i class='fa-solid fa-circle-xmark'></i> No more clues! The answer was <strong>" + player.name + "</strong>";
+    mcPlayersGuessed++;
+    document.getElementById("mc-guess-input").disabled = true;
+    document.getElementById("mc-submit-btn").disabled = true;
+    document.getElementById("mc-hint-btn").disabled = true;
+    document.getElementById("mc-next-clue-btn").disabled = true;
+    document.getElementById("mc-answer-reveal").style.display = "block";
+    document.getElementById("mc-action-buttons").style.display = "none";
+    document.getElementById("mc-reveal-name").textContent = player.name;
+    document.getElementById("mc-reveal-info").textContent = player.info;
+  }
+}
+
+function mcShowHint() {
+  if (mcUsedHint) return;
+  mcUsedHint = true;
+  mcTotalScore = Math.max(0, mcTotalScore - 2);
+  document.getElementById("mc-current-score").textContent = mcTotalScore;
+  var player = mcShuffledPlayers[mcCurrentIndex];
+  var fb = document.getElementById("mc-feedback");
+  fb.className = "mc-feedback mc-wrong";
+  fb.innerHTML = "<i class='fa-solid fa-lightbulb'></i> Hint: " + player.hint + " (-2 pts)";
+  document.getElementById("mc-hint-btn").disabled = true;
+}
+
+function mcNextClue() {
+  var player = mcShuffledPlayers[mcCurrentIndex];
+  mcCluesUsedThisPlayer++;
+  mcTotalScore = Math.max(0, mcTotalScore - 1);
+  document.getElementById("mc-current-score").textContent = mcTotalScore;
+  if (mcCurrentClue < player.clues.length - 1) {
+    mcCurrentClue++;
+    document.getElementById("mc-clue-number").textContent = "Clue " + (mcCurrentClue + 1) + " of " + player.clues.length;
+    document.getElementById("mc-clue-text").innerHTML = player.clues[mcCurrentClue];
+    document.getElementById("mc-feedback").className = "mc-feedback";
+    document.getElementById("mc-feedback").innerHTML = "<i class='fa-solid fa-forward'></i> New clue revealed! (-1 pt)";
+  } else {
+    var fb = document.getElementById("mc-feedback");
+    fb.className = "mc-feedback mc-wrong";
+    fb.innerHTML = "<i class='fa-solid fa-circle-xmark'></i> No more clues! The answer was <strong>" + player.name + "</strong>";
+    mcPlayersGuessed++;
+    document.getElementById("mc-guess-input").disabled = true;
+    document.getElementById("mc-submit-btn").disabled = true;
+    document.getElementById("mc-hint-btn").disabled = true;
+    document.getElementById("mc-next-clue-btn").disabled = true;
+    document.getElementById("mc-answer-reveal").style.display = "block";
+    document.getElementById("mc-action-buttons").style.display = "none";
+    document.getElementById("mc-reveal-name").textContent = player.name;
+    document.getElementById("mc-reveal-info").textContent = player.info;
+  }
+}
+
+function mcSkipPlayer() {
+  var player = mcShuffledPlayers[mcCurrentIndex];
+  mcPlayersGuessed++;
+  document.getElementById("mc-guess-input").disabled = true;
+  document.getElementById("mc-submit-btn").disabled = true;
+  document.getElementById("mc-hint-btn").disabled = true;
+  document.getElementById("mc-next-clue-btn").disabled = true;
+  document.getElementById("mc-answer-reveal").style.display = "block";
+  document.getElementById("mc-action-buttons").style.display = "none";
+  document.getElementById("mc-reveal-name").textContent = player.name;
+  document.getElementById("mc-reveal-info").textContent = player.info;
+}
+
+function mcNextPlayer() {
+  mcCurrentIndex++;
+  mcLoadPlayer();
+}
+
+function mcShowFinalResult() {
+  document.getElementById("mc-game-container").querySelector(".mc-clue-card").style.display = "none";
+  document.getElementById("mc-game-container").querySelector(".mc-guess-area").style.display = "none";
+  document.getElementById("mc-game-container").querySelector(".mc-action-buttons").style.display = "none";
+  document.getElementById("mc-game-container").querySelector(".mc-player-progress").style.display = "none";
+  document.getElementById("mc-answer-reveal").style.display = "none";
+  var finalDiv = document.getElementById("mc-final-result");
+  finalDiv.style.display = "block";
+  document.getElementById("mc-final-score").textContent = mcTotalScore;
+  var maxPossible = mcShuffledPlayers.length * 10;
+  var pct = Math.round((mcTotalScore / maxPossible) * 100);
+  var tier = "";
+  if (pct >= 90) tier = "Cricket Legend!";
+  else if (pct >= 70) tier = "Expert Fan!";
+  else if (pct >= 50) tier = "Good Player!";
+  else tier = "Keep Learning!";
+  document.getElementById("mc-final-title").textContent = tier;
+  document.getElementById("mc-final-details").innerHTML =
+    "Correct: " + mcCorrectGuesses + " / " + mcShuffledPlayers.length + "<br>" +
+    "Accuracy: " + pct + "%<br>" +
+    "Max possible score: " + maxPossible;
+  mcSaveBestScore(mcTotalScore);
+}
+
+function mcSaveBestScore(score) {
+  try {
+    var best = parseInt(localStorage.getItem("wch_mystery_best")) || 0;
+    if (score > best) {
+      localStorage.setItem("wch_mystery_best", score);
+    }
+  } catch(e) {}
+}
+
+// Start Mystery Cricketer on page load
+mcStartNewGame();
+
 // Start
 loadMatches();
 loadSchedule();

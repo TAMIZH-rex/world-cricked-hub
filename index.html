@@ -36,6 +36,7 @@
             <a href="#time-machine"><i class="fa-solid fa-clock-rotate-left"></i> Time Machine</a>
             <a href="#player-faceoff"><i class="fa-solid fa-users"></i> Face Off</a>
             <a href="#cricket-iq"><i class="fa-solid fa-graduation-cap"></i> IQ Test</a>
+            <a href="#mystery-cricketer"><i class="fa-solid fa-user-secret"></i> Mystery</a>
             <a href="#quiz"><i class="fa-solid fa-brain"></i> Quiz</a>
             <a href="#puzzle"><i class="fa-solid fa-puzzle-piece"></i> Puzzle</a>
         </div>
@@ -67,6 +68,7 @@
             <a href="#time-machine" class="mobile-link"><i class="fa-solid fa-clock-rotate-left"></i> Time Machine</a>
             <a href="#player-faceoff" class="mobile-link"><i class="fa-solid fa-users"></i> Face Off</a>
             <a href="#cricket-iq" class="mobile-link"><i class="fa-solid fa-graduation-cap"></i> IQ Test</a>
+            <a href="#mystery-cricketer" class="mobile-link"><i class="fa-solid fa-user-secret"></i> Mystery</a>
             <a href="#quiz" class="mobile-link"><i class="fa-solid fa-brain"></i> Quiz</a>
             <a href="#puzzle" class="mobile-link"><i class="fa-solid fa-puzzle-piece"></i> Puzzle</a>
         </div>
@@ -431,6 +433,69 @@
         <p style="color:#94a3b8; margin-bottom:30px; font-size:15px;">Cast your vote and see what fellow cricket fans think! Every vote counts.</p>
         <div id="fva-polls-container" class="fva-polls-grid">
             <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Loading polls...</div>
+        </div>
+    </section>
+
+    <!-- Mystery Cricketer -->
+    <section id="mystery-cricketer" class="section">
+        <div class="section-header">
+            <i class="fa-solid fa-user-secret"></i>
+            <h2>Mystery Cricketer</h2>
+        </div>
+        <p style="color:#94a3b8; margin-bottom:30px; font-size:15px;">Crack the clues and identify the mystery cricketer! Fewer clues = more points.</p>
+        <div id="mc-game-container" class="mc-game-container">
+            <div class="mc-player-progress">
+                <span id="mc-player-num">Player 1 / 10</span>
+                <span id="mc-score-display">Score: <strong id="mc-current-score">0</strong></span>
+            </div>
+
+            <div class="mc-clue-card" id="mc-clue-card">
+                <div class="mc-clue-number" id="mc-clue-number">Clue 1 of 8</div>
+                <div class="mc-clue-text" id="mc-clue-text"></div>
+            </div>
+
+            <div class="mc-guess-area">
+                <div class="mc-input-row">
+                    <input type="text" id="mc-guess-input" placeholder="Type player name..." autocomplete="off">
+                    <button id="mc-submit-btn" onclick="mcSubmitGuess()" class="mc-btn mc-btn-submit">
+                        <i class="fa-solid fa-paper-plane"></i> Submit
+                    </button>
+                </div>
+                <div class="mc-choice-area" id="mc-choice-area"></div>
+                <div id="mc-feedback" class="mc-feedback"></div>
+            </div>
+
+            <div class="mc-action-buttons" id="mc-action-buttons">
+                <button onclick="mcShowHint()" class="mc-btn mc-btn-hint" id="mc-hint-btn">
+                    <i class="fa-solid fa-lightbulb"></i> Hint (-2 pts)
+                </button>
+                <button onclick="mcNextClue()" class="mc-btn mc-btn-next" id="mc-next-clue-btn">
+                    <i class="fa-solid fa-forward"></i> Next Clue (-1 pt)
+                </button>
+                <button onclick="mcSkipPlayer()" class="mc-btn mc-btn-skip">
+                    <i class="fa-solid fa-forward-fast"></i> Skip
+                </button>
+            </div>
+
+            <div class="mc-answer-reveal" id="mc-answer-reveal" style="display:none;">
+                <div class="mc-reveal-icon"><i class="fa-solid fa-eye"></i></div>
+                <div class="mc-reveal-name" id="mc-reveal-name"></div>
+                <div class="mc-reveal-info" id="mc-reveal-info"></div>
+                <button onclick="mcNextPlayer()" class="mc-btn mc-btn-submit mc-next-player-btn">
+                    <i class="fa-solid fa-forward"></i> Next Player
+                </button>
+            </div>
+
+            <div class="mc-final-result" id="mc-final-result" style="display:none;">
+                <div class="mc-final-icon"><i class="fa-solid fa-trophy"></i></div>
+                <h3 id="mc-final-title">Game Over!</h3>
+                <div class="mc-final-score" id="mc-final-score">0</div>
+                <div class="mc-final-label">Points</div>
+                <div class="mc-final-details" id="mc-final-details"></div>
+                <button onclick="mcStartNewGame()" class="mc-btn mc-btn-submit">
+                    <i class="fa-solid fa-rotate-right"></i> Play Again
+                </button>
+            </div>
         </div>
     </section>
 

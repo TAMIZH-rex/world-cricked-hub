@@ -733,3 +733,58 @@ body.light-mode .fva-option-btn { background: rgba(30,5,5,0.4); border-color: rg
 body.light-mode .fva-option-btn:hover:not(:disabled) { border-color: #ef4444; background: rgba(220,38,38,0.08); }
 body.light-mode .fva-bar-bg { background: #3a0000; }
 @media (max-width: 768px) { .fva-polls-grid { grid-template-columns: 1fr; } .fva-poll-card { padding: 22px 18px; } }
+
+/* ================================
+   MYSTERY CRICKETER
+   ================================ */
+.mc-game-container { max-width: 700px; margin: 0 auto; }
+.mc-player-progress { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: rgba(30,41,59,0.6); border-radius: 14px; margin-bottom: 24px; border: 1px solid rgba(99,102,241,0.1); font-size: 14px; color: #94a3b8; }
+.mc-player-progress strong { color: #818cf8; font-size: 18px; }
+.mc-clue-card { background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.08)); border: 2px solid rgba(99,102,241,0.2); border-radius: 18px; padding: 30px; margin-bottom: 24px; text-align: center; transition: all 0.5s ease; }
+.mc-clue-number { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #818cf8; margin-bottom: 16px; }
+.mc-clue-text { font-size: 20px; font-weight: 700; color: #e0e7ff; line-height: 1.5; }
+.mc-clue-text .mc-clue-highlight { color: #fbbf24; }
+.mc-guess-area { margin-bottom: 20px; }
+.mc-input-row { display: flex; gap: 10px; margin-bottom: 14px; }
+.mc-input-row input { flex: 1; padding: 14px 18px; border-radius: 12px; border: 2px solid rgba(99,102,241,0.2); background: rgba(15,23,42,0.6); color: #e0e7ff; font-size: 15px; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.3s ease; }
+.mc-input-row input:focus { border-color: #818cf8; }
+.mc-input-row input::placeholder { color: #475569; }
+.mc-btn { padding: 12px 20px; border: none; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.3s ease; font-family: 'Inter', sans-serif; display: inline-flex; align-items: center; gap: 8px; }
+.mc-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+.mc-btn-submit { background: linear-gradient(135deg,#6366f1,#8b5cf6); color: white; }
+.mc-btn-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99,102,241,0.4); }
+.mc-btn-hint { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+.mc-btn-hint:hover:not(:disabled) { background: rgba(251,191,36,0.2); border-color: #fbbf24; }
+.mc-btn-next { background: rgba(99,102,241,0.12); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); }
+.mc-btn-next:hover:not(:disabled) { background: rgba(99,102,241,0.2); border-color: #818cf8; }
+.mc-btn-skip { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+.mc-btn-skip:hover:not(:disabled) { background: rgba(239,68,68,0.2); border-color: #ef4444; }
+.mc-action-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.mc-choice-area { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.mc-choice-btn { padding: 14px 16px; border: 2px solid rgba(99,102,241,0.15); border-radius: 12px; background: rgba(15,23,42,0.4); color: #e0e7ff; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-align: center; font-family: 'Inter', sans-serif; }
+.mc-choice-btn:hover { border-color: #818cf8; background: rgba(99,102,241,0.08); transform: translateY(-2px); }
+.mc-choice-btn.mc-correct { border-color: #22c55e !important; background: rgba(34,197,94,0.15) !important; color: #4ade80 !important; }
+.mc-choice-btn.mc-wrong { border-color: #ef4444 !important; background: rgba(239,68,68,0.15) !important; color: #f87171 !important; }
+.mc-choice-btn.mc-dim { opacity: 0.3; pointer-events: none; }
+.mc-feedback { text-align: center; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 15px; margin-bottom: 10px; display: none; }
+.mc-feedback.mc-correct { display: block; background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.3); color: #4ade80; }
+.mc-feedback.mc-wrong { display: block; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); color: #f87171; }
+.mc-answer-reveal { text-align: center; padding: 30px; background: rgba(30,41,59,0.6); border: 1px solid rgba(99,102,241,0.15); border-radius: 18px; }
+.mc-reveal-icon { font-size: 40px; color: #818cf8; margin-bottom: 12px; }
+.mc-reveal-name { font-size: 24px; font-weight: 900; color: #e0e7ff; margin-bottom: 8px; }
+.mc-reveal-info { font-size: 14px; color: #94a3b8; margin-bottom: 20px; }
+.mc-next-player-btn { margin-top: 10px; }
+.mc-final-result { text-align: center; padding: 40px 30px; background: rgba(30,41,59,0.6); border: 2px solid rgba(251,191,36,0.2); border-radius: 18px; }
+.mc-final-icon { font-size: 50px; color: #fbbf24; margin-bottom: 12px; }
+.mc-final-result h3 { font-size: 22px; color: #e0e7ff; margin-bottom: 10px; }
+.mc-final-score { font-size: 56px; font-weight: 900; color: #fbbf24; font-family: 'Courier New', monospace; }
+.mc-final-label { font-size: 14px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px; }
+.mc-final-details { font-size: 14px; color: #94a3b8; margin-bottom: 20px; line-height: 1.8; }
+body.light-mode .mc-clue-card { background: linear-gradient(135deg, rgba(220,38,38,0.05), rgba(220,38,38,0.02)); border-color: rgba(220,38,38,0.2); }
+body.light-mode .mc-clue-text { color: #1e293b; }
+body.light-mode .mc-player-progress { background: rgba(30,5,5,0.8); border-color: rgba(220,38,38,0.15); }
+body.light-mode .mc-input-row input { background: rgba(30,5,5,0.6); border-color: rgba(220,38,38,0.15); color: #1e293b; }
+body.light-mode .mc-choice-btn { background: rgba(30,5,5,0.4); border-color: rgba(220,38,38,0.15); color: #1e293b; }
+body.light-mode .mc-answer-reveal { background: rgba(30,5,5,0.8); border-color: rgba(220,38,38,0.15); }
+body.light-mode .mc-final-result { background: rgba(30,5,5,0.8); border-color: rgba(251,191,36,0.2); }
+@media (max-width: 768px) { .mc-choice-area { grid-template-columns: 1fr; } .mc-action-buttons { flex-direction: column; align-items: stretch; } .mc-btn { justify-content: center; } .mc-clue-text { font-size: 17px; } .mc-input-row { flex-direction: column; } }
