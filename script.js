@@ -2782,7 +2782,8 @@ function pgOpenGame(gameId) {
         "30sec": "t30c-container",
         "battle": "fb-container",
         "mission": "cm-container",
-        "btxi": null, "streak": null, "dna": null
+        "btxi": "btxi-container",
+        "streak": null, "dna": null
     };
     var targetId = gameMap[gameId];
     if (targetId) {
@@ -2798,7 +2799,7 @@ function pgBackToLanding() {
     t30cStopTimer();
     var landing = document.getElementById("pg-landing");
     var panels = document.querySelectorAll("#playground .explore-panel");
-    var games = document.querySelectorAll("#playground .pg-game-container, #t30c-container, #fb-container, #cm-container");
+    var games = document.querySelectorAll("#playground .pg-game-container, #t30c-container, #fb-container, #cm-container, #btxi-container");
     if (landing) landing.style.display = "";
     panels.forEach(function(p) { p.style.display = ""; });
     games.forEach(function(g) { g.style.display = "none"; });
@@ -2963,6 +2964,227 @@ function t30cEndGame() {
         document.getElementById("t30c-best-banner").style.display = "none";
     }
 }
+
+// ========================================
+// 🏏 BUILD THE XI
+// ========================================
+
+var btxiPlayers = [
+    { id: "bt1", name: "Virat Kohli", role: "BAT", country: "IND", rating: 95 },
+    { id: "bt2", name: "Rohit Sharma", role: "BAT", country: "IND", rating: 91 },
+    { id: "bt3", name: "Joe Root", role: "BAT", country: "ENG", rating: 90 },
+    { id: "bt4", name: "Kane Williamson", role: "BAT", country: "NZ", rating: 92 },
+    { id: "bt5", name: "Steve Smith", role: "BAT", country: "AUS", rating: 91 },
+    { id: "bt6", name: "Babar Azam", role: "BAT", country: "PAK", rating: 90 },
+    { id: "bt7", name: "Marnus Labuschagne", role: "BAT", country: "AUS", rating: 88 },
+    { id: "bt8", name: "Yashasvi Jaiswal", role: "BAT", country: "IND", rating: 85 },
+    { id: "wl1", name: "Jos Buttler", role: "WK", country: "ENG", rating: 88 },
+    { id: "wl2", name: "KL Rahul", role: "WK", country: "IND", rating: 87 },
+    { id: "wl3", name: "Quinton de Kock", role: "WK", country: "SA", rating: 86 },
+    { id: "wl4", name: "Alex Carey", role: "WK", country: "AUS", rating: 82 },
+    { id: "ar1", name: "Ben Stokes", role: "AR", country: "ENG", rating: 92 },
+    { id: "ar2", name: "Ravindra Jadeja", role: "AR", country: "IND", rating: 89 },
+    { id: "ar3", name: "Shakib Al Hasan", role: "AR", country: "BAN", rating: 87 },
+    { id: "ar4", name: "Hardik Pandya", role: "AR", country: "IND", rating: 84 },
+    { id: "ar5", name: "Rashid Khan", role: "AR", country: "AFG", rating: 88 },
+    { id: "bw1", name: "Jasprit Bumrah", role: "BOWL", country: "IND", rating: 94 },
+    { id: "bw2", name: "Pat Cummins", role: "BOWL", country: "AUS", rating: 92 },
+    { id: "bw3", name: "Trent Boult", role: "BOWL", country: "NZ", rating: 88 },
+    { id: "bw4", name: "Shaheen Afridi", role: "BOWL", country: "PAK", rating: 89 },
+    { id: "bw5", name: "Mohammed Siraj", role: "BOWL", country: "IND", rating: 85 },
+    { id: "bw6", name: "Kagiso Rabada", role: "BOWL", country: "SA", rating: 89 },
+    { id: "bw7", name: "Jofra Archer", role: "BOWL", country: "ENG", rating: 87 },
+    { id: "bw8", name: "Nathan Lyon", role: "BOWL", country: "AUS", rating: 85 },
+    { id: "bw9", name: "R Ashwin", role: "BOWL", country: "IND", rating: 88 },
+    { id: "bw10", name: "Mark Wood", role: "BOWL", country: "ENG", rating: 83 }
+];
+
+var btxiSelected = [];
+var btxiFilterRole = "all";
+
+function btxiRoleClass(role) {
+    return "btxi-role-" + role.toLowerCase();
+}
+
+function btxiRoleBadge(role) {
+    return "btxi-role-badge-" + role.toLowerCase();
+}
+
+function btxiFilter(role) {
+    btxiFilterRole = role;
+    document.querySelectorAll(".btxi-filter-btn").forEach(function(btn) { btn.classList.remove("active"); });
+    event.currentTarget.classList.add("active");
+    btxiRenderPool();
+}
+
+function btxiRenderPool() {
+    var list = document.getElementById("btxi-pool-list");
+    if (!list) return;
+    var filtered = btxiFilterRole === "all" ? btxiPlayers : btxiPlayers.filter(function(p) { return p.role === btxiFilterRole; });
+    var html = "";
+    filtered.forEach(function(p) {
+        var inXi = btxiSelected.indexOf(p.id) !== -1;
+        html += '<div class="btxi-player-card' + (inXi ? ' btxi-in-xi' : '') + '" onclick="btxiTogglePlayer(\'' + p.id + '\')">';
+        html += '<div class="btxi-player-avatar ' + btxiRoleClass(p.role) + '">' + p.name.charAt(0) + '</div>';
+        html += '<div class="btxi-player-info">';
+        html += '<div class="btxi-player-name">' + p.name + '</div>';
+        html += '<div class="btxi-player-meta"><span class="btxi-player-role ' + btxiRoleBadge(p.role) + '">' + p.role + '</span> ' + p.country + '</div>';
+        html += '</div>';
+        html += '<div class="btxi-player-rating">' + p.rating + '</div>';
+        html += '</div>';
+    });
+    list.innerHTML = html || '<div class="btxi-empty">No players in this category</div>';
+}
+
+function btxiRenderSelected() {
+    var list = document.getElementById("btxi-selected-list");
+    var countEl = document.getElementById("btxi-count");
+    if (!list) return;
+    if (countEl) countEl.textContent = btxiSelected.length;
+
+    if (btxiSelected.length === 0) {
+        list.innerHTML = '<div class="btxi-empty">Select players from the pool →</div>';
+    } else {
+        var html = "";
+        btxiSelected.forEach(function(pId, idx) {
+            var p = btxiPlayers.find(function(pl) { return pl.id === pId; });
+            if (!p) return;
+            html += '<div class="btxi-sel-card">';
+            html += '<div class="btxi-sel-num">' + (idx + 1) + '</div>';
+            html += '<div class="btxi-sel-info">';
+            html += '<div class="btxi-sel-name">' + p.name + '</div>';
+            html += '<div class="btxi-sel-role">' + p.role + ' • ' + p.country + '</div>';
+            html += '</div>';
+            html += '<button class="btxi-sel-remove" onclick="btxiRemovePlayer(\'' + p.id + '\')"><i class="fa-solid fa-xmark"></i></button>';
+            html += '</div>';
+        });
+        list.innerHTML = html;
+    }
+
+    btxiUpdateRequirements();
+}
+
+function btxiUpdateRequirements() {
+    var counts = { BAT: 0, BOWL: 0, AR: 0, WK: 0 };
+    btxiSelected.forEach(function(pId) {
+        var p = btxiPlayers.find(function(pl) { return pl.id === pId; });
+        if (p) counts[p.role]++;
+    });
+
+    var reqBat = document.getElementById("btxi-req-bat");
+    var reqBowl = document.getElementById("btxi-req-bowl");
+    var reqAr = document.getElementById("btxi-req-ar");
+    var reqWk = document.getElementById("btxi-req-wk");
+    if (reqBat) { reqBat.querySelector("span").textContent = counts.BAT; reqBat.className = "btxi-req" + (counts.BAT >= 3 ? " btxi-met" : ""); }
+    if (reqBowl) { reqBowl.querySelector("span").textContent = counts.BOWL; reqBowl.className = "btxi-req" + (counts.BOWL >= 3 ? " btxi-met" : ""); }
+    if (reqAr) { reqAr.querySelector("span").textContent = counts.AR; reqAr.className = "btxi-req" + (counts.AR >= 1 ? " btxi-met" : ""); }
+    if (reqWk) { reqWk.querySelector("span").textContent = counts.WK; reqWk.className = "btxi-req" + (counts.WK === 1 ? " btxi-met" : ""); }
+
+    var valid = btxiSelected.length === 11 && counts.BAT >= 3 && counts.BOWL >= 3 && counts.AR >= 1 && counts.WK === 1;
+    var btn = document.getElementById("btxi-submit-btn");
+    if (btn) btn.disabled = !valid;
+}
+
+function btxiTogglePlayer(playerId) {
+    var idx = btxiSelected.indexOf(playerId);
+    if (idx !== -1) {
+        btxiSelected.splice(idx, 1);
+    } else {
+        if (btxiSelected.length >= 11) {
+            alert("You can only select 11 players!");
+            return;
+        }
+        var player = btxiPlayers.find(function(p) { return p.id === playerId; });
+        if (player && player.role === "WK") {
+            var wkCount = btxiSelected.filter(function(pId) {
+                var pl = btxiPlayers.find(function(p) { return p.id === pId; });
+                return pl && pl.role === "WK";
+            }).length;
+            if (wkCount >= 1) {
+                alert("You can only select 1 wicketkeeper!");
+                return;
+            }
+        }
+        btxiSelected.push(playerId);
+    }
+    btxiRenderPool();
+    btxiRenderSelected();
+}
+
+function btxiRemovePlayer(playerId) {
+    var idx = btxiSelected.indexOf(playerId);
+    if (idx !== -1) btxiSelected.splice(idx, 1);
+    btxiRenderPool();
+    btxiRenderSelected();
+}
+
+function btxiClearAll() {
+    btxiSelected = [];
+    btxiRenderPool();
+    btxiRenderSelected();
+}
+
+function btxiSubmit() {
+    if (btxiSelected.length !== 11) return;
+    var counts = { BAT: 0, BOWL: 0, AR: 0, WK: 0 };
+    var totalRating = 0;
+    btxiSelected.forEach(function(pId) {
+        var p = btxiPlayers.find(function(pl) { return pl.id === pId; });
+        if (p) { counts[p.role]++; totalRating += p.rating; }
+    });
+    if (counts.BAT < 3 || counts.BOWL < 3 || counts.AR < 1 || counts.WK !== 1) {
+        alert("Please meet all role requirements before submitting!");
+        return;
+    }
+
+    var avgRating = Math.round(totalRating / 11);
+    document.querySelector(".btxi-layout").style.display = "none";
+    document.querySelector(".btxi-role-filter").style.display = "none";
+    document.getElementById("btxi-result").style.display = "block";
+
+    var icon = document.getElementById("btxi-result-icon");
+    var title = document.getElementById("btxi-result-title");
+    var sub = document.getElementById("btxi-result-sub");
+
+    if (avgRating >= 90) { icon.innerHTML = '<i class="fa-solid fa-trophy" style="color:#fbbf24"></i>'; title.textContent = "Legendary XI!"; sub.textContent = "An absolutely world-class squad!"; }
+    else if (avgRating >= 87) { icon.innerHTML = '<i class="fa-solid fa-star" style="color:#818cf8"></i>'; title.textContent = "Strong XI!"; sub.textContent = "A well-balanced, competitive team!"; }
+    else { icon.innerHTML = '<i class="fa-solid fa-thumbs-up" style="color:#4ade80"></i>'; title.textContent = "Good XI!"; sub.textContent = "A solid team with good balance!"; }
+
+    document.getElementById("btxi-score-bat").textContent = counts.BAT;
+    document.getElementById("btxi-score-bowl").textContent = counts.BOWL;
+    document.getElementById("btxi-score-ar").textContent = counts.AR;
+    document.getElementById("btxi-score-wk").textContent = counts.WK;
+    document.getElementById("btxi-score-rating").textContent = avgRating;
+
+    var display = document.getElementById("btxi-xi-display");
+    var html = "";
+    btxiSelected.forEach(function(pId, idx) {
+        var p = btxiPlayers.find(function(pl) { return pl.id === pId; });
+        if (!p) return;
+        var roleColors = { BAT: "btxi-role-badge-bat", BOWL: "btxi-role-badge-bowl", AR: "btxi-role-badge-ar", WK: "btxi-role-badge-wk" };
+        html += '<div class="btxi-xi-row">';
+        html += '<div class="btxi-xi-num">' + (idx + 1) + '</div>';
+        html += '<div class="btxi-xi-name">' + p.name + '</div>';
+        html += '<span class="btxi-xi-role-tag ' + (roleColors[p.role] || '') + '">' + p.role + '</span>';
+        html += '</div>';
+    });
+    display.innerHTML = html;
+
+    // Track mission
+    if (typeof cmTrackGamePlay === "function") cmTrackGamePlay();
+}
+
+function btxiStartOver() {
+    btxiSelected = [];
+    document.querySelector(".btxi-layout").style.display = "";
+    document.querySelector(".btxi-role-filter").style.display = "";
+    document.getElementById("btxi-result").style.display = "none";
+    btxiRenderPool();
+    btxiRenderSelected();
+}
+
+btxiRenderPool();
+btxiRenderSelected();
 
 // ========================================
 // ⚔️ FAN BATTLE

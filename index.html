@@ -615,6 +615,64 @@
             </div>
         </div>
 
+        <!-- Build the XI -->
+        <div id="btxi-container" style="display:none;">
+            <button class="pg-back-btn" onclick="pgBackToLanding()"><i class="fa-solid fa-arrow-left"></i> Back to Games</button>
+            <div class="section-header"><i class="fa-solid fa-users"></i><h2>Build the XI</h2></div>
+            <p style="color:#94a3b8; margin-bottom:24px; font-size:15px;">Build your dream cricket XI! Select players by role and create the ultimate team.</p>
+            <!-- Role Filter -->
+            <div class="btxi-role-filter">
+                <button class="btxi-filter-btn active" onclick="btxiFilter('all')"><i class="fa-solid fa-users"></i> All</button>
+                <button class="btxi-filter-btn" onclick="btxiFilter('BAT')"><i class="fa-solid fa-baseball-bat-ball"></i> Batsmen</button>
+                <button class="btxi-filter-btn" onclick="btxiFilter('BOWL')"><i class="fa-solid fa-circle-dot"></i> Bowlers</button>
+                <button class="btxi-filter-btn" onclick="btxiFilter('AR')"><i class="fa-solid fa-arrows-spin"></i> All-Rounders</button>
+                <button class="btxi-filter-btn" onclick="btxiFilter('WK')"><i class="fa-solid fa-mitten"></i> Wicketkeepers</button>
+            </div>
+            <div class="btxi-layout">
+                <!-- Player Pool -->
+                <div class="btxi-pool">
+                    <div class="btxi-pool-header"><i class="fa-solid fa-star"></i> Available Players</div>
+                    <div id="btxi-pool-list" class="btxi-pool-list"></div>
+                </div>
+                <!-- Selected XI -->
+                <div class="btxi-selected">
+                    <div class="btxi-selected-header">
+                        <span><i class="fa-solid fa-shield-halved"></i> Your XI (<span id="btxi-count">0</span>/11)</span>
+                    </div>
+                    <div id="btxi-selected-list" class="btxi-selected-list">
+                        <div class="btxi-empty">Select players from the pool →</div>
+                    </div>
+                    <!-- Role Requirements -->
+                    <div class="btxi-requirements" id="btxi-requirements">
+                        <div class="btxi-req" id="btxi-req-bat"><i class="fa-solid fa-baseball-bat-ball"></i> BAT: <span>0</span>/3+</div>
+                        <div class="btxi-req" id="btxi-req-bowl"><i class="fa-solid fa-circle-dot"></i> BOWL: <span>0</span>/3+</div>
+                        <div class="btxi-req" id="btxi-req-ar"><i class="fa-solid fa-arrows-spin"></i> AR: <span>0</span>/1+</div>
+                        <div class="btxi-req" id="btxi-req-wk"><i class="fa-solid fa-mitten"></i> WK: <span>0</span>/1</div>
+                    </div>
+                    <button class="btxi-submit-btn" id="btxi-submit-btn" onclick="btxiSubmit()" disabled><i class="fa-solid fa-check-double"></i> Submit XI</button>
+                    <button class="btxi-clear-btn" onclick="btxiClearAll()"><i class="fa-solid fa-trash"></i> Clear All</button>
+                </div>
+            </div>
+            <!-- Result Area -->
+            <div id="btxi-result" style="display:none;" class="btxi-result-card">
+                <div id="btxi-result-icon" class="btxi-result-icon"></div>
+                <h2 id="btxi-result-title"></h2>
+                <p id="btxi-result-sub" style="color:#94a3b8; margin-bottom:16px;"></p>
+                <div id="btxi-xi-display" class="btxi-xi-display"></div>
+                <div class="btxi-result-stats">
+                    <div class="btxi-stat"><span class="btxi-stat-val" id="btxi-score-bat">0</span><span class="btxi-stat-label">BAT</span></div>
+                    <div class="btxi-stat"><span class="btxi-stat-val" id="btxi-score-bowl">0</span><span class="btxi-stat-label">BOWL</span></div>
+                    <div class="btxi-stat"><span class="btxi-stat-val" id="btxi-score-ar">0</span><span class="btxi-stat-label">AR</span></div>
+                    <div class="btxi-stat"><span class="btxi-stat-val" id="btxi-score-wk">0</span><span class="btxi-stat-label">WK</span></div>
+                    <div class="btxi-stat"><span class="btxi-stat-val" id="btxi-score-rating">0</span><span class="btxi-stat-label">Rating</span></div>
+                </div>
+                <div class="btxi-result-actions">
+                    <button onclick="btxiStartOver()" class="btxi-btn btxi-btn-start"><i class="fa-solid fa-rotate-right"></i> Build Again</button>
+                    <button onclick="pgBackToLanding()" class="btxi-btn btxi-btn-back"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Fan Battle -->
         <div id="fb-container" style="display:none;">
             <button class="pg-back-btn" onclick="pgBackToLanding()"><i class="fa-solid fa-arrow-left"></i> Back to Games</button>
