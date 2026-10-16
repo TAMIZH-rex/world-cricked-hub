@@ -536,6 +536,7 @@
                 <div class="pg-card" onclick="pgOpenGame('dna')"><div class="pg-card-icon pg-icon-5"><i class="fa-solid fa-dna"></i></div><h3>Cricket DNA</h3><p>Discover your personality.</p></div>
                 <div class="pg-card" onclick="pgOpenGame('mission')"><div class="pg-card-icon pg-icon-6"><i class="fa-solid fa-bullseye"></i></div><h3>Cricket Mission</h3><p>Complete missions, earn XP.</p></div>
                 <div class="pg-card" onclick="pgOpenGame('predictions')"><div class="pg-card-icon pg-icon-7"><i class="fa-solid fa-ranking-star"></i></div><h3>Predictions</h3><p>Make your calls! 🔮</p></div>
+                <div class="pg-card" onclick="pgOpenGame('bingo')"><div class="pg-card-icon pg-icon-8"><i class="fa-solid fa-bingo"></i></div><h3>Cricket Bingo</h3><p>Spot the moments! 🎯</p></div>
             </div>
         </div>
 
@@ -736,6 +737,63 @@
 
             <!-- Results View -->
             <div id="pred-results-view" style="display:none;"></div>
+        </div>
+
+        <!-- Cricket Bingo -->
+        <div id="bng-container" style="display:none;">
+            <button class="pg-back-btn" onclick="pgBackToLanding()"><i class="fa-solid fa-arrow-left"></i> Back to Games</button>
+
+            <!-- Start View -->
+            <div id="bng-start-view" class="bng-view">
+                <div class="section-header"><i class="fa-solid fa-bingo"></i><h2>Cricket Bingo</h2></div>
+                <p class="pred-subtitle">Watch a live match and spot the moments! Complete a line to shout BINGO! 🎉</p>
+                <div class="bng-rules-card">
+                    <h3>🎯 How to play</h3>
+                    <ul>
+                        <li>A match runs automatically — moments appear on screen!</li>
+                        <li>Tap <strong>Mark It!</strong> the moment you spot an event.</li>
+                        <li>The first player to complete a line wins!</li>
+                    </ul>
+                </div>
+                <button class="bng-start-btn" onclick="bngStartGame()"><i class="fa-solid fa-play"></i> Start Bingo</button>
+            </div>
+
+            <!-- Playing View -->
+            <div id="bng-play-view" style="display:none;">
+                <div class="bng-header">
+                    <div class="bng-header-info">
+                        <div class="bng-match-info" id="bng-match-info"></div>
+                        <div class="bng-timer" id="bng-timer">00:00</div>
+                    </div>
+                    <div class="bng-stats">
+                        <div class="bng-stat"><span id="bng-marks">0</span> marked</div>
+                        <div class="bng-stat"><span id="bng-bingo">0</span> BINGO</div>
+                        <div class="bng-stat"><span id="bng-elapsed">0s</span></div>
+                    </div>
+                </div>
+                <div class="bng-ticker" id="bng-ticker">Match starting…</div>
+                <div class="bng-grid-wrap">
+                    <div id="bng-grid" class="bng-grid"></div>
+                </div>
+                <div class="bng-current-event" id="bng-current-event"></div>
+                <button class="bng-mark-btn" id="bng-mark-btn" onclick="bngMarkIt()" disabled><i class="fa-solid fa-hand-pointer"></i> Mark It! 👆</button>
+                <button class="bng-back-btn" onclick="bngShowList()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+            </div>
+
+            <!-- Results View -->
+            <div id="bng-results-view" style="display:none;">
+                <div class="bng-results-card">
+                    <div class="bng-results-icon" id="bng-results-icon"></div>
+                    <h2 id="bng-results-title">BINGO! 🎉</h2>
+                    <p class="bng-results-sub" id="bng-results-sub"></p>
+                    <div class="bng-results-stats">
+                        <div class="bng-result-stat"><span id="bng-final-marks" class="bng-stat-val">0</span><span>Marked</span></div>
+                        <div class="bng-result-stat"><span id="bng-final-time" class="bng-stat-val">0s</span><span>Time</span></div>
+                        <div class="bng-result-stat"><span id="bng-final-bingo" class="bng-stat-val">0</span><span>BINGO</span></div>
+                    </div>
+                    <button class="bng-again-btn" onclick="bngRestartGame()"><i class="fa-solid fa-rotate-right"></i> Play Again</button>
+                </div>
+            </div>
         </div>
 
     </section>

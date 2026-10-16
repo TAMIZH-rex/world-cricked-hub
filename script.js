@@ -2802,7 +2802,7 @@ function pgBackToLanding() {
     predStopCD();
     var landing = document.getElementById("pg-landing");
     var panels = document.querySelectorAll("#playground .explore-panel");
-    var games = document.querySelectorAll("#playground .pg-game-container, #t30c-container, #fb-container, #cm-container, #btxi-container, #dna-container, #streak-container, #pred-container");
+    var games = document.querySelectorAll("#playground .pg-game-container, #t30c-container, #fb-container, #cm-container, #btxi-container, #dna-container, #streak-container, #pred-container, #bng-container");
     if (landing) landing.style.display = "";
     panels.forEach(function(p) { p.style.display = ""; });
     games.forEach(function(g) { g.style.display = "none"; });
@@ -4497,6 +4497,290 @@ lbcShowResult = function(outcome) {
     if (typeof cmCompleteMission === "function") cmCompleteMission("cm_lastover");
     if (typeof cmTrackGamePlay === "function") cmTrackGamePlay();
 };
+
+// ========================================
+// 🏏 CRICKET BINGO
+// ========================================
+
+var bngEvents = [
+    { id: "first-ball", text: "First ball bowled", icon: "🎯" },
+    { id: "wicket", text: "A wicket falls!", icon: "🎉" },
+    { id: "six", text: "A six is hit!", icon: "💥" },
+    { id: "boundary", text: "Boundary scored", icon: "🏏" },
+    { id: "powerplay", text: "Powerplay boundary", icon: "⚡" },
+    { id: "fifty", text: "A fifty is scored", icon: "⭐" },
+    { id: "catch", text: "A spectacular catch!", icon: "🤯" },
+    { id: "maiden", text: "A maiden over", icon: "🧵" },
+    { id: "partnership", text: "Partnership over 50", icon: "🤝" },
+    { id: "double-wicket", text: "Two wickets in an over!", icon: "🔥" },
+    { id: "yorker", text: "A perfect yorker!", icon: "🎯" },
+    { id: "fifty-run", text: "50+ in an over", icon: "🚀" },
+    { id: "century-partnership", text: "Century partnership!", icon: "👑" },
+    { id: "big-hit", text: "Big hit (110m+)", icon: "🌍" },
+    { id: "double-six", text: "Two sixes in a row!", icon: "⚡⚡" },
+    { id: "wick-in-powerplay", text: "Wicket in Powerplay!", icon: "🎲" }
+];
+
+var bngGridSize = 5;
+var bngTotalCells = bngGridSize * bngGridSize;
+var bngCells = [];
+var bngMarkedCount = 0;
+var bngBingoFound = false;
+var bngStartTime = 0;
+var bngElapsed = 0;
+var bngActive = false;
+var bngCurrentEvent = null;
+var bngNextEventTime = 0;
+var bngTimerInterval = null;
+var bngEventCount = 0;
+var bngSeenEvents = [];
+
+function bngGetData() {
+    try { return JSON.parse(localStorage.getItem("wch_bng_data")) || { bestMarks: 0, gamesPlayed: 0, lastBest: 0 }; }
+    catch(e) { return { bestMarks: 0, gamesPlayed: 0, lastBest: 0 }; }
+}
+function bngSave(d) { localStorage.setItem("wch_bng_data", JSON.stringify(d)); }
+
+function bngResetGame() {
+    bngCells = new Array(bngTotalCells).fill(false);
+    bngMarkedCount = 0;
+    bngBingoFound = false;
+    bngStartTime = Date.now();
+    bngNextEventTime = Date.now() + 1500;
+    bngCurrentEvent = null;
+    bngSeenEvents = [];
+    bngActive = true;
+}
+
+function bngRenderGrid() {
+    var grid = document.getElementById("bng-grid");
+    if (!grid) return;
+    var html = "";
+    for (var r = 0; r < bngGridSize; r++) {
+        html += '<div class="bng-row">';
+        for (var c = 0; c < bngGridSize; c++) {
+            var idx = r * bngGridSize + c;
+            var cls = "bng-cell";
+            if (idx === 12) cls += " bng-cell-free";
+            if (bngCells[idx]) cls += " bng-cell-marked";
+            html += '<div class="' + cls + '" data-idx="' + idx + '">' + (bngCells[idx] ? '✅' : (idx === 12 ? 'FREE' : '')) + '</div>';
+        }
+        html += '</div>';
+    }
+    grid.innerHTML = html;
+}
+
+function bngRenderTicker() {
+    var ticker = document.getElementById("bng-ticker");
+    if (!ticker) return;
+    if (!bngActive) { ticker.innerHTML = "Match starting…"; return; }
+    if (bngCurrentEvent) {
+        ticker.innerHTML = '<span class="bng-ticker-event">' + bngCurrentEvent.icon + ' ' + bngCurrentEvent.text + '</span>';
+    } else {
+        ticker.innerHTML = 'Watching the match… spots will appear soon!';
+    }
+}
+
+function bngRenderCurrentEvent() {
+    var el = document.getElementById("bng-current-event");
+    if (!el) return;
+    if (!bngActive) { el.innerHTML = ""; return; }
+    if (bngCurrentEvent) {
+        el.innerHTML = '<span class="bng-current-icon">' + bngCurrentEvent.icon + '</span> <strong>' + bngCurrentEvent.text + '</strong>';
+        el.className = "bng-current-event bng-current-show";
+    } else {
+        el.innerHTML = '';
+        el.className = "bng-current-event";
+    }
+}
+
+function bngRenderStats() {
+    var d = bngGetData();
+    var el = document.getElementById("bng-marks");
+    var elB = document.getElementById("bng-bingo");
+    var elT = document.getElementById("bng-elapsed");
+    if (el) el.textContent = bngMarkedCount;
+    if (elB) elB.textContent = bngBingoFound ? 1 : 0;
+    if (elT) {
+        var s = Math.floor((Date.now() - bngStartTime) / 1000);
+        var m = Math.floor(s / 60); s %= 60;
+        elT.textContent = (m < 10 ? "0" + m : "" + m) + ":" + (s < 10 ? "0" + s : "" + s);
+    }
+}
+
+function bngCheckLines() {
+    // Rows
+    for (var r = 0; r < bngGridSize; r++) {
+        if (bngLineComplete(r, "row")) return;
+    }
+    // Columns
+    for (var c = 0; c < bngGridSize; c++) {
+        if (bngLineComplete(c, "col")) return;
+    }
+    // Main diagonal
+    if (bngLineComplete("main", "diag")) return;
+    // Anti diagonal
+    if (bngLineComplete("anti", "diag")) return;
+}
+
+function bngLineComplete(coord, dir) {
+    var count = 0, total = 0;
+    for (var i = 0; i < bngGridSize; i++) {
+        var r, c;
+        if (dir === "row") { r = coord; c = i; }
+        else if (dir === "col") { r = i; c = coord; }
+        else if (dir === "main") { r = i; c = i; }
+        else { r = i; c = bngGridSize - 1 - i; }
+        var idx = r * bngGridSize + c;
+        if (idx === 12) continue; // the free center cell
+        total++;
+        if (bngCells[idx]) count++;
+    }
+    return count === total && total > 0;
+}
+
+function bngFoundLine(type, dir) {
+    if (bngBingoFound) return;
+    bngBingoFound = true;
+    var d = bngGetData();
+    d.gamesPlayed = (d.gamesPlayed || 0) + 1;
+    bngSave(d);
+    predTrackGamePlay();
+    var n = document.getElementById("bng-bingo");
+    if (n) n.textContent = "🎉";
+    var t = document.getElementById("bng-current-event");
+    if (t) {
+        t.innerHTML = '<span class="bng-bingo-banner">🎉 BINGO! You spotted a line! 🎉</span>';
+        t.className = "bng-bingo-banner";
+    }
+}
+
+function bngStartGame() {
+    predStopCD();
+    bngResetGame();
+    var btn = document.getElementById("bng-mark-btn");
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-hand-pointer"></i> Mark It! 👆'; }
+    document.getElementById("bng-start-view").style.display = "none";
+    document.getElementById("bng-play-view").style.display = "block";
+    document.getElementById("bng-results-view").style.display = "none";
+    bngRenderGrid();
+    bngRenderStats();
+    bngRenderTicker();
+    bngRenderCurrentEvent();
+    if (bngTimerInterval) clearInterval(bngTimerInterval);
+    bngTimerInterval = setInterval(bngTick, 250);
+}
+
+function bngTick() {
+    if (!bngActive) return;
+    var elapsed = Date.now() - bngStartTime;
+    bngElapsed = elapsed;
+    // If no current event or time to present next
+    if (!bngCurrentEvent) {
+        var now = Date.now();
+        if (now >= bngNextEventTime) {
+            var idx = bngEventCount % bngEvents.length;
+            bngCurrentEvent = bngEvents[idx];
+            bngSeenEvents.push(bngCurrentEvent.id);
+            bngEventCount++;
+            bngCurrentStart = now;
+            bngNextEventTime = now + 3500 + Math.random() * 3000;
+            bngRenderTicker();
+            bngRenderCurrentEvent();
+            var btn = document.getElementById("bng-mark-btn");
+            if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-hand-pointer"></i> Mark It! 👆'; }
+        }
+    }
+    // Auto-mark after 1.5s if no click
+    if (bngCurrentEvent && Date.now() - bngCurrentEventStartTime() > 1500) {
+        if (!bngMarkedJustNow()) {
+            bngMarkCurrent();
+        }
+    }
+    bngRenderStats();
+    bngRenderTicker();
+}
+
+function bngCurrentEventStartTime() { return (bngCurrentStart || 0); }
+function bngMarkedJustNow() { return (Date.now() - bngLastMarkTime < 400); }
+var bngCurrentStart = 0;
+var bngLastMarkTime = 0;
+
+function bngMarkIt() {
+    if (!bngActive) return;
+    if (!bngCurrentEvent) return;
+    bngMarkCurrent();
+}
+
+function bngMarkCurrent() {
+    if (!bngCurrentEvent) return;
+    var idx = bngCurrentEvent.id;
+    // find the cell to mark — random free cell if we don't track which cell
+    var free = [];
+    for (var i = 0; i < bngTotalCells; i++) { if (!bngCells[i]) free.push(i); }
+    if (free.length === 0) return;
+    var cellIdx = free[Math.floor(Math.random() * free.length)];
+    bngCells[cellIdx] = true;
+    bngMarkedCount++;
+    bngLastMarkTime = Date.now();
+    // Show which event was spotted
+    var el = document.getElementById("bng-current-event");
+    if (el) {
+        el.innerHTML = '<span class="bng-current-icon">' + bngCurrentEvent.icon + '</span> <strong>' + bngCurrentEvent.text + '</strong> <span class="bng-marked-flash">✅</span>';
+        el.className = "bng-current-event bng-current-show";
+    }
+    if (bngMarkedCount >= 20) {
+        bngFoundBingo();
+        return;
+    }
+    bngCheckLines();
+    bngRenderGrid();
+    bngRenderStats();
+}
+
+function bngFoundBingo() {
+    if (bngBingoFound) return;
+    bngBingoFound = true;
+    var d = bngGetData();
+    d.bestMarks = Math.max(d.bestMarks || 0, bngMarkedCount);
+    d.gamesPlayed = (d.gamesPlayed || 0) + 1;
+    bngSave(d);
+    predTrackGamePlay();
+    var el = document.getElementById("bng-bingo");
+    if (el) el.textContent = "🎉";
+    var elT = document.getElementById("bng-results-title");
+    if (elT) elT.textContent = "BINGO! 🎉";
+    document.getElementById("bng-results-icon").innerHTML = '<i class="fa-solid fa-bingo" style="font-size:64px"></i>';
+    document.getElementById("bng-results-sub").textContent = bngMarkedCount + ' moments spotted! Legend!';
+    document.getElementById("bng-results-view").style.display = "block";
+    document.getElementById("bng-play-view").style.display = "none";
+    document.getElementById("bng-start-view").style.display = "none";
+}
+
+function bngRestartGame() {
+    bngResetGame();
+    document.getElementById("bng-results-view").style.display = "none";
+    document.getElementById("bng-play-view").style.display = "block";
+    bngRenderGrid();
+    bngRenderStats();
+    bngRenderTicker();
+    bngRenderCurrentEvent();
+    var btn = document.getElementById("bng-mark-btn");
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-hand-pointer"></i> Mark It! 👆'; }
+}
+
+function bngShowList() {
+    bngStopCD();
+    document.getElementById("bng-start-view").style.display = "";
+    document.getElementById("bng-play-view").style.display = "none";
+    document.getElementById("bng-results-view").style.display = "none";
+    var d = bngGetData();
+    document.getElementById("bng-marks").textContent = d.bestMarks || 0;
+}
+
+function bngStopCD() {
+    if (bngTimerInterval) { clearInterval(bngTimerInterval); bngTimerInterval = null; }
+}
 
 // Start
 loadMatches();
