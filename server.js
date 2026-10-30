@@ -27,7 +27,7 @@ app.get("/test", (req, res) => {
 });
 
 // Matches endpoint (unchanged — still uses Cricket Data API)
-app.get("/matches", async (req, res) => {
+app.get("/api/matches", async (req, res) => {
   try {
     const response = await fetch(
       `https://api.cricapi.com/v1/currentMatches?apikey=${process.env.API_KEY}&offset=0`
@@ -215,7 +215,7 @@ app.post("/api/polls/:pollId/vote", async (req, res) => {
 });
 
 // Serve index.html for all other routes (for local development)
-app.get("/{*path}", (req, res) => {
+app.get(/^(?!\/api\/).*/, (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
